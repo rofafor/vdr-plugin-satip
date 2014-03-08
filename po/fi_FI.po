@@ -1,0 +1,140 @@
+# VDR plugin language source file.
+# Copyright (C) 2007-2014 Rolf Ahrenberg & Antti Seppala
+# This file is distributed under the same license as the iptv package.
+# Rolf Ahrenberg, 2014
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: vdr-satip 0.0.1\n"
+"Report-Msgid-Bugs-To: <see README>\n"
+"POT-Creation-Date: 2014-03-08 03:08+0200\n"
+"PO-Revision-Date: 2014-03-08 03:08+0200\n"
+"Last-Translator: Rolf Ahrenberg\n"
+"Language-Team: Finnish <vdr@linuxtv.org>\n"
+"Language: fi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "PAT (0x00)"
+msgstr "PAT (0x00)"
+
+msgid "NIT (0x40)"
+msgstr "NIT (0x40)"
+
+msgid "SDT (0x42)"
+msgstr "SDT (0x42)"
+
+msgid "EIT (0x4E/0x4F)"
+msgstr "EIT (0x4E/0x4F)"
+
+msgid "EIT (0x5X)"
+msgstr "EIT (0x5X)"
+
+msgid "EIT (0x6X)"
+msgstr "EIT (0x6X)"
+
+msgid "TDT (0x70)"
+msgstr "TDT (0x70)"
+
+msgid "SAT>IP Devices"
+msgstr "SAT>IP-laitteet"
+
+msgid "SAT>IP Device"
+msgstr "SAT>IP-laite"
+
+msgid "Button$Scan"
+msgstr "Kanavahaku"
+
+msgid "SAT>IP Information"
+msgstr "SAT>IP-tiedot"
+
+msgid "General"
+msgstr "Yleiset"
+
+msgid "Pids"
+msgstr "Pidit"
+
+msgid "Filters"
+msgstr "Suodattimet"
+
+msgid "Bits/bytes"
+msgstr "Bitit/tavut"
+
+msgid "SAT>IP information not available!"
+msgstr "SAT>IP-tietoja ei saatavilla!"
+
+msgid "Enable EPG scanning"
+msgstr "Käytä ohjelmaoppaan taustapäivitystä"
+
+msgid ""
+"Define whether the EPG background scanning shall be used.\n"
+"\n"
+"This setting disables the automatic EIT scanning functionality for all SAT>IP devices."
+msgstr ""
+"Määrittele ohjelmaoppaan taustapäivityksen olemassaolo.\n"
+"\n"
+"Tällä asetuksella saadaan otettua automaattinen EIT-datan päivitys pois päältä kaikilta SAT>IP-laitteilta."
+
+msgid "Disabled filters"
+msgstr "Käytöstä poistetut suodattimet"
+
+msgid "none"
+msgstr "tyhjä"
+
+msgid ""
+"Define number of section filters to be disabled.\n"
+"\n"
+"Certain section filters might cause some unwanted behaviour to VDR such as time being falsely synchronized. By black-listing the filters here useful section data can be left intact for VDR to process."
+msgstr ""
+"Määrittele käytöstä poistettavien suodattimien lukumäärä sektioille.\n"
+"\n"
+"Tietyt sektiot saattavat aiheuttaa virheellistä toimintaa VDR:ssä, esimerkiksi asettavat väärän kellonajan, ja näiden poistaminen auttaa VDR:ää toimimaan kunnolla jäljelle jäävien sektioiden kanssa."
+
+msgid "Filter"
+msgstr "Suodatin"
+
+msgid "Define an ill-behaving filter to be blacklisted."
+msgstr "Määrittele käytöstä poistettava suodatin, joka lisätään mustalle listalle."
+
+msgid "Active SAT>IP devices:"
+msgstr "Aktiiviset SAT>IP-laitteet:"
+
+msgid "Help"
+msgstr "Opaste"
+
+msgid "off"
+msgstr "pois"
+
+msgid "on"
+msgstr "päällä"
+
+msgid "auto"
+msgstr "auto"
+
+msgid "SISO"
+msgstr "SISO"
+
+msgid "MISO"
+msgstr "MISO"
+
+msgid "Nid"
+msgstr "Verkko-ID"
+
+msgid "Tid"
+msgstr "Lähete-ID"
+
+msgid "Rid"
+msgstr "Radio-ID"
+
+msgid "SignalSource"
+msgstr "Signaalin lähde"
+
+msgid "PilotTones"
+msgstr "Pilottiäänet"
+
+msgid "T2SystemId"
+msgstr "T2-järjestelmä"
+
+msgid "SISO/MISO"
+msgstr "SISO/MISO"

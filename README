@@ -1,0 +1,175 @@
+This is an SAT>IP plugin for the Video Disk Recorder (VDR).
+
+Written by:                  Rolf Ahrenberg
+                             < R o l f . A h r e n b e r g @ s c i . f i >
+
+Project's homepage:          http://www.saunalahti.fi/~rahrenbe/vdr/satip/
+
+Latest version available at: http://www.saunalahti.fi/~rahrenbe/vdr/satip/
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+See the file COPYING for more information.
+
+Requirements:
+
+- Libcurl - the multiprotocol file transfer library with RTSP support
+  http://curl.haxx.se/libcurl/
+
+- VDR-2.1.4+ for scrambled channels
+
+Description:
+
+This plugin integrates SAT>IP network devices seamlessly into VDR.
+You can use any SAT>IP channel like any other normal DVB channel for
+live viewing, recording, etc. The plugin also features full section
+filtering capabilities which allow for example EIT information to be
+extracted from the incoming stream.
+
+Installation:
+
+tar -xzf /put/your/path/here/vdr-satip-X.Y.Z.tgz
+make -C satip-X.Y.Z install
+
+Setup menu:
+
+- Enable EPG scanning = yes  If you want exclude all SAT>IP devices 
+                             from VDR's EIT background scanning, set
+                             this option to "no".
+- Disabled filters = none    Certain section filters might cause some
+                             unwanted behaviour to VDR such as time
+                             being falsely synchronized etc. This option
+                             allows creation of  blacklists of ill-behaving
+                             filters. If this option is set to a non-zero
+                             value, the menu page will contain that many
+                             "Disable filter" options which allow you
+                             to disable the individual section filters.
+                             Valid range: "none" = 0 ... 7
+- [Blue:Info]                Opens SAT>IP information/statistics menu.
+- [Ok]                       Opens information menu of selected SAT>IP
+                             device.
+
+Information menu:
+
+- [Red:General]              Opens the general information page.
+- [Green:Pids]               Opens the pid statistics page.
+- [Yellow:Filters]           Opens the section filter statistics page.
+- [Blue:Bits/bytes]          Toggles between bits and bytes mode.
+
+SAT>IP device menu:
+
+- [Red:Scan]                 Starts the channel scanning sometime in
+                             the future.
+
+Configuration:
+
+- Parameters
+
+  Various parameters, depending on whether this is a DVB-S, DVB-S2, DVB-T,
+  or DVB-T2 channel. Each parameter consist of a key character, followed by
+  an integer number that represents the actual setting of that parameter.
+  The valid key characters, their meaning, and allowed values are:
+
+  B  Bandwidth (1712, 5, 6, 7, 8, 10)
+  C  Code rate high priority (12, 23, 34, 35, 45, 56, 67, 78, 89, 910)
+  G  Guard interval (4, 8, 16, 32, 128, 19128, 19256)
+  H  Horizontal polarization
+  L  Left circular polarization
+  M  Modulation (2, 5, 16, 64, 256)
+  N  pilot toNes (0, 1)
+  O  rollOff (20, 25, 35)
+  P  stream id (0-255)
+  Q  t2 system id (0-65535)
+  R  Right circular polarization
+  S  delivery System (0, 1)
+  T  Transmission mode (1, 2, 4, 8, 16, 32)
+  V  Vertical polarization
+  X  siso/miso mode (0, 1)
+  Z  signal source position (1-255)
+
+  Bandwidth: The bandwidth of the channel in MHz (1712 in kHz)
+    (DVB-T/DVB-T2)
+
+  Code rate high priority: Forward Error Correction (FEC) of the high
+    priority stream (DVB-T/DVB-T2) or the the inner FEC scheme (DVB-S/DVB-S2)
+    12 = 1/2, 23 = 2/3, 34 = 3/4, 35 = 3/5, 45 = 4/5, 56 = 5/6,
+    67 = 6/7, 78 = 7/8, 89 = 8/9, 910 = 9/10
+    (DVB-T/DVB-T2/DVB-S/DVB-S2)
+
+  Guard interval: The guard interval value
+    4 = 1/4, 8 = 1/8, 16 = 1/16, 32 = 1/32, 128 = 1/128,
+    19128 = 19/128, 19256 = 19/256
+    (DVB-T/DVB-T2)
+
+  Modulation: Specifies the modulation/constellation of the channel
+    2   = QPSK (DVB-S, DVB-S2, DVB-T, DVB-T2)
+    5   = 8PSK (DVB-S, DVB-S2)
+    16  = QAM16 (DVB-T, DVB-T2)
+    64  = QAM64 (DVB-T, DVB-T2)
+    256 = QAM256 (DVB-T2)
+
+  Pilot tones: Specifies pilot tones usage
+    0 = off, 1 = on
+    (DVB-S2)
+
+  Rolloff: The Nyquist filter rolloff factor
+    35 = 0.35, 25 = 0.25, 20 = 0.20
+    (DVB-S/DVB-S2)
+
+  Stream id: Physical Layer Pipe (PLP) id (0-255) for DVB-T2 multiplex
+    (DVB-T2)
+
+  T2 system id: Unique identifier (0-65535) of the T2 system
+    (DVB-T2)
+
+  Transmission mode: Number of DVB-T OFDM carriers
+    32 = 32k, 16 = 16k, 8 = 8k, 4 = 4k, 2 = 2k, 1 = 1k
+    (DVB-T/DVB-T2)
+
+  Delivery System: The delivery system
+    0 = "first generation" (DVB-S/DVB-T)
+    1 = "second generation" (DVB-S2/DVB-T2)
+
+  Polarization: Satellite antenna polarization
+    H = horizontal, V = vertical
+    R = circular right, L = circular left
+    (DVB-S/DVB-S2)
+
+  Signal source: Specifies the signal source (satellite) position
+    (DVB-S/DVB-S2)
+
+  SISO/MISO: Specifies the Single-Input/Multiple-Input Single-Output mode
+    0 = SISO, 1 = MISO
+    (DVB-T2)
+
+- Source
+
+  There are two separate signal sources for SAT>IP channels:
+    Z = SAT>IP Satellite (DVB-S/DVB-S2)
+    Y = SAT>IP Terrestrial (DVB-T/DVB-T2)
+
+- Examples
+
+  MTV3;DVB-T:658000000:B8C23D23G8M64S0T8Y0:T:0:305=2:561=fin@4,562=dut@4:5010;1073=fin,1074=dut:0:49:8438:8193:0
+  =>
+  MTV3;SAT>IP:658000000:B8C23G8M64S0T8:Y:0:305=2:561=fin@4,562=dut@4:5010;1073=fin,1074=dut:0:49:8438:8193:0
+
+  Das Erste HD;DVB-S2:11494:HC23M5O35S1:S19.2E:22000:5101=27:5102=deu@3,5103=mis@3;5106=deu@106:5104;5105=deu:0:10301:1:1019:0
+  =>
+  Das Erste HD;SAT>IP:11494:HC23M5O35S1:Z:22000:5101=27:5102=deu@3,5103=mis@3;5106=deu@106:5104;5105=deu:0:10301:1:1019:0
+
+Notes:
+
+- The stream id "-1" states about unsuccessful tuning. This might be a
+  result of invalid channel parameters or lack of free SAT>IP tuners.
+
+- SAT>IP specification 1.2 doesn't support DVB-C/DVB-C2 receivers yet.
+
+- If the plugin doesn't detect your SAT>IP network device, make sure
+  your setup doesn't have firewalled the UDP port 1900.
+
+Acknowledgements:
+
+- Big thanks to Digital Devices GmbH for providing the Octopus Net
+  hardware for development!
