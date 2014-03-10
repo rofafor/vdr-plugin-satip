@@ -313,7 +313,7 @@ bool cSatipTuner::ValidateLatestResponse(void)
 
 void cSatipTuner::ParseReceptionParameters(const char *paramP)
 {
-  debug("cSatipTuner::%s(%s)", __FUNCTION__, paramP);
+  //debug("cSatipTuner::%s(%s)", __FUNCTION__, paramP);
   // DVB-S2:
   // ver=<major>.<minor>;src=<srcID>;tuner=<feID>,<level>,<lock>,<quality>,<frequency>,<polarisation>,<system>,<type>,<pilots>,<roll_off>,<symbol_rate>,<fec_inner>;pids=<pid0>,...,<pidn>
   // DVB-T2:
@@ -380,7 +380,7 @@ bool cSatipTuner::SetSource(const char* addressP, const char *parameterP, const 
 
 bool cSatipTuner::SetPid(int pidP, int typeP, bool onP)
 {
-  debug("cSatipTuner::%s(%d, %d, %d)", __FUNCTION__, pidP, typeP, onP);
+  //debug("cSatipTuner::%s(%d, %d, %d)", __FUNCTION__, pidP, typeP, onP);
   cMutexLock MutexLock(&mutexM);
   bool found = false;
   for (int i = 0; i < pidsM.Size(); ++i) {
@@ -405,7 +405,7 @@ bool cSatipTuner::UpdatePids(void)
 {
   cMutexLock MutexLock(&mutexM);
   if (pidUpdateCacheM.TimedOut() && pidUpdatedM && pidsM.Size() && tunedM && handleM && !isempty(*streamAddrM) && (streamIdM > 0)) {
-     debug("cSatipTuner::%s()", __FUNCTION__);
+     //debug("cSatipTuner::%s()", __FUNCTION__);
      CURLcode res = CURLE_OK;
      //cString uri = cString::sprintf("rtsp://%s/stream=%d?%spids=%d", *streamAddrM, streamIdM, onP ? "add" : "del", pidP);
      cString uri = cString::sprintf("rtsp://%s/stream=%d?pids=", *streamAddrM, streamIdM);

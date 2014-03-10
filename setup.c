@@ -14,9 +14,9 @@
 #include "discover.h"
 #include "setup.h"
 
-// --- cSatipMenuScan ---------------------------------------------------------
+// --- cSatipServerInfo -------------------------------------------------------
 
-class cSatipMenuScan : public cOsdMenu
+class cSatipServerInfo : public cOsdMenu
 {
 private:
   enum {
@@ -26,13 +26,13 @@ private:
   cTimeMs timeoutM;
 
 public:
-  cSatipMenuScan(cSatipServer *serverP);
-  virtual ~cSatipMenuScan();
+  cSatipServerInfo(cSatipServer *serverP);
+  virtual ~cSatipServerInfo();
   virtual void Display(void);
   virtual eOSState ProcessKey(eKeys keyP);
 };
 
-cSatipMenuScan::cSatipMenuScan(cSatipServer *serverP)
+cSatipServerInfo::cSatipServerInfo(cSatipServer *serverP)
 : cOsdMenu(tr("SAT>IP Device")),
   textM("")
 {
@@ -45,14 +45,14 @@ cSatipMenuScan::cSatipMenuScan(cSatipServer *serverP)
      if (serverP->Description())
         textM = cString::sprintf("%s\nDescription:\t%s", *textM, serverP->Description());
      }
-  SetHelp(tr("Button$Scan"), NULL, NULL, NULL);
+  SetHelp(NULL, NULL, NULL, NULL);
 }
 
-cSatipMenuScan::~cSatipMenuScan()
+cSatipServerInfo::~cSatipServerInfo()
 {
 }
 
-void cSatipMenuScan::Display(void)
+void cSatipServerInfo::Display(void)
 {
   cOsdMenu::Display();
   DisplayMenu()->SetText(textM, true);
@@ -60,7 +60,7 @@ void cSatipMenuScan::Display(void)
      cStatus::MsgOsdTextItem(textM);
 }
 
-eOSState cSatipMenuScan::ProcessKey(eKeys keyP)
+eOSState cSatipServerInfo::ProcessKey(eKeys keyP)
 {
   eOSState state = cOsdMenu::ProcessKey(keyP);
 
@@ -75,7 +75,7 @@ eOSState cSatipMenuScan::ProcessKey(eKeys keyP)
   return state;
 }
 
-// --- cSatipMenuInfo ---------------------------------------------------------
+// --- cSatipServerItem -------------------------------------------------------
 
 class cSatipServerItem : public cOsdItem {
 private:
@@ -203,10 +203,15 @@ eOSState cSatipMenuInfo::ProcessKey(eKeys keyP)
 
 cSatipPluginSetup::cSatipPluginSetup()
 : deviceCountM(0),
+  operatingModeM(SatipConfig.GetOperatingMode()),
   eitScanM(SatipConfig.GetEITScan()),
   numDisabledFiltersM(SatipConfig.GetDisabledFiltersCount())
 {
   debug("cSatipPluginSetup::%s()", __FUNCTION__);
+  operatingModeTextsM[0] = tr("off");
+  operatingModeTextsM[1] = tr("low");
+  operatingModeTextsM[2] = tr("normal");
+  operatingModeTextsM[3] = tr("high");
   if (numDisabledFiltersM > SECTION_FILTER_TABLE_SIZE)
      numDisabledFiltersM = SECTION_FILTER_TABLE_SIZE;
   for (int i = 0; i < SECTION_FILTER_TABLE_SIZE; ++i) {
@@ -225,17 +230,21 @@ void cSatipPluginSetup::Setup(void)
   Clear();
   helpM.Clear();
 
-  Add(new cMenuEditBoolItem(tr("Enable EPG scanning"), &eitScanM));
-  helpM.Append(tr("Define whether the EPG background scanning shall be used.\n\nThis setting disables the automatic EIT scanning functionality for all SAT>IP devices."));
+  Add(new cMenuEditStraItem(tr("Operating mode"), &operatingModeM, ELEMENTS(operatingModeTextsM), operatingModeTextsM));
+  helpM.Append(tr("Define the used operating mode for all SAT>IP devices:\n\noff - devices are disabled\nlow - devices are working at the lowest priority\nnormal - devices are working within normal parameters\nhigh - devices are working at the highest priority"));
 
-  Add(new cMenuEditIntItem(tr("Disabled filters"), &numDisabledFiltersM, 0, SECTION_FILTER_TABLE_SIZE, tr("none")));
-  helpM.Append(tr("Define number of section filters to be disabled.\n\nCertain section filters might cause some unwanted behaviour to VDR such as time being falsely synchronized. By black-listing the filters here useful section data can be left intact for VDR to process."));
+  if (operatingModeM) {
+     Add(new cMenuEditBoolItem(tr("Enable EPG scanning"), &eitScanM));
+     helpM.Append(tr("Define whether the EPG background scanning shall be used.\n\nThis setting disables the automatic EIT scanning functionality for all SAT>IP devices."));
 
-  for (int i = 0; i < numDisabledFiltersM; ++i) {
-      Add(new cMenuEditStraItem(*cString::sprintf(" %s %d", tr("Filter"), i + 1), &disabledFilterIndexesM[i], SECTION_FILTER_TABLE_SIZE, disabledFilterNamesM));
-      helpM.Append(tr("Define an ill-behaving filter to be blacklisted."));
-      }
+     Add(new cMenuEditIntItem(tr("Disabled filters"), &numDisabledFiltersM, 0, SECTION_FILTER_TABLE_SIZE, tr("none")));
+     helpM.Append(tr("Define number of section filters to be disabled.\n\nCertain section filters might cause some unwanted behaviour to VDR such as time being falsely synchronized. By black-listing the filters here useful section data can be left intact for VDR to process."));
 
+     for (int i = 0; i < numDisabledFiltersM; ++i) {
+         Add(new cMenuEditStraItem(*cString::sprintf(" %s %d", tr("Filter"), i + 1), &disabledFilterIndexesM[i], SECTION_FILTER_TABLE_SIZE, disabledFilterNamesM));
+         helpM.Append(tr("Define an ill-behaving filter to be blacklisted."));
+         }
+     }
   Add(new cOsdItem(tr("Active SAT>IP devices:"), osUnknown, false));
   helpM.Append("");
 
@@ -258,7 +267,7 @@ eOSState cSatipPluginSetup::ChannelScan(void)
 
   cSatipServerItem *item = reinterpret_cast<cSatipServerItem *>(Get(Current()));
   if (item && cSatipDiscover::GetInstance()->IsValidServer(item->Server()))
-     return AddSubMenu(new cSatipMenuScan(item->Server()));
+     return AddSubMenu(new cSatipServerInfo(item->Server()));
 
   return osContinue;
 }
@@ -275,6 +284,7 @@ eOSState cSatipPluginSetup::ShowInfo(void)
 eOSState cSatipPluginSetup::ProcessKey(eKeys keyP)
 {
   bool hadSubMenu = HasSubMenu();
+  int oldOperatingMode = operatingModeM;
   int oldNumDisabledFilters = numDisabledFiltersM;
   eOSState state = cMenuSetupPage::ProcessKey(keyP);
 
@@ -295,7 +305,7 @@ eOSState cSatipPluginSetup::ProcessKey(eKeys keyP)
   if ((keyP == kNone) && (cSatipDiscover::GetInstance()->GetServers()->Count() != deviceCountM))
      Setup();
 
-  if ((keyP != kNone) && (numDisabledFiltersM != oldNumDisabledFilters)) {
+  if ((keyP != kNone) && ((numDisabledFiltersM != oldNumDisabledFilters) || (operatingModeM != oldOperatingMode))) {
      while ((numDisabledFiltersM < oldNumDisabledFilters) && (oldNumDisabledFilters > 0))
            disabledFilterIndexesM[--oldNumDisabledFilters] = -1;
      Setup();
@@ -326,9 +336,11 @@ void cSatipPluginSetup::StoreFilters(const char *nameP, int *valuesP)
 void cSatipPluginSetup::Store(void)
 {
   // Store values into setup.conf
+  SetupStore("OperatingMode", operatingModeM);
   SetupStore("EnableEITScan", eitScanM);
   StoreFilters("DisabledFilters", disabledFilterIndexesM);
   // Update global config
+  SatipConfig.SetOperatingMode(operatingModeM);
   SatipConfig.SetEITScan(eitScanM);
   for (int i = 0; i < SECTION_FILTER_TABLE_SIZE; ++i)
       SatipConfig.SetDisabledFilters(i, disabledFilterIndexesM[i]);

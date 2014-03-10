@@ -6,3 +6,9 @@ VDR Plugin 'satip' Revision History
 
 - Initial revision.
 - Added German translation (Thanks to Frank Neumann).
+
+2014-03-15: Version 0.0.2
+
+- Switched to standard 'S' and 'T' sources.
+- Added a new OperationMode setup parameter.
+- Added new SVDRP commands.

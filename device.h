@@ -56,6 +56,7 @@ private:
 public:
   virtual cString DeviceType(void) const;
   virtual cString DeviceName(void) const;
+  virtual bool AvoidRecording(void) const;
   virtual int SignalStrength(void) const;
   virtual int SignalQuality(void) const;
 

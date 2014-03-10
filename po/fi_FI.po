@@ -5,10 +5,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: vdr-satip 0.0.1\n"
+"Project-Id-Version: vdr-satip 0.0.2\n"
 "Report-Msgid-Bugs-To: <see README>\n"
-"POT-Creation-Date: 2014-03-08 03:08+0200\n"
-"PO-Revision-Date: 2014-03-08 03:08+0200\n"
+"POT-Creation-Date: 2014-03-15 03:15+0200\n"
+"PO-Revision-Date: 2014-03-15 03:15+0200\n"
 "Last-Translator: Rolf Ahrenberg\n"
 "Language-Team: Finnish <vdr@linuxtv.org>\n"
 "Language: fi\n"
@@ -43,9 +43,6 @@ msgstr "SAT>IP-laitteet"
 msgid "SAT>IP Device"
 msgstr "SAT>IP-laite"
 
-msgid "Button$Scan"
-msgstr "Kanavahaku"
-
 msgid "SAT>IP Information"
 msgstr "SAT>IP-tiedot"
 
@@ -63,6 +60,35 @@ msgstr "Bitit/tavut"
 
 msgid "SAT>IP information not available!"
 msgstr "SAT>IP-tietoja ei saatavilla!"
+
+msgid "off"
+msgstr "ei käytössä"
+
+msgid "low"
+msgstr "matala"
+
+msgid "normal"
+msgstr "normaali"
+
+msgid "high"
+msgstr "korkea"
+
+msgid "Operating mode"
+msgstr "Laitteiden toimintatapa"
+
+msgid ""
+"Define the used operating mode for all SAT>IP devices:\n"
+"\n"
+"off - devices are disabled\n"
+"low - devices are working at the lowest priority\n"
+"normal - devices are working within normal parameters\n"
+"high - devices are working at the highest priority"
+msgstr ""
+"Määrittele toimintamoodi SAT>IP-laitteille:\n"
+"ei käytössä - laitteet ovat pois käytöstä\n"
+"matala - laitteet toimivat matalalla prioriteetilla\n"
+"normaali - laitteet toimivat normaalilla prioriteetilla\n"
+"korkea - laitteet toimivat korkealla prioriteetilla"
 
 msgid "Enable EPG scanning"
 msgstr "Käytä ohjelmaoppaan taustapäivitystä"
@@ -102,39 +128,3 @@ msgstr "Aktiiviset SAT>IP-laitteet:"
 
 msgid "Help"
 msgstr "Opaste"
-
-msgid "off"
-msgstr "pois"
-
-msgid "on"
-msgstr "päällä"
-
-msgid "auto"
-msgstr "auto"
-
-msgid "SISO"
-msgstr "SISO"
-
-msgid "MISO"
-msgstr "MISO"
-
-msgid "Nid"
-msgstr "Verkko-ID"
-
-msgid "Tid"
-msgstr "Lähete-ID"
-
-msgid "Rid"
-msgstr "Radio-ID"
-
-msgid "SignalSource"
-msgstr "Signaalin lähde"
-
-msgid "PilotTones"
-msgstr "Pilottiäänet"
-
-msgid "T2SystemId"
-msgstr "T2-järjestelmä"
-
-msgid "SISO/MISO"
-msgstr "SISO/MISO"

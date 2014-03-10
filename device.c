@@ -7,7 +7,7 @@
 
 #include "config.h"
 #include "discover.h"
-#include "source.h"
+#include "param.h"
 #include "device.h"
 
 #define SATIP_MAX_DEVICES MAXDEVICES
@@ -49,8 +49,6 @@ cSatipDevice::~cSatipDevice()
 bool cSatipDevice::Initialize(unsigned int deviceCountP)
 {
   debug("cSatipDevice::%s(%u)", __FUNCTION__, deviceCountP);
-  new cSatipSourceParam('Y', "DVB-T (SAT>IP)");
-  new cSatipSourceParam('Z', "DVB-S (SAT>IP)");
   if (deviceCountP > SATIP_MAX_DEVICES)
      deviceCountP = SATIP_MAX_DEVICES;
   for (unsigned int i = 0; i < deviceCountP; ++i)
@@ -158,6 +156,12 @@ cString cSatipDevice::DeviceName(void) const
   return deviceNameM;
 }
 
+bool cSatipDevice::AvoidRecording(void) const
+{
+  //debug("cSatipDevice::%s(%u)", __FUNCTION__, deviceIndexM);
+  return SatipConfig.IsOperatingModeLow();
+}
+
 int cSatipDevice::SignalStrength(void) const
 {
   //debug("cSatipDevice::%s(%u)", __FUNCTION__, deviceIndexM);
@@ -173,12 +177,7 @@ int cSatipDevice::SignalQuality(void) const
 bool cSatipDevice::ProvidesSource(int sourceP) const
 {
   debug("cSatipDevice::%s(%u)", __FUNCTION__, deviceIndexM);
-  int model = 0;
-  if (cSource::IsType(sourceP, 'Z'))
-     model |= cSatipServer::eSatipModelTypeDVBS2;
-  if (cSource::IsType(sourceP, 'Y'))
-     model |= cSatipServer::eSatipModelTypeDVBT2 | cSatipServer::eSatipModelTypeDVBT;
-  return !!cSatipDiscover::GetInstance()->GetServer(model);
+  return (!SatipConfig.IsOperatingModeOff() && !!cSatipDiscover::GetInstance()->GetServer(sourceP));
 }
 
 bool cSatipDevice::ProvidesTransponder(const cChannel *channelP) const
@@ -230,7 +229,18 @@ bool cSatipDevice::ProvidesEIT(void) const
 
 int cSatipDevice::NumProvidedSystems(void) const
 {
-  return cSatipDiscover::GetInstance()->NumProvidedSystems();
+  int count = cSatipDiscover::GetInstance()->NumProvidedSystems();
+  // Tweak the count according to operation mode
+  if (SatipConfig.IsOperatingModeLow())
+     count = 15;
+  else if (SatipConfig.IsOperatingModeHigh())
+     count = 1;
+  // Clamp the count between 1 and 15
+  if (count > 15)
+     count = 15;
+  else if (count < 1)
+     count = 1;
+  return count;
 }
 
 const cChannel *cSatipDevice::GetCurrentlyTunedTransponder(void) const
@@ -255,31 +265,19 @@ bool cSatipDevice::MaySwitchTransponder(const cChannel *channelP) const
 bool cSatipDevice::SetChannelDevice(const cChannel *channelP, bool liveViewP)
 {
   if (channelP) {
-     cSatipTransponderParameters stp(channelP->Parameters());
-     cString params = stp.UrlParameters(cSource::ToChar(channelP->Source()));
+     cDvbTransponderParameters dtp(channelP->Parameters());
+     cString params = GetTransponderUrlParameters(channelP);
+     if (isempty(params)) {
+        error("Unrecognized SAT>IP channel parameters: %s", channelP->Parameters());
+        return false;
+        }
      cString address;
-     int mode = 0;
-     if (cSource::IsType(channelP->Source(), 'Z'))
-        mode |= cSatipServer::eSatipModelTypeDVBS2;
-     if (cSource::IsType(channelP->Source(), 'Y'))
-        mode |= stp.System() ? cSatipServer::eSatipModelTypeDVBT2 : cSatipServer::eSatipModelTypeDVBT;
-     cSatipServer *server = cSatipDiscover::GetInstance()->GetServer(mode);
+     cSatipServer *server = cSatipDiscover::GetInstance()->GetServer(channelP->Source(), dtp.System());
      if (!server) {
         debug("cSatipDevice::%s(%u): no suitable server found", __FUNCTION__, deviceIndexM);
         return false;
         }
      address = server->Address();
-     float freq = channelP->Frequency();
-     if (isempty(params)) {
-        error("Unrecognized SAT>IP channel parameters: %s", channelP->Parameters());
-        return false;
-        }
-     // Scale down frequencies to MHz
-     while (freq > 20000L)
-           freq /= 1000L;
-     params = cString::sprintf("freq=%s%s", *dtoa(freq, "%.3f"), *params);
-     if (cSource::IsType(channelP->Source(), 'Z'))
-        params = cString::sprintf("%s&sr=%d", *params, channelP->Srate());
      if (pTunerM && pTunerM->SetSource(*address, *params, deviceIndexM)) {
         deviceNameM = cString::sprintf("%s %d %s:%s:%s", *DeviceType(), deviceIndexM, server->Address(), server->Model(), server->Description());
         channelM = *channelP;

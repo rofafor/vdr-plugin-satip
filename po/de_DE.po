@@ -5,10 +5,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: vdr-satip 0.0.1\n"
+"Project-Id-Version: vdr-satip 0.0.2\n"
 "Report-Msgid-Bugs-To: <see README>\n"
-"POT-Creation-Date: 2014-03-08 03:08+0200\n"
-"PO-Revision-Date: 2014-03-08 03:08+0200\n"
+"POT-Creation-Date: 2014-03-15 03:15+0200\n"
+"PO-Revision-Date: 2014-03-15 03:15+0200\n"
 "Last-Translator: Frank Neumann <fnu@yavdr.org>\n"
 "Language-Team: German <vdr@linuxtv.org>\n"
 "Language: de\n"
@@ -43,9 +43,6 @@ msgstr "SAT>IP Geräte"
 msgid "SAT>IP Device"
 msgstr "SAT>IP Gerät"
 
-msgid "Button$Scan"
-msgstr "Starte Kanalsuche"
-
 msgid "SAT>IP Information"
 msgstr "SAT>IP Informationen"
 
@@ -64,6 +61,36 @@ msgstr "Bits/Bytes"
 msgid "SAT>IP information not available!"
 msgstr "Keine SAT>IP Informationen verfügbar!"
 
+msgid "off"
+msgstr "aus"
+
+msgid "low"
+msgstr "niedrig"
+
+msgid "normal"
+msgstr "normal"
+
+msgid "high"
+msgstr "hoch"
+
+msgid "Operating mode"
+msgstr "Betriebsmodus"
+
+msgid ""
+"Define the used operating mode for all SAT>IP devices:\n"
+"\n"
+"off - devices are disabled\n"
+"low - devices are working at the lowest priority\n"
+"normal - devices are working within normal parameters\n"
+"high - devices are working at the highest priority"
+msgstr ""
+"Bestimme den Betriebsmodus für alle SAT>IP Geräte:\n"
+"\n"
+"aus - Geräte sind abgeschaltet\n"
+"niedrig - Geräte arbeiten mit geringster Priorität\n"
+"normal - Geräte arbeiten innerhalb der gewöhnlichen Parameter\n"
+"hoch - Geräte arbeiten mit höchste Priorität"
+
 msgid "Enable EPG scanning"
 msgstr "Aktiviere EPG Aktualisierung"
 
@@ -75,7 +102,6 @@ msgstr ""
 "Definiert ob EPG im Hintergrund aktualisiert werden soll oder nicht.\n"
 "\n"
 "Diese Einstellung schaltet die automatische EIT Aktualisierung für alle SAT>IP Geräte."
-
 
 msgid "Disabled filters"
 msgstr "Deaktivierte Filter"
@@ -103,39 +129,3 @@ msgstr "Aktive SAT>IP Geräte:"
 
 msgid "Help"
 msgstr "Hilfe"
-
-msgid "off"
-msgstr "aus"
-
-msgid "on"
-msgstr "ein"
-
-msgid "auto"
-msgstr "auto"
-
-msgid "SISO"
-msgstr "SISO"
-
-msgid "MISO"
-msgstr "MISO"
-
-msgid "Nid"
-msgstr "Nid"
-
-msgid "Tid"
-msgstr "Tid"
-
-msgid "Rid"
-msgstr "Rid"
-
-msgid "SignalSource"
-msgstr "Signalquelle"
-
-msgid "PilotTones"
-msgstr "Pilottöne"
-
-msgid "T2SystemId"
-msgstr "T2-Systemkennung"
-
-msgid "SISO/MISO"
-msgstr "SISO/MISO"

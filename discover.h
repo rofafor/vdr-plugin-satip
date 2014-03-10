@@ -120,7 +120,7 @@ public:
   static void Destroy(void);
   virtual ~cSatipDiscover();
   bool IsValidServer(cSatipServer *serverP);
-  cSatipServer *GetServer(int modelP);
+  cSatipServer *GetServer(int sourceP, int systemP = -1);
   cSatipServers *GetServers(void);
   cString GetServerList(void);
   int NumProvidedSystems(void);

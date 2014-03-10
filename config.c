@@ -11,7 +11,8 @@
 cSatipConfig SatipConfig;
 
 cSatipConfig::cSatipConfig(void)
-: eitScanM(1),
+: operatingModeM(OPERATING_MODE_LOW),
+  eitScanM(1),
   useBytesM(1)
 {
   for (unsigned int i = 0; i < ARRAY_SIZE(disabledFiltersM); ++i)

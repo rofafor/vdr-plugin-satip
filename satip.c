@@ -21,7 +21,7 @@
 #define GITVERSION ""
 #endif
 
-       const char VERSION[]     = "0.0.1" GITVERSION;
+       const char VERSION[]     = "0.0.2" GITVERSION;
 static const char DESCRIPTION[] = trNOOP("SAT>IP Devices");
 
 class cPluginSatip : public cPlugin {
@@ -194,6 +194,8 @@ bool cPluginSatip::SetupParse(const char *nameP, const char *valueP)
 {
   debug("cPluginSatip::%s()", __FUNCTION__);
   // Parse your own setup parameters and store their values.
+  if (!strcasecmp(nameP, "OperatingMode"))
+     SatipConfig.SetOperatingMode(atoi(valueP));
   if (!strcasecmp(nameP, "EnableEITScan"))
      SatipConfig.SetEITScan(atoi(valueP));
   else if (!strcasecmp(nameP, "DisabledFilters")) {
@@ -229,6 +231,8 @@ const char **cPluginSatip::SVDRPHelpPages(void)
     "    Lists active SAT>IP servers.\n",
     "CONT\n"
     "    Shows SAT>IP device count.\n",
+    "OPER\n"
+    "    Toggles operating mode of SAT>IP devices.\n",
     NULL
     };
   return HelpPages;
@@ -283,6 +287,28 @@ cString cPluginSatip::SVDRPCommand(const char *commandP, const char *optionP, in
      }
   else if (strcasecmp(commandP, "CONT") == 0) {
      return cString::sprintf("SAT>IP device count: %u", cSatipDevice::Count());
+     }
+  else if (strcasecmp(commandP, "OPER") == 0) {
+     cString mode;
+     SatipConfig.ToggleOperatingMode();
+     switch (SatipConfig.GetOperatingMode()) {
+       case cSatipConfig::OPERATING_MODE_OFF:
+            mode = "off";
+            break;
+       case cSatipConfig::OPERATING_MODE_LOW:
+            mode = "low";
+            break;
+       case cSatipConfig::OPERATING_MODE_NORMAL:
+            mode = "normal";
+            break;
+       case cSatipConfig::OPERATING_MODE_HIGH:
+            mode = "high";
+            break;
+       default:
+            mode = "unknown";
+            break;
+       }
+     return cString::sprintf("SAT>IP operating mode: %s\n", *mode);
      }
 
   return NULL;

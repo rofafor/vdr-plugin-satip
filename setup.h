@@ -16,6 +16,8 @@ class cSatipPluginSetup : public cMenuSetupPage
 {
 private:
   int deviceCountM;
+  int operatingModeM;
+  const char *operatingModeTextsM[4];
   int eitScanM;
   int numDisabledFiltersM;
   int disabledFilterIndexesM[SECTION_FILTER_TABLE_SIZE];

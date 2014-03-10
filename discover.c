@@ -241,12 +241,21 @@ bool cSatipDiscover::IsValidServer(cSatipServer *serverP)
   return false;
 }
 
-cSatipServer *cSatipDiscover::GetServer(int modelP)
+cSatipServer *cSatipDiscover::GetServer(int sourceP, int systemP)
 {
-  //debug("cSatipDiscover::%s(%d)", __FUNCTION__, modelP);
+  //debug("cSatipDiscover::%s(%d, %d)", __FUNCTION__, sourceP, systemP);
   cMutexLock MutexLock(&mutexM);
+  int model = 0;
+  if (cSource::IsType(sourceP, 'S'))
+     model |= cSatipServer::eSatipModelTypeDVBS2;
+  if (cSource::IsType(sourceP, 'T')) {
+     if (systemP < 0)
+        model |= cSatipServer::eSatipModelTypeDVBT2 | cSatipServer::eSatipModelTypeDVBT;
+     else
+        model |= systemP ? cSatipServer::eSatipModelTypeDVBT2 : cSatipServer::eSatipModelTypeDVBT;
+     }
   for (cSatipServer *srv = serversM->First(); srv; srv = serversM->Next(srv)) {
-      if (srv->Match(modelP))
+      if (srv->Match(model))
          return srv;
       }
   return NULL;
@@ -275,9 +284,11 @@ int cSatipDiscover::NumProvidedSystems(void)
   cMutexLock MutexLock(&mutexM);
   int count = 0;
   for (cSatipServer *srv = serversM->First(); srv; srv = serversM->Next(srv)) {
-      count += srv->Satellite();
-      count += srv->Terrestrial();
-      count += srv->Terrestrial2();
+      // DVB-S*: qpsk, 8psk
+      count += srv->Satellite() * 4;
+      // DVB-T*: qpsk, qam16, qam64, qam256
+      count += (srv->Terrestrial2() ? srv->Terrestrial2() : srv->Terrestrial()) * 4;
       }
+  count = 1;
   return count;
 }
