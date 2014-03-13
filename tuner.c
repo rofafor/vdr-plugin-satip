@@ -7,6 +7,7 @@
 
 #include "common.h"
 #include "config.h"
+#include "discover.h"
 #include "tuner.h"
 
 cSatipTuner::cSatipTuner(cSatipDeviceIf &deviceP, unsigned int packetLenP)
@@ -18,6 +19,8 @@ cSatipTuner::cSatipTuner(cSatipDeviceIf &deviceP, unsigned int packetLenP)
   rtcpSocketM(new cSatipSocket()),
   streamAddrM(""),
   streamParamM(""),
+  currentServerM(NULL),
+  nextServerM(NULL),
   mutexM(),
   handleM(NULL),
   headerListM(NULL),
@@ -70,13 +73,14 @@ size_t cSatipTuner::HeaderCallback(void *ptrP, size_t sizeP, size_t nmembP, void
 
   while (r) {
         //debug("cSatipTuner::%s(%zu): %s", __FUNCTION__, len, r);
+        r = skipspace(r);
         if (strstr(r, "com.ses.streamID")) {
-           if (sscanf(r, "com.ses.streamID: %11d", &id) != 1)
+           if (sscanf(r, "com.ses.streamID:%11d", &id) != 1)
               id = -1;
            }
         else if (strstr(r, "Session:")) {
            int session = -1;
-           if (sscanf(r, "Session: %11d;timeout=%11d", &session, &timeout) != 2)
+           if (sscanf(r, "Session:%11d;timeout=%11d", &session, &timeout) != 2)
               timeout = -1;
            }
         r = strtok_r(NULL, "\r\n", &s);
@@ -241,6 +245,7 @@ bool cSatipTuner::Connect(void)
      // Start playing
      uri = cString::sprintf("rtsp://%s/stream=%d", *streamAddrM, streamIdM);
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_STREAM_URI, *uri);
+     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_SESSION_ID, NULL);
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_REQUEST, (long)CURL_RTSPREQ_PLAY);
      SATIP_CURL_EASY_PERFORM(handleM);
      if (!ValidateLatestResponse())
@@ -248,6 +253,11 @@ bool cSatipTuner::Connect(void)
 
      keepAliveM.Set(eKeepAliveIntervalMs);
      tunedM = true;
+     if (nextServerM) {
+        cSatipDiscover::GetInstance()->UseServer(nextServerM, true);
+        currentServerM = nextServerM;
+        nextServerM = NULL;
+        }
      return true;
      }
 
@@ -290,6 +300,8 @@ bool cSatipTuner::Disconnect(void)
   signalStrengthM = -1;
   signalQualityM = -1;
 
+  if (currentServerM)
+     cSatipDiscover::GetInstance()->UseServer(currentServerM, false);
   tunedM = false;
 
   return true;
@@ -365,12 +377,14 @@ void cSatipTuner::SetStreamInfo(int idP, int timeoutP)
   timeoutM = timeoutP > 0 ? timeoutP * 1000L : eKeepAliveIntervalMs;
 }
 
-bool cSatipTuner::SetSource(const char* addressP, const char *parameterP, const int indexP)
+bool cSatipTuner::SetSource(cSatipServer *serverP, const char *parameterP, const int indexP)
 {
-  debug("cSatipTuner::%s(%s, %s, %d)", __FUNCTION__, addressP, parameterP, indexP);
-  if (!isempty(addressP) && !isempty(parameterP)) {
+  debug("cSatipTuner::%s(%s, %d)", __FUNCTION__, parameterP, indexP);
+  cMutexLock MutexLock(&mutexM);
+  nextServerM = cSatipDiscover::GetInstance()->GetServer(serverP);
+  if (nextServerM && !isempty(nextServerM->Address()) && !isempty(parameterP)) {
      // Update stream address and parameter
-     streamAddrM = addressP;
+     streamAddrM = nextServerM->Address();
      streamParamM = parameterP;
      // Reconnect
      Connect();

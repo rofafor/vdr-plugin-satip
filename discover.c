@@ -31,13 +31,16 @@ cSatipDiscover *cSatipDiscover::GetInstance(void)
 bool cSatipDiscover::Initialize(void)
 {
   debug("cSatipDiscover::%s()", __FUNCTION__);
+  if (instanceS)
+     instanceS->Activate();
   return true;
 }
 
 void cSatipDiscover::Destroy(void)
 {
   debug("cSatipDiscover::%s()", __FUNCTION__);
-  DELETE_POINTER(instanceS);
+  if (instanceS)
+     instanceS->Deactivate();
 }
 
 size_t cSatipDiscover::WriteCallback(void *ptrP, size_t sizeP, size_t nmembP, void *dataP)
@@ -51,6 +54,7 @@ size_t cSatipDiscover::WriteCallback(void *ptrP, size_t sizeP, size_t nmembP, vo
   char *desc = NULL, *model = NULL, *addr = NULL;
   while (r) {
     //debug("cSatipDiscover::%s(%zu): %s", __FUNCTION__, len, r);
+    r = skipspace(r);
     // <friendlyName>OctopusNet</friendlyName>
     if (startswith(r, "<friendlyName"))
        desc = StripTags(r);
@@ -85,16 +89,29 @@ cSatipDiscover::cSatipDiscover()
 cSatipDiscover::~cSatipDiscover()
 {
   debug("cSatipDiscover::%s()", __FUNCTION__);
+  Deactivate();
   cMutexLock MutexLock(&mutexM);
-  sleepM.Signal();
-  if (Running())
-     Cancel(3);
   // Free allocated memory
   DELETENULL(socketM);
   DELETENULL(serversM);
   if (handleM)
      curl_easy_cleanup(handleM);
   handleM = NULL;
+}
+
+void cSatipDiscover::Activate(void)
+{
+  // Start the thread
+  Start();
+}
+
+void cSatipDiscover::Deactivate(void)
+{
+  debug("cSatipDiscover::%s()", __FUNCTION__);
+  cMutexLock MutexLock(&mutexM);
+  sleepM.Signal();
+  if (Running())
+     Cancel(3);
 }
 
 void cSatipDiscover::Action(void)
@@ -117,12 +134,8 @@ void cSatipDiscover::Janitor(void)
 {
   debug("cSatipDiscover::%s()", __FUNCTION__);
   cMutexLock MutexLock(&mutexM);
-  for (cSatipServer *srv = serversM->First(); srv; srv = serversM->Next(srv)) {
-      if (srv->LastSeen() > eProbeIntervalMs * 2) {
-         info("Removing device %s (%s %s)", srv->Description(), srv->Address(), srv->Model());
-         serversM->Del(srv);
-         }
-      }
+  if (serversM)
+     serversM->Cleanup(eProbeIntervalMs * 2);
 }
 
 void cSatipDiscover::Probe(void)
@@ -213,15 +226,7 @@ void cSatipDiscover::AddServer(const char *addrP, const char *descP, const char 
   if (serversM) {
      cSatipServer *tmp = new cSatipServer(addrP, descP, modelP);
      // Validate against existing servers
-     bool found = false;
-     for (cSatipServer *s = serversM->First(); s; s = serversM->Next(s)) {
-         if (s->Compare(*tmp) == 0) {
-            found = true;
-            s->Update();
-            break;
-            }
-         }
-     if (!found) {
+     if (!serversM->Update(tmp)) {
         info("Adding device %s (%s %s)", tmp->Description(), tmp->Address(), tmp->Model());
         serversM->Add(tmp);
         }
@@ -230,35 +235,18 @@ void cSatipDiscover::AddServer(const char *addrP, const char *descP, const char 
      }
 }
 
-bool cSatipDiscover::IsValidServer(cSatipServer *serverP)
-{
-  //debug("cSatipDiscover::%s(%d)", __FUNCTION__);
-  cMutexLock MutexLock(&mutexM);
-  for (cSatipServer *srv = serversM->First(); srv; srv = serversM->Next(srv)) {
-      if (srv == serverP)
-         return true;
-      }
-  return false;
-}
-
 cSatipServer *cSatipDiscover::GetServer(int sourceP, int systemP)
 {
   //debug("cSatipDiscover::%s(%d, %d)", __FUNCTION__, sourceP, systemP);
   cMutexLock MutexLock(&mutexM);
-  int model = 0;
-  if (cSource::IsType(sourceP, 'S'))
-     model |= cSatipServer::eSatipModelTypeDVBS2;
-  if (cSource::IsType(sourceP, 'T')) {
-     if (systemP < 0)
-        model |= cSatipServer::eSatipModelTypeDVBT2 | cSatipServer::eSatipModelTypeDVBT;
-     else
-        model |= systemP ? cSatipServer::eSatipModelTypeDVBT2 : cSatipServer::eSatipModelTypeDVBT;
-     }
-  for (cSatipServer *srv = serversM->First(); srv; srv = serversM->Next(srv)) {
-      if (srv->Match(model))
-         return srv;
-      }
-  return NULL;
+  return serversM ? serversM->Find(sourceP, systemP) : NULL;
+}
+
+cSatipServer *cSatipDiscover::GetServer(cSatipServer *serverP)
+{
+  //debug("cSatipDiscover::%s()", __FUNCTION__);
+  cMutexLock MutexLock(&mutexM);
+  return serversM ? serversM->Find(serverP) : NULL;
 }
 
 cSatipServers *cSatipDiscover::GetServers(void)
@@ -268,27 +256,31 @@ cSatipServers *cSatipDiscover::GetServers(void)
   return serversM;
 }
 
+cString cSatipDiscover::GetServerString(cSatipServer *serverP)
+{
+  //debug("cSatipDiscover::%s(%d)", __FUNCTION__, modelP);
+  cMutexLock MutexLock(&mutexM);
+  return serversM ? serversM->GetString(serverP) : "";
+}
+
 cString cSatipDiscover::GetServerList(void)
 {
   //debug("cSatipDiscover::%s(%d)", __FUNCTION__, modelP);
   cMutexLock MutexLock(&mutexM);
-  cString list = "";
-  for (cSatipServer *srv = serversM->First(); srv; srv = serversM->Next(srv))
-      list = cString::sprintf("%s%s:%s:%s\n", *list, srv->Address(), srv->Model(), srv->Description());
-  return list;
+  return serversM ? serversM->List() : "";
+}
+
+void cSatipDiscover::UseServer(cSatipServer *serverP, bool onOffP)
+{
+  //debug("cSatipDiscover::%s(%d)", __FUNCTION__, modelP);
+  cMutexLock MutexLock(&mutexM);
+  if (serversM)
+     serversM->Use(serverP, onOffP);
 }
 
 int cSatipDiscover::NumProvidedSystems(void)
 {
   //debug("cSatipDiscover::%s(%d)", __FUNCTION__, modelP);
   cMutexLock MutexLock(&mutexM);
-  int count = 0;
-  for (cSatipServer *srv = serversM->First(); srv; srv = serversM->Next(srv)) {
-      // DVB-S*: qpsk, 8psk
-      count += srv->Satellite() * 4;
-      // DVB-T*: qpsk, qam16, qam64, qam256
-      count += (srv->Terrestrial2() ? srv->Terrestrial2() : srv->Terrestrial()) * 4;
-      }
-  count = 1;
-  return count;
+  return serversM ? serversM->NumProvidedSystems() : 0;
 }

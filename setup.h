@@ -17,14 +17,15 @@ class cSatipPluginSetup : public cMenuSetupPage
 private:
   int deviceCountM;
   int operatingModeM;
-  const char *operatingModeTextsM[4];
+  const char *operatingModeTextsM[cSatipConfig::eOperatingModeCount];
   int eitScanM;
   int numDisabledFiltersM;
   int disabledFilterIndexesM[SECTION_FILTER_TABLE_SIZE];
   const char *disabledFilterNamesM[SECTION_FILTER_TABLE_SIZE];
   cVector<const char*> helpM;
 
-  eOSState ChannelScan(void);
+  eOSState DeviceScan(void);
+  eOSState DeviceInfo(void);
   eOSState ShowInfo(void);
   void Setup(void);
   void StoreFilters(const char *nameP, int *valuesP);

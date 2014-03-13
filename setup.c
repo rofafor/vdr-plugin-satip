@@ -19,32 +19,27 @@
 class cSatipServerInfo : public cOsdMenu
 {
 private:
-  enum {
-    INFO_TIMEOUT_MS = 2000
-  };
-  cString textM;
-  cTimeMs timeoutM;
+  cString addressM;
+  cString modelM;
+  cString descriptionM;
+  uint64_t createdM;
+  void Setup(void);
 
 public:
   cSatipServerInfo(cSatipServer *serverP);
   virtual ~cSatipServerInfo();
-  virtual void Display(void);
   virtual eOSState ProcessKey(eKeys keyP);
 };
 
 cSatipServerInfo::cSatipServerInfo(cSatipServer *serverP)
-: cOsdMenu(tr("SAT>IP Device")),
-  textM("")
+: cOsdMenu(tr("SAT>IP Device"), 20),
+  addressM(serverP ? serverP->Address() : "---"),
+  modelM(serverP ? serverP->Model() : "---"),
+  descriptionM(serverP ? serverP->Description() : "---"),
+  createdM(serverP ? serverP->Created() : 0)
 {
-  SetMenuCategory(mcText);
-  if (serverP) {
-     if (serverP->Model())
-        textM = cString::sprintf("%s\nModel:\t%s", *textM, serverP->Model());
-     if (serverP->Address())
-        textM = cString::sprintf("%s\nAddress:\t%s", *textM, serverP->Address());
-     if (serverP->Description())
-        textM = cString::sprintf("%s\nDescription:\t%s", *textM, serverP->Description());
-     }
+  SetMenuCategory(mcSetupPlugins);
+  Setup();
   SetHelp(NULL, NULL, NULL, NULL);
 }
 
@@ -52,12 +47,12 @@ cSatipServerInfo::~cSatipServerInfo()
 {
 }
 
-void cSatipServerInfo::Display(void)
+void cSatipServerInfo::Setup(void)
 {
-  cOsdMenu::Display();
-  DisplayMenu()->SetText(textM, true);
-  if (*textM)
-     cStatus::MsgOsdTextItem(textM);
+  Add(new cOsdItem(cString::sprintf("%s:\t%s", tr("Address"),       *addressM),              osUnknown, false));
+  Add(new cOsdItem(cString::sprintf("%s:\t%s", tr("Model"),         *modelM),                osUnknown, false));
+  Add(new cOsdItem(cString::sprintf("%s:\t%s", tr("Description"),   *descriptionM),          osUnknown, false));
+  Add(new cOsdItem(cString::sprintf("%s:\t%s", tr("Creation date"), *DayDateTime(createdM)), osUnknown, false));
 }
 
 eOSState cSatipServerInfo::ProcessKey(eKeys keyP)
@@ -66,10 +61,8 @@ eOSState cSatipServerInfo::ProcessKey(eKeys keyP)
 
   if (state == osUnknown) {
      switch (keyP) {
-       case kOk:  return osBack;
-       case kRed:
-       default:   state = osContinue;
-                  break;
+       case kOk: state = osBack;     break;
+       default:  state = osContinue; break;
        }
      }
   return state;
@@ -107,7 +100,7 @@ class cSatipMenuInfo : public cOsdMenu
 {
 private:
   enum {
-    INFO_TIMEOUT_MS = 2000
+    eInfoTimeoutMs = 2000
   };
   cString textM;
   cTimeMs timeoutM;
@@ -128,7 +121,7 @@ cSatipMenuInfo::cSatipMenuInfo()
   pageM(SATIP_DEVICE_INFO_GENERAL)
 {
   SetMenuCategory(mcText);
-  timeoutM.Set(INFO_TIMEOUT_MS);
+  timeoutM.Set(eInfoTimeoutMs);
   UpdateInfo();
   SetHelp(tr("General"), tr("Pids"), tr("Filters"), tr("Bits/bytes"));
 }
@@ -145,7 +138,7 @@ void cSatipMenuInfo::UpdateInfo()
   else
      textM = cString(tr("SAT>IP information not available!"));
   Display();
-  timeoutM.Set(INFO_TIMEOUT_MS);
+  timeoutM.Set(eInfoTimeoutMs);
 }
 
 void cSatipMenuInfo::Display(void)
@@ -208,10 +201,10 @@ cSatipPluginSetup::cSatipPluginSetup()
   numDisabledFiltersM(SatipConfig.GetDisabledFiltersCount())
 {
   debug("cSatipPluginSetup::%s()", __FUNCTION__);
-  operatingModeTextsM[0] = tr("off");
-  operatingModeTextsM[1] = tr("low");
-  operatingModeTextsM[2] = tr("normal");
-  operatingModeTextsM[3] = tr("high");
+  operatingModeTextsM[cSatipConfig::eOperatingModeOff]    = tr("off");
+  operatingModeTextsM[cSatipConfig::eOperatingModeLow]    = tr("low");
+  operatingModeTextsM[cSatipConfig::eOperatingModeNormal] = tr("normal");
+  operatingModeTextsM[cSatipConfig::eOperatingModeHigh]   = tr("high");
   if (numDisabledFiltersM > SECTION_FILTER_TABLE_SIZE)
      numDisabledFiltersM = SECTION_FILTER_TABLE_SIZE;
   for (int i = 0; i < SECTION_FILTER_TABLE_SIZE; ++i) {
@@ -220,7 +213,7 @@ cSatipPluginSetup::cSatipPluginSetup()
       }
   SetMenuCategory(mcSetupPlugins);
   Setup();
-  SetHelp(NULL, NULL, NULL, trVDR("Button$Info"));
+  SetHelp(trVDR("Button$Scan"), NULL, NULL, trVDR("Button$Info"));
 }
 
 void cSatipPluginSetup::Setup(void)
@@ -259,14 +252,22 @@ void cSatipPluginSetup::Setup(void)
   Display();
 }
 
-eOSState cSatipPluginSetup::ChannelScan(void)
+eOSState cSatipPluginSetup::DeviceScan(void)
+{
+  debug("cSatipPluginSetup::%s()", __FUNCTION__);
+  cSatipDiscover::GetInstance()->TriggerScan();
+
+  return osContinue;
+}
+
+eOSState cSatipPluginSetup::DeviceInfo(void)
 {
   debug("cSatipPluginSetup::%s()", __FUNCTION__);
   if (HasSubMenu() || Count() == 0)
      return osContinue;
 
   cSatipServerItem *item = reinterpret_cast<cSatipServerItem *>(Get(Current()));
-  if (item && cSatipDiscover::GetInstance()->IsValidServer(item->Server()))
+  if (item && !!cSatipDiscover::GetInstance()->GetServer(item->Server()))
      return AddSubMenu(new cSatipServerInfo(item->Server()));
 
   return osContinue;
@@ -291,10 +292,11 @@ eOSState cSatipPluginSetup::ProcessKey(eKeys keyP)
   // Ugly hack with hardcoded '#' character :(
   const char *p = Get(Current())->Text();
   if (!hadSubMenu && !HasSubMenu() && (*p == '#') && (keyP == kOk))
-     return ChannelScan();
+     return DeviceInfo();
 
   if (state == osUnknown) {
      switch (keyP) {
+       case kRed:  return DeviceScan();
        case kBlue: return ShowInfo();
        case kInfo: if (Current() < helpM.Size())
                       return AddSubMenu(new cMenuText(cString::sprintf("%s - %s '%s'", tr("Help"), trVDR("Plugin"), PLUGIN_NAME_I18N), helpM[Current()]));

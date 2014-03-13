@@ -9,78 +9,12 @@
 #define __SATIP_DISCOVER_H
 
 #include <curl/curl.h>
-#include <curl/easy.h>
 
 #include <vdr/thread.h>
 #include <vdr/tools.h>
 
+#include "server.h"
 #include "socket.h"
-
-class cSatipServer : public cListObject {
-private:
-  enum eSatipServer {
-    eSatipServerDVBS2 = 0,
-    eSatipServerDVBT,
-    eSatipServerDVBT2,
-    eSatipServerCount
-  };
-  cString addressM;
-  cString descriptionM;
-  cString modelM;
-  int modelCountM[eSatipServerCount];
-  int modelTypeM;
-  cTimeMs lastSeenM;
-
-public:
-  enum eSatipModelType {
-    eSatipModelTypeDVBS2 = 0x01,
-    eSatipModelTypeDVBT  = 0x02,
-    eSatipModelTypeDVBT2 = 0x04,
-    eSatipModelTypeMask  = 0x0F
-  };
-  cSatipServer(const char *addressP, const char *descriptionP, const char *modelP) : addressM(addressP), descriptionM(descriptionP), modelM(modelP), modelTypeM(eSatipModelTypeMask), lastSeenM(0)
-  {
-    memset(modelCountM, 0, sizeof(modelCountM));
-    if (isempty(*modelM))
-       modelM = "DVBS-1,DVBT2-1";
-    char *s, *p = strdup(*modelM);
-    char *r = strtok_r(p, ",", &s);
-    while (r) {
-          if (strstr(r, "DVBS2")) {
-             modelTypeM |= cSatipServer::eSatipModelTypeDVBS2;
-             if (char *c = strstr(r, "-"))
-                modelCountM[eSatipServerDVBS2] = atoi(++c);
-            }
-          if (strstr(r, "DVBT2")) {
-             modelTypeM |= cSatipServer::eSatipModelTypeDVBT | cSatipServer::eSatipModelTypeDVBT2;
-             if (char *c = strstr(r, "-"))
-                modelCountM[eSatipServerDVBT2] = atoi(++c);
-            }
-          if (strstr(r, "DVBT")) {
-             modelTypeM |= cSatipServer::eSatipModelTypeDVBT;
-             if (char *c = strstr(r, "-"))
-                modelCountM[eSatipServerDVBT] = atoi(++c);
-            }
-          r = strtok_r(NULL, ",", &s);
-          }
-    free(p);
-  }
-  virtual int Compare(const cListObject &listObjectP) const { const cSatipServer *s = (const cSatipServer *)&listObjectP; return strcasecmp(*addressM, *s->addressM); }
-  const char *Description() { return *descriptionM; }
-  const char *Address() { return *addressM; }
-  const char *Model(void) { return modelM; }
-  int ModelType(void) { return modelTypeM; }
-  bool Match(int modelP) { return ((modelP & eSatipModelTypeMask) & modelTypeM); }
-  int Satellite() { return (modelTypeM & eSatipModelTypeDVBS2) ? modelCountM[eSatipServerDVBS2] : 0; }
-  int Terrestrial() { return (modelTypeM & eSatipModelTypeDVBT) ? modelCountM[eSatipServerDVBT] : 0; }
-  int Terrestrial2() { return (modelTypeM & eSatipModelTypeDVBT2) ? modelCountM[eSatipServerDVBT2] : 0; }
-  int LastSeen(void) { return lastSeenM.Elapsed(); }
-  void Update(void) { lastSeenM.Set(); }
-};
-
-class cSatipServers : public cList<cSatipServer> {
-};
-
 
 class cSatipDiscover : public cThread {
 private:
@@ -101,6 +35,8 @@ private:
   cCondWait sleepM;
   cTimeMs probeIntervalM;
   cSatipServers *serversM;
+  void Activate(void);
+  void Deactivate(void);
   void Janitor(void);
   void Probe(void);
   void Read(void);
@@ -119,9 +55,12 @@ public:
   static bool Initialize(void);
   static void Destroy(void);
   virtual ~cSatipDiscover();
-  bool IsValidServer(cSatipServer *serverP);
+  void TriggerScan(void) { probeIntervalM.Set(0); }
   cSatipServer *GetServer(int sourceP, int systemP = -1);
+  cSatipServer *GetServer(cSatipServer *serverP);
   cSatipServers *GetServers(void);
+  cString GetServerString(cSatipServer *serverP);
+  void UseServer(cSatipServer *serverP, bool onOffP);
   cString GetServerList(void);
   int NumProvidedSystems(void);
 };

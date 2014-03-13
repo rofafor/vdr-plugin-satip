@@ -19,9 +19,9 @@
 class cSatipSectionFilter : public cSatipSectionStatistics {
 private:
   enum dmx_limits {
-    DMX_MAX_FILTER_SIZE  = 18,
-    DMX_MAX_SECTION_SIZE = 4096,
-    DMX_MAX_SECFEED_SIZE = (DMX_MAX_SECTION_SIZE + TS_SIZE)
+    eDmxMaxFilterSize  = 18,
+    eDmxMaxSectionSize = 4096,
+    eDmxMaxSectionFeedSize = (eDmxMaxSectionSize + TS_SIZE)
   };
 
   int pusiSeenM;
@@ -29,7 +29,7 @@ private:
   int doneqM;
 
   uint8_t *secBufM;
-  uint8_t secBufBaseM[DMX_MAX_SECFEED_SIZE];
+  uint8_t secBufBaseM[eDmxMaxSectionFeedSize];
   uint16_t secBufpM;
   uint16_t secLenM;
   uint16_t tsFeedpM;
@@ -38,12 +38,12 @@ private:
   int deviceIndexM;
   int socketM[2];
 
-  uint8_t filterValueM[DMX_MAX_FILTER_SIZE];
-  uint8_t filterMaskM[DMX_MAX_FILTER_SIZE];
-  uint8_t filterModeM[DMX_MAX_FILTER_SIZE];
+  uint8_t filterValueM[eDmxMaxFilterSize];
+  uint8_t filterMaskM[eDmxMaxFilterSize];
+  uint8_t filterModeM[eDmxMaxFilterSize];
 
-  uint8_t maskAndModeM[DMX_MAX_FILTER_SIZE];
-  uint8_t maskAndNotModeM[DMX_MAX_FILTER_SIZE];
+  uint8_t maskAndModeM[eDmxMaxFilterSize];
+  uint8_t maskAndNotModeM[eDmxMaxFilterSize];
 
   inline uint16_t GetLength(const uint8_t *dataP);
   void New(void);

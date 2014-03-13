@@ -19,6 +19,7 @@
 #include <vdr/tools.h>
 
 #include "deviceif.h"
+#include "server.h"
 #include "statistics.h"
 #include "socket.h"
 
@@ -41,6 +42,8 @@ private:
   cSatipSocket *rtcpSocketM;
   cString streamAddrM;
   cString streamParamM;
+  cSatipServer *currentServerM;
+  cSatipServer *nextServerM;
   cMutex mutexM;
   CURL *handleM;
   struct curl_slist *headerListM;
@@ -73,7 +76,7 @@ public:
   cSatipTuner(cSatipDeviceIf &deviceP, unsigned int packetLenP);
   virtual ~cSatipTuner();
   bool IsTuned(void) const { return tunedM; }
-  bool SetSource(const char* addressP, const char *parameterP, const int indexP);
+  bool SetSource(cSatipServer *serverP, const char *parameterP, const int indexP);
   bool SetPid(int pidP, int typeP, bool onP);
   bool Open(void);
   bool Close(void);

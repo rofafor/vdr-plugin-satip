@@ -78,7 +78,7 @@ all-redirect: all
 ### The object files (add further files here):
 
 OBJS = $(PLUGIN).o common.o config.o device.o discover.o param.o \
-	sectionfilter.o setup.o socket.o statistics.o tuner.o
+	sectionfilter.o server.o setup.o socket.o statistics.o tuner.o
 
 ### The main target:
 

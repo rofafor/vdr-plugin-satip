@@ -22,19 +22,19 @@ private:
 
 public:
   enum {
-    OPERATING_MODE_OFF = 0,
-    OPERATING_MODE_LOW,
-    OPERATING_MODE_NORMAL,
-    OPERATING_MODE_HIGH,
-    NUMBER_OF_OPERATING_MODES
+    eOperatingModeOff = 0,
+    eOperatingModeLow,
+    eOperatingModeNormal,
+    eOperatingModeHigh,
+    eOperatingModeCount
   };
   cSatipConfig();
   unsigned int GetOperatingMode(void) const { return operatingModeM; }
-  bool IsOperatingModeOff(void) const { return (operatingModeM == OPERATING_MODE_OFF); }
-  bool IsOperatingModeLow(void) const { return (operatingModeM == OPERATING_MODE_LOW); }
-  bool IsOperatingModeNormal(void) const { return (operatingModeM == OPERATING_MODE_NORMAL); }
-  bool IsOperatingModeHigh(void) const { return (operatingModeM == OPERATING_MODE_HIGH); }
-  void ToggleOperatingMode(void) { operatingModeM = (operatingModeM + 1) % NUMBER_OF_OPERATING_MODES; }
+  bool IsOperatingModeOff(void) const { return (operatingModeM == eOperatingModeOff); }
+  bool IsOperatingModeLow(void) const { return (operatingModeM == eOperatingModeLow); }
+  bool IsOperatingModeNormal(void) const { return (operatingModeM == eOperatingModeNormal); }
+  bool IsOperatingModeHigh(void) const { return (operatingModeM == eOperatingModeHigh); }
+  void ToggleOperatingMode(void) { operatingModeM = (operatingModeM + 1) % eOperatingModeCount; }
   unsigned int GetEITScan(void) const { return eitScanM; }
   unsigned int GetUseBytes(void) const { return useBytesM; }
   const char *GetConfigDirectory(void) const { return configDirectoryM; }

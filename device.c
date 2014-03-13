@@ -277,9 +277,8 @@ bool cSatipDevice::SetChannelDevice(const cChannel *channelP, bool liveViewP)
         debug("cSatipDevice::%s(%u): no suitable server found", __FUNCTION__, deviceIndexM);
         return false;
         }
-     address = server->Address();
-     if (pTunerM && pTunerM->SetSource(*address, *params, deviceIndexM)) {
-        deviceNameM = cString::sprintf("%s %d %s:%s:%s", *DeviceType(), deviceIndexM, server->Address(), server->Model(), server->Description());
+     if (pTunerM && pTunerM->SetSource(server, *params, deviceIndexM)) {
+        deviceNameM = cString::sprintf("%s %d %s", *DeviceType(), deviceIndexM, *cSatipDiscover::GetInstance()->GetServerString(server));
         channelM = *channelP;
         return true;
         }

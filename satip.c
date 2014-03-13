@@ -21,7 +21,7 @@
 #define GITVERSION ""
 #endif
 
-       const char VERSION[]     = "0.0.2" GITVERSION;
+       const char VERSION[]     = "0.1.0" GITVERSION;
 static const char DESCRIPTION[] = trNOOP("SAT>IP Devices");
 
 class cPluginSatip : public cPlugin {
@@ -292,16 +292,16 @@ cString cPluginSatip::SVDRPCommand(const char *commandP, const char *optionP, in
      cString mode;
      SatipConfig.ToggleOperatingMode();
      switch (SatipConfig.GetOperatingMode()) {
-       case cSatipConfig::OPERATING_MODE_OFF:
+       case cSatipConfig::eOperatingModeOff:
             mode = "off";
             break;
-       case cSatipConfig::OPERATING_MODE_LOW:
+       case cSatipConfig::eOperatingModeLow:
             mode = "low";
             break;
-       case cSatipConfig::OPERATING_MODE_NORMAL:
+       case cSatipConfig::eOperatingModeNormal:
             mode = "normal";
             break;
-       case cSatipConfig::OPERATING_MODE_HIGH:
+       case cSatipConfig::eOperatingModeHigh:
             mode = "high";
             break;
        default:
