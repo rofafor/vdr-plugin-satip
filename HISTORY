@@ -13,7 +13,7 @@ VDR Plugin 'satip' Revision History
 - Added a new operation mode setup parameter.
 - Added new SVDRP commands.
 
-2014-03-22: Version 0.1.1
+2014-03-16: Version 0.1.1
 
 - Changed code to utilize a proper XML library.
 - Refactored the session code.
