@@ -28,7 +28,7 @@ private:
   static cSatipDiscover *instanceS;
   static const char *bcastAddressS;
   static const char *bcastMessageS;
-  static size_t WriteCallback(void *ptrP, size_t sizeP, size_t nmembP, void *dataP);
+  static size_t WriteCallback(char *ptrP, size_t sizeP, size_t nmembP, void *dataP);
   cMutex mutexM;
   CURL *handleM;
   cSatipSocket *socketM;

@@ -224,7 +224,7 @@ bool cSatipDevice::ProvidesChannel(const cChannel *channelP, int priorityP, bool
 
 bool cSatipDevice::ProvidesEIT(void) const
 {
-  return (SatipConfig.GetEITScan() && pTunerM && pTunerM->IsTuned());
+  return (SatipConfig.GetEITScan());
 }
 
 int cSatipDevice::NumProvidedSystems(void) const

@@ -26,6 +26,7 @@ cSatipTuner::cSatipTuner(cSatipDeviceIf &deviceP, unsigned int packetLenP)
   headerListM(NULL),
   keepAliveM(),
   pidUpdateCacheM(),
+  sessionM(),
   timeoutM(eKeepAliveIntervalMs),
   openedM(false),
   tunedM(false),
@@ -67,27 +68,28 @@ size_t cSatipTuner::HeaderCallback(void *ptrP, size_t sizeP, size_t nmembP, void
   size_t len = sizeP * nmembP;
   //debug("cSatipTuner::%s(%zu)", __FUNCTION__, len);
 
-  int id = -1, timeout = -1;
   char *s, *p = (char *)ptrP;
   char *r = strtok_r(p, "\r\n", &s);
 
-  while (r) {
+  while (obj && r) {
         //debug("cSatipTuner::%s(%zu): %s", __FUNCTION__, len, r);
         r = skipspace(r);
         if (strstr(r, "com.ses.streamID")) {
-           if (sscanf(r, "com.ses.streamID:%11d", &id) != 1)
-              id = -1;
+           int streamid = -1;
+           if (sscanf(r, "com.ses.streamID:%11d", &streamid) == 1)
+              obj->SetStreamId(streamid);
            }
         else if (strstr(r, "Session:")) {
-           int session = -1;
-           if (sscanf(r, "Session:%11d;timeout=%11d", &session, &timeout) != 2)
-              timeout = -1;
+           int timeout = -1;
+           char *session = NULL;
+           if (sscanf(r, "Session:%m[^;];timeout=%11d", &session, &timeout) == 2)
+              obj->SetSessionTimeout(skipspace(session), timeout);
+           else if (sscanf(r, "Session:%m[^;]", &session) == 1)
+              obj->SetSessionTimeout(skipspace(session), -1);
+           FREE_POINTER(session);
            }
         r = strtok_r(NULL, "\r\n", &s);
         }
-
-  if (id >= 0 && obj)
-     obj->SetStreamInfo(id, timeout);
 
   return len;
 }
@@ -245,7 +247,7 @@ bool cSatipTuner::Connect(void)
      // Start playing
      uri = cString::sprintf("rtsp://%s/stream=%d", *streamAddrM, streamIdM);
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_STREAM_URI, *uri);
-     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_SESSION_ID, NULL);
+     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_SESSION_ID, *sessionM);
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_REQUEST, (long)CURL_RTSPREQ_PLAY);
      SATIP_CURL_EASY_PERFORM(handleM);
      if (!ValidateLatestResponse())
@@ -369,11 +371,18 @@ void cSatipTuner::ParseReceptionParameters(const char *paramP)
      }
 }
 
-void cSatipTuner::SetStreamInfo(int idP, int timeoutP)
+void cSatipTuner::SetStreamId(int streamIdP)
 {
   cMutexLock MutexLock(&mutexM);
-  debug("cSatipTuner::%s(%d, %d)", __FUNCTION__, idP, timeoutP);
-  streamIdM = idP;
+  debug("cSatipTuner::%s(%d)", __FUNCTION__, streamIdP);
+  streamIdM = streamIdP;
+}
+
+void cSatipTuner::SetSessionTimeout(const char *sessionP, int timeoutP)
+{
+  cMutexLock MutexLock(&mutexM);
+  debug("cSatipTuner::%s(%s, %d)", __FUNCTION__, sessionP, timeoutP);
+  sessionM = sessionP;
   timeoutM = timeoutP > 0 ? timeoutP * 1000L : eKeepAliveIntervalMs;
 }
 

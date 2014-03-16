@@ -17,6 +17,12 @@ Requirements:
 - Libcurl - the multiprotocol file transfer library with RTSP support
   http://curl.haxx.se/libcurl/
 
+- PugiXML - Light-weight, simple and fast XML parser for C++
+  http://pugixml.org/
+  or
+  TinyXML - a simple, small, C++ XML parser
+  http://www.grinninglizard.com/tinyxml/
+
 - VDR-2.1.4+ for scrambled channels
 
 Description:
@@ -92,13 +98,15 @@ Notes:
   result of invalid channel parameters or lack of free SAT>IP tuners.
 
 - SAT>IP specification 1.2 doesn't support DVB-C/DVB-C2 receivers yet,
-  but DVB-C is supported for Digital Devices Octopus Net devices.
+  but DVB-C (KABEL>IP) is supported for Digital Devices Octopus Net
+  devices.
 
 - If the plugin doesn't detect your SAT>IP network device, make sure
   your setup doesn't have firewalled the UDP port 1900.
 
 - Stream decryption requires a separate CAM plugin that works without
-  direct access to any DVB card devices.
+  direct access to any DVB card devices. The integrated CAM slot in
+  Octopus Net devices isn't supported.
 
 - The 100% compliance against SAT>IP specification 1.2 requires a
   patched VDR providing channel configuration for pilot, T2 system id,

@@ -12,3 +12,10 @@ VDR Plugin 'satip' Revision History
 - Switched to the standard S/T/C source identifiers.
 - Added a new operation mode setup parameter.
 - Added new SVDRP commands.
+
+2014-03-22: Version 0.1.1
+
+- Changed code to utilize a proper XML library.
+- Refactored the session code.
+- Fixed EIT scan functionality.
+- Updated for vdr-2.1.6.

@@ -6,6 +6,10 @@
 
 #SATIP_DEBUG = 1
 
+# Use TinyXML instead of PugiXML
+
+#SATIP_USE_TINYXML = 1
+
 # Strip debug symbols?  Set eg. to /bin/true if not
 
 STRIP = strip
@@ -63,6 +67,13 @@ LIBS = $(shell curl-config --libs)
 INCLUDES +=
 
 DEFINES += -DPLUGIN_NAME_I18N='"$(PLUGIN)"'
+
+ifdef SATIP_USE_TINYXML
+DEFINES += -DUSE_TINYXML
+LIBS += -ltinyxml
+else
+LIBS += -lpugixml
+endif
 
 ifdef SATIP_DEBUG
 DEFINES += -DDEBUG

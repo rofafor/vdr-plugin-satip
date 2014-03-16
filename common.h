@@ -78,6 +78,15 @@
         }                        \
   } while (0)
 
+#define FREE_POINTER(ptr)        \
+  do {                           \
+     if (ptr) {                  \
+        typeof(*ptr) *tmp = ptr; \
+        ptr = NULL;              \
+        free(tmp);               \
+        }                        \
+  } while (0)
+
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof(arr[0]))
 
 uint16_t ts_pid(const uint8_t *bufP);

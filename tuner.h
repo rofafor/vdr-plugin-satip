@@ -50,6 +50,7 @@ private:
   cTimeMs keepAliveM;
   cTimeMs signalInfoCacheM;
   cTimeMs pidUpdateCacheM;
+  cString sessionM;
   int timeoutM;
   bool openedM;
   bool tunedM;
@@ -64,7 +65,8 @@ private:
   bool Disconnect(void);
   bool ValidateLatestResponse(void);
   void ParseReceptionParameters(const char *paramP);
-  void SetStreamInfo(int idP, int timeoutP);
+  void SetStreamId(int streamIdP);
+  void SetSessionTimeout(const char *sessionP, int timeoutP);
   bool KeepAlive(void);
   bool UpdateSignalInfoCache(void);
   bool UpdatePids(void);
