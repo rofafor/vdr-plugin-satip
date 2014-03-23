@@ -15,6 +15,7 @@ private:
   int socketPortM;
   int socketDescM;
   struct sockaddr_in sockAddrM;
+  int sequenceNumberM;
 
 public:
   cSatipSocket();

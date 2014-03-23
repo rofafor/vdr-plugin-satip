@@ -144,6 +144,12 @@ cString cSatipDevice::GetInformation(unsigned int pageP)
   return s;
 }
 
+bool cSatipDevice::Ready(void)
+{
+  //debug("cSatipDevice::%s(%u)", __FUNCTION__, deviceIndexM);
+  return (cSatipDiscover::GetInstance()->GetServerCount() > 0);
+}
+
 cString cSatipDevice::DeviceType(void) const
 {
   //debug("cSatipDevice::%s(%u)", __FUNCTION__, deviceIndexM);

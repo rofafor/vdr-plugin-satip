@@ -56,6 +56,7 @@ public:
   static void Destroy(void);
   virtual ~cSatipDiscover();
   void TriggerScan(void) { probeIntervalM.Set(0); }
+  int GetServerCount(void);
   cSatipServer *GetServer(int sourceP, int systemP = -1);
   cSatipServer *GetServer(cSatipServer *serverP);
   cSatipServers *GetServers(void);

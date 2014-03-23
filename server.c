@@ -149,7 +149,7 @@ cString cSatipServers::GetString(cSatipServer *serverP)
   cString list = "";
   for (cSatipServer *s = First(); s; s = Next(s)) {
       if (s == serverP) {
-         list = cString::sprintf("%s:%s:%s", s->Address(), s->Model(), s->Description());
+         list = cString::sprintf("%s|%s|%s", s->Address(), s->Model(), s->Description());
          break;
          }
       }
@@ -160,7 +160,7 @@ cString cSatipServers::List(void)
 {
   cString list = "";
   for (cSatipServer *s = First(); s; s = Next(s))
-      list = cString::sprintf("%s%s:%s:%s\n", *list, s->Address(), s->Model(), s->Description());
+      list = cString::sprintf("%s%s|%s|%s\n", *list, s->Address(), s->Model(), s->Description());
   return list;
 }
 

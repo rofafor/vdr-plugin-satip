@@ -247,7 +247,7 @@ bool cSatipTuner::Connect(void)
      // Start playing
      uri = cString::sprintf("rtsp://%s/stream=%d", *streamAddrM, streamIdM);
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_STREAM_URI, *uri);
-     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_SESSION_ID, *sessionM);
+     //SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_SESSION_ID, *sessionM);
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_REQUEST, (long)CURL_RTSPREQ_PLAY);
      SATIP_CURL_EASY_PERFORM(handleM);
      if (!ValidateLatestResponse())

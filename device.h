@@ -54,6 +54,7 @@ private:
 
   // for channel info
 public:
+  virtual bool Ready(void);
   virtual cString DeviceType(void) const;
   virtual cString DeviceName(void) const;
   virtual bool AvoidRecording(void) const;

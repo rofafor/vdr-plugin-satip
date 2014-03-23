@@ -20,7 +20,8 @@
 
 cSatipSocket::cSatipSocket()
 : socketPortM(0),
-  socketDescM(-1)
+  socketDescM(-1),
+  sequenceNumberM(-1)
 {
   debug("cSatipSocket::%s()", __FUNCTION__);
   memset(&sockAddrM, 0, sizeof(sockAddrM));
@@ -72,6 +73,7 @@ void cSatipSocket::Close(void)
      close(socketDescM);
      socketDescM = -1;
      socketPortM = 0;
+     sequenceNumberM = -1;
      memset(&sockAddrM, 0, sizeof(sockAddrM));
      }
 }
@@ -150,6 +152,11 @@ int cSatipSocket::ReadVideo(unsigned char *bufferAddrP, unsigned int bufferLenP)
         unsigned int cc = bufferAddrP[0] & 0x0F;
         // Payload type: MPEG2 TS = 33
         //unsigned int pt = bufferAddrP[1] & 0x7F;
+        // Sequence number
+        int seq = ((bufferAddrP[2] & 0xFF) << 8) | (bufferAddrP[3] & 0xFF);
+        if ((sequenceNumberM >= 0) && (((sequenceNumberM + 1) % 0xFFFF) != seq))
+           error("missed %d RTP packets", seq - sequenceNumberM - 1);
+        sequenceNumberM = seq;
         // Header lenght
         unsigned int headerlen = (3 + cc) * (unsigned int)sizeof(uint32_t);
         // Check if extension

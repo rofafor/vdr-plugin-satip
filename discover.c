@@ -251,6 +251,13 @@ void cSatipDiscover::AddServer(const char *addrP, const char *descP, const char 
      }
 }
 
+int cSatipDiscover::GetServerCount(void)
+{
+  //debug("cSatipDiscover::%s()", __FUNCTION__);
+  cMutexLock MutexLock(&mutexM);
+  return serversM ? serversM->Count() : -1;
+}
+
 cSatipServer *cSatipDiscover::GetServer(int sourceP, int systemP)
 {
   //debug("cSatipDiscover::%s(%d, %d)", __FUNCTION__, sourceP, systemP);

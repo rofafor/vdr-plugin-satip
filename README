@@ -112,6 +112,9 @@ Notes:
   patched VDR providing channel configuration for pilot, T2 system id,
   and SISO/MISO values.
 
+- If you're using Triax TSS400, you'll need the libcurl from 2013-03-20
+  or newer.
+
 Acknowledgements:
 
 - Big thanks to Digital Devices GmbH for providing the Octopus Net
