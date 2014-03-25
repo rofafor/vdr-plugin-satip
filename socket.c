@@ -154,9 +154,14 @@ int cSatipSocket::ReadVideo(unsigned char *bufferAddrP, unsigned int bufferLenP)
         //unsigned int pt = bufferAddrP[1] & 0x7F;
         // Sequence number
         int seq = ((bufferAddrP[2] & 0xFF) << 8) | (bufferAddrP[3] & 0xFF);
-        if ((sequenceNumberM >= 0) && (((sequenceNumberM + 1) % 0xFFFF) != seq))
+        if ((((sequenceNumberM + 1) % 0xFFFF) == 0) && (seq == 0xFFFF))
+           sequenceNumberM = -1;
+        else if ((sequenceNumberM >= 0) && (((sequenceNumberM + 1) % 0xFFFF) != seq)) {
            error("missed %d RTP packets", seq - sequenceNumberM - 1);
-        sequenceNumberM = seq;
+           sequenceNumberM = seq;
+           }
+        else
+           sequenceNumberM = seq;
         // Header lenght
         unsigned int headerlen = (3 + cc) * (unsigned int)sizeof(uint32_t);
         // Check if extension

@@ -306,11 +306,12 @@ bool cSatipDevice::SetPid(cPidHandle *handleP, int typeP, bool onP)
 
 int cSatipDevice::OpenFilter(u_short pidP, u_char tidP, u_char maskP)
 {
-  //debug("cSatipDevice::%s(%u): pid=%d tid=%d mask=%d", __FUNCTION__, deviceIndexM, pidP, tidP,  maskP);
+  //debug("cSatipDevice::%s(%u): pid=%d tid=%d mask=%d", __FUNCTION__, deviceIndexM, pidP, tidP, maskP);
   if (pSectionFilterHandlerM) {
-     if (pTunerM)
+     int handle = pSectionFilterHandlerM->Open(pidP, tidP, maskP);
+     if (pTunerM && (handle >= 0))
         pTunerM->SetPid(pidP, ptOther, true);
-     return pSectionFilterHandlerM->Open(pidP, tidP, maskP);
+     return handle;
      }
   return -1;
 }

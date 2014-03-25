@@ -36,7 +36,7 @@
 #define SATIP_STATS_ACTIVE_PIDS_COUNT    10
 #define SATIP_STATS_ACTIVE_FILTERS_COUNT 10
 
-#define SECTION_FILTER_TABLE_SIZE        7
+#define SECTION_FILTER_TABLE_SIZE        5
 
 #define SATIP_CURL_EASY_GETINFO(X, Y, Z) \
   if ((res = curl_easy_getinfo((X), (Y), (Z))) != CURLE_OK) { \

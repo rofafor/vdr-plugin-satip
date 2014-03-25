@@ -23,3 +23,4 @@ VDR Plugin 'satip' Revision History
 2014-xx-xx: Version 0.2.0
 
 - Added support for cDevice::Ready().
+- Fixed pid leaking while disabling section filters.
