@@ -97,7 +97,7 @@ size_t cSatipTuner::HeaderCallback(void *ptrP, size_t sizeP, size_t nmembP, void
 void cSatipTuner::Action(void)
 {
   debug("cSatipTuner::%s(): entering", __FUNCTION__);
-  cTimeMs timeout(0);
+  cTimeMs timeout(eReConnectTimeoutMs);
   // Increase priority
   SetPriority(-1);
   // Do the thread loop
@@ -129,7 +129,7 @@ void cSatipTuner::Action(void)
            }
         else {
            // Reconnect if necessary
-           if (openedM && !tunedM && timeout.TimedOut()) {
+           if (openedM && timeout.TimedOut()) {
               Disconnect();
               Connect();
               timeout.Set(eReConnectTimeoutMs);
