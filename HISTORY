@@ -20,7 +20,8 @@ VDR Plugin 'satip' Revision History
 - Fixed EIT scan functionality.
 - Updated for vdr-2.1.6.
 
-2014-xx-xx: Version 0.2.0
+2014-03-28: Version 0.2.0
 
 - Added support for cDevice::Ready().
 - Fixed pid leaking while disabling section filters.
+- Fixed keepalive heartbeat.

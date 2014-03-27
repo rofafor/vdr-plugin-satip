@@ -27,7 +27,7 @@ cSatipTuner::cSatipTuner(cSatipDeviceIf &deviceP, unsigned int packetLenP)
   keepAliveM(),
   pidUpdateCacheM(),
   sessionM(),
-  timeoutM(eKeepAliveIntervalMs),
+  timeoutM(eDefKeepAliveIntervalMs),
   openedM(false),
   tunedM(false),
   hasLockM(false),
@@ -183,7 +183,6 @@ bool cSatipTuner::Connect(void)
         // Flush any old content
         if (rtpSocketM)
            rtpSocketM->Flush();
-        keepAliveM.Set(eKeepAliveIntervalMs);
         return true;
         }
 
@@ -229,6 +228,7 @@ bool cSatipTuner::Connect(void)
         }
 
      // Request server options: "&pids=all" for the whole mux
+     keepAliveM.Set(timeoutM);
      uri = cString::sprintf("rtsp://%s/?%s&pids=0", *streamAddrM, *streamParamM);
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_STREAM_URI, *uri);
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_REQUEST, (long)CURL_RTSPREQ_OPTIONS);
@@ -253,7 +253,6 @@ bool cSatipTuner::Connect(void)
      if (!ValidateLatestResponse())
         return false;
 
-     keepAliveM.Set(eKeepAliveIntervalMs);
      tunedM = true;
      if (nextServerM) {
         cSatipDiscover::GetInstance()->UseServer(nextServerM, true);
@@ -305,6 +304,7 @@ bool cSatipTuner::Disconnect(void)
   if (currentServerM)
      cSatipDiscover::GetInstance()->UseServer(currentServerM, false);
   tunedM = false;
+  timeoutM = eDefKeepAliveIntervalMs;
 
   return true;
 }
@@ -383,7 +383,12 @@ void cSatipTuner::SetSessionTimeout(const char *sessionP, int timeoutP)
   cMutexLock MutexLock(&mutexM);
   debug("cSatipTuner::%s(%s, %d)", __FUNCTION__, sessionP, timeoutP);
   sessionM = sessionP;
-  timeoutM = timeoutP > 0 ? timeoutP * 1000L : eKeepAliveIntervalMs;
+  if (timeoutP > 30)
+     timeoutM = timeoutP * 1000L;
+  else if (timeoutP > 0)
+     timeoutM = eMinKeepAliveIntervalMs;
+  else
+     timeoutM = eDefKeepAliveIntervalMs;
 }
 
 bool cSatipTuner::SetSource(cSatipServer *serverP, const char *parameterP, const int indexP)
@@ -439,10 +444,8 @@ bool cSatipTuner::UpdatePids(void)
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_STREAM_URI, *uri);
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_REQUEST, (long)CURL_RTSPREQ_PLAY);
      SATIP_CURL_EASY_PERFORM(handleM);
-     if (ValidateLatestResponse()) {
-        keepAliveM.Set(eKeepAliveIntervalMs);
+     if (ValidateLatestResponse())
         pidUpdatedM = false;
-        }
      else
         Disconnect();
 
@@ -464,7 +467,7 @@ bool cSatipTuner::KeepAlive(void)
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_REQUEST, (long)CURL_RTSPREQ_OPTIONS);
      SATIP_CURL_EASY_PERFORM(handleM);
      if (ValidateLatestResponse())
-        keepAliveM.Set(eKeepAliveIntervalMs);
+        keepAliveM.Set(timeoutM);
      else
         Disconnect();
 
