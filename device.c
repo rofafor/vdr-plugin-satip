@@ -19,7 +19,9 @@ cSatipDevice::cSatipDevice(unsigned int indexP)
   isPacketDeliveredM(false),
   isOpenDvrM(false),
   deviceNameM(*cString::sprintf("%s %d", *DeviceType(), deviceIndexM)),
-  channelM()
+  channelM(),
+  createdM(0),
+  mutexM()
 {
   unsigned int bufsize = (unsigned int)SATIP_BUFFER_SIZE;
   bufsize -= (bufsize % TS_SIZE);
@@ -147,7 +149,7 @@ cString cSatipDevice::GetInformation(unsigned int pageP)
 bool cSatipDevice::Ready(void)
 {
   //debug("cSatipDevice::%s(%u)", __FUNCTION__, deviceIndexM);
-  return (cSatipDiscover::GetInstance()->GetServerCount() > 0);
+  return ((cSatipDiscover::GetInstance()->GetServerCount() > 0) || (createdM.Elapsed() > eReadyTimeoutMs));
 }
 
 cString cSatipDevice::DeviceType(void) const

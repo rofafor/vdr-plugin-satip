@@ -26,6 +26,9 @@ public:
 
   // private parts
 private:
+  enum {
+    eReadyTimeoutMs = 2000 // in milliseconds
+  };
   unsigned int deviceIndexM;
   bool isPacketDeliveredM;
   bool isOpenDvrM;
@@ -34,6 +37,7 @@ private:
   cRingBufferLinear *tsBufferM;
   cSatipTuner *pTunerM;
   cSatipSectionFilterHandler *pSectionFilterHandlerM;
+  cTimeMs createdM;
   cMutex mutexM;
 
   // constructor & destructor
