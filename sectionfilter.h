@@ -16,11 +16,14 @@
 #include "common.h"
 #include "statistics.h"
 
+#define USE_THREADED_SECTIONFILTER
+
 class cSatipSectionFilter : public cSatipSectionStatistics {
 private:
-  enum dmx_limits {
-    eDmxMaxFilterSize  = 18,
-    eDmxMaxSectionSize = 4096,
+  enum {
+    eWriteMaxRetries       = 20,
+    eDmxMaxFilterSize      = 18,
+    eDmxMaxSectionSize     = 4096,
     eDmxMaxSectionFeedSize = (eDmxMaxSectionSize + TS_SIZE)
   };
 
@@ -60,27 +63,29 @@ public:
   uint16_t GetPid(void) const { return pidM; }
 };
 
+#ifdef USE_THREADED_SECTIONFILTER
 class cSatipSectionFilterHandler : public cThread {
+protected:
+  virtual void Action(void);
+private:
+  cRingBufferLinear *ringBufferM;
+#else
+class cSatipSectionFilterHandler {
+#endif
 private:
   enum {
     eMaxSecFilterCount = 32
   };
   cMutex mutexM;
   int deviceIndexM;
-  bool processedM;
-  cRingBufferLinear *ringBufferM;
   cSatipSectionFilter *filtersM[eMaxSecFilterCount];
 
   bool Delete(unsigned int indexP);
   bool IsBlackListed(u_short pidP, u_char tidP, u_char maskP) const;
 
-protected:
-  virtual void Action(void);
-
 public:
   cSatipSectionFilterHandler(int deviceIndexP, unsigned int bufferLenP);
   virtual ~cSatipSectionFilterHandler();
-  bool Stop(void);
   cString GetInformation(void);
   int Open(u_short pidP, u_char tidP, u_char maskP);
   void Close(int handleP);

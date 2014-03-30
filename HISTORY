@@ -30,3 +30,5 @@ VDR Plugin 'satip' Revision History
 
 - Changed implementation to report about RTP packet
   errors on 5 minutes interval only.
+- Added a check to write new sections only if there
+  is no data in the read socket.
