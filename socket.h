@@ -12,9 +12,14 @@
 
 class cSatipSocket {
 private:
+  enum {
+    eReportIntervalS = 300 // in seconds
+  };
   int socketPortM;
   int socketDescM;
   struct sockaddr_in sockAddrM;
+  time_t lastErrorReportM;
+  int packetErrorsM;
   int sequenceNumberM;
 
 public:

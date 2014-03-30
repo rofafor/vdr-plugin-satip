@@ -25,3 +25,8 @@ VDR Plugin 'satip' Revision History
 - Added support for cDevice::Ready().
 - Fixed pid leaking while disabling section filters.
 - Fixed keepalive heartbeat.
+
+2014-03-30: Version 0.2.1
+
+- Changed implementation to report about RTP packet
+  errors on 5 minutes interval only.

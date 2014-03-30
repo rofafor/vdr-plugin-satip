@@ -21,6 +21,8 @@
 cSatipSocket::cSatipSocket()
 : socketPortM(0),
   socketDescM(-1),
+  lastErrorReportM(0),
+  packetErrorsM(0),
   sequenceNumberM(-1)
 {
   debug("cSatipSocket::%s()", __FUNCTION__);
@@ -157,7 +159,12 @@ int cSatipSocket::ReadVideo(unsigned char *bufferAddrP, unsigned int bufferLenP)
         if ((((sequenceNumberM + 1) % 0xFFFF) == 0) && (seq == 0xFFFF))
            sequenceNumberM = -1;
         else if ((sequenceNumberM >= 0) && (((sequenceNumberM + 1) % 0xFFFF) != seq)) {
-           error("missed %d RTP packets", seq - sequenceNumberM - 1);
+           packetErrorsM++;
+           if (time(NULL) - lastErrorReportM > eReportIntervalS) {
+              info("detected %d RTP packet errors", packetErrorsM);
+              packetErrorsM = 0;
+              lastErrorReportM = time(NULL);
+              }
            sequenceNumberM = seq;
            }
         else
