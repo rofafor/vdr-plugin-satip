@@ -78,6 +78,11 @@ void cSatipSocket::Close(void)
      sequenceNumberM = -1;
      memset(&sockAddrM, 0, sizeof(sockAddrM));
      }
+  if (packetErrorsM) {
+     info("detected %d RTP packet errors", packetErrorsM);
+     packetErrorsM = 0;
+     lastErrorReportM = time(NULL);
+     }
 }
 
 bool cSatipSocket::Flush(void)
