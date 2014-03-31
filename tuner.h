@@ -29,8 +29,7 @@ private:
     eConnectTimeoutMs       = 1500,   // in milliseconds
     ePidUpdateIntervalMs    = 100,    // in milliseconds
     eReConnectTimeoutMs     = 5000,   // in milliseconds
-    eMinKeepAliveIntervalMs = 300000, // in milliseconds
-    eDefKeepAliveIntervalMs = 600000  // in milliseconds
+    eMinKeepAliveIntervalMs = 300000  // in milliseconds
   };
 
   static size_t HeaderCallback(void *ptrP, size_t sizeP, size_t nmembP, void *dataP);
@@ -67,7 +66,7 @@ private:
   bool ValidateLatestResponse(void);
   void ParseReceptionParameters(const char *paramP);
   void SetStreamId(int streamIdP);
-  void SetSessionTimeout(const char *sessionP, int timeoutP);
+  void SetSessionTimeout(const char *sessionP, int timeoutP = 0);
   bool KeepAlive(void);
   bool UpdateSignalInfoCache(void);
   bool UpdatePids(void);

@@ -26,9 +26,10 @@ VDR Plugin 'satip' Revision History
 - Fixed pid leaking while disabling section filters.
 - Fixed keepalive heartbeat.
 
-2014-03-30: Version 0.2.1
+2014-04-01: Version 0.2.1
 
 - Changed implementation to report about RTP packet
   errors on 5 minutes interval only.
 - Added a check to write new sections only if there
   is no data in the read socket.
+- Fixed keepalive heartbeat again.

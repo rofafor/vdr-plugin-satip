@@ -27,7 +27,7 @@ cSatipTuner::cSatipTuner(cSatipDeviceIf &deviceP, unsigned int packetLenP)
   keepAliveM(),
   pidUpdateCacheM(),
   sessionM(),
-  timeoutM(eDefKeepAliveIntervalMs),
+  timeoutM(eMinKeepAliveIntervalMs),
   openedM(false),
   tunedM(false),
   hasLockM(false),
@@ -83,9 +83,9 @@ size_t cSatipTuner::HeaderCallback(void *ptrP, size_t sizeP, size_t nmembP, void
            int timeout = -1;
            char *session = NULL;
            if (sscanf(r, "Session:%m[^;];timeout=%11d", &session, &timeout) == 2)
-              obj->SetSessionTimeout(skipspace(session), timeout);
+              obj->SetSessionTimeout(skipspace(session), (timeout - 1) * 1000);
            else if (sscanf(r, "Session:%m[^;]", &session) == 1)
-              obj->SetSessionTimeout(skipspace(session), -1);
+              obj->SetSessionTimeout(skipspace(session));
            FREE_POINTER(session);
            }
         r = strtok_r(NULL, "\r\n", &s);
@@ -304,7 +304,7 @@ bool cSatipTuner::Disconnect(void)
   if (currentServerM)
      cSatipDiscover::GetInstance()->UseServer(currentServerM, false);
   tunedM = false;
-  timeoutM = eDefKeepAliveIntervalMs;
+  timeoutM = eMinKeepAliveIntervalMs;
 
   return true;
 }
@@ -383,12 +383,7 @@ void cSatipTuner::SetSessionTimeout(const char *sessionP, int timeoutP)
   cMutexLock MutexLock(&mutexM);
   debug("cSatipTuner::%s(%s, %d)", __FUNCTION__, sessionP, timeoutP);
   sessionM = sessionP;
-  if (timeoutP > 30)
-     timeoutM = timeoutP * 1000L;
-  else if (timeoutP > 0)
-     timeoutM = eMinKeepAliveIntervalMs;
-  else
-     timeoutM = eDefKeepAliveIntervalMs;
+  timeoutM = (timeoutP > eMinKeepAliveIntervalMs) ? timeoutP : eMinKeepAliveIntervalMs;
 }
 
 bool cSatipTuner::SetSource(cSatipServer *serverP, const char *parameterP, const int indexP)
