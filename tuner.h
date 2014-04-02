@@ -26,10 +26,10 @@
 class cSatipTuner : public cThread, public cSatipTunerStatistics {
 private:
   enum {
-    eConnectTimeoutMs       = 1500,   // in milliseconds
-    ePidUpdateIntervalMs    = 100,    // in milliseconds
-    eReConnectTimeoutMs     = 5000,   // in milliseconds
-    eMinKeepAliveIntervalMs = 300000  // in milliseconds
+    eConnectTimeoutMs       = 1500,  // in milliseconds
+    ePidUpdateIntervalMs    = 100,   // in milliseconds
+    eReConnectTimeoutMs     = 5000,  // in milliseconds
+    eMinKeepAliveIntervalMs = 30000  // in milliseconds
   };
 
   static size_t HeaderCallback(void *ptrP, size_t sizeP, size_t nmembP, void *dataP);

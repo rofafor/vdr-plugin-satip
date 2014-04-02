@@ -83,7 +83,7 @@ size_t cSatipTuner::HeaderCallback(void *ptrP, size_t sizeP, size_t nmembP, void
            int timeout = -1;
            char *session = NULL;
            if (sscanf(r, "Session:%m[^;];timeout=%11d", &session, &timeout) == 2)
-              obj->SetSessionTimeout(skipspace(session), (timeout - 1) * 1000);
+              obj->SetSessionTimeout(skipspace(session), timeout * 1000);
            else if (sscanf(r, "Session:%m[^;]", &session) == 1)
               obj->SetSessionTimeout(skipspace(session));
            FREE_POINTER(session);
