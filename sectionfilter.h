@@ -8,21 +8,16 @@
 #ifndef __SATIP_SECTIONFILTER_H
 #define __SATIP_SECTIONFILTER_H
 
-#ifdef __FreeBSD__
-#include <sys/socket.h>
-#endif // __FreeBSD__
 #include <vdr/device.h>
 
 #include "common.h"
 #include "statistics.h"
 
-#define USE_THREADED_SECTIONFILTER
-
 class cSatipSectionFilter : public cSatipSectionStatistics {
 private:
   enum {
-    eWriteMaxRetries       = 20,
     eDmxMaxFilterSize      = 18,
+    eDmxMaxSectionCount    = 64,
     eDmxMaxSectionSize     = 4096,
     eDmxMaxSectionFeedSize = (eDmxMaxSectionSize + TS_SIZE)
   };
@@ -38,6 +33,7 @@ private:
   uint16_t tsFeedpM;
   uint16_t pidM;
 
+  cRingBufferFrame *ringBufferM;
   int deviceIndexM;
   int socketM[2];
 
@@ -59,29 +55,26 @@ public:
   cSatipSectionFilter(int deviceIndexP, uint16_t pidP, uint8_t tidP, uint8_t maskP);
   virtual ~cSatipSectionFilter();
   void Process(const uint8_t* dataP);
+  bool Send(void);
   int GetFd(void) { return socketM[0]; }
   uint16_t GetPid(void) const { return pidM; }
 };
 
-#ifdef USE_THREADED_SECTIONFILTER
 class cSatipSectionFilterHandler : public cThread {
-protected:
-  virtual void Action(void);
-private:
-  cRingBufferLinear *ringBufferM;
-#else
-class cSatipSectionFilterHandler {
-#endif
 private:
   enum {
     eMaxSecFilterCount = 32
   };
+  cRingBufferLinear *ringBufferM;
   cMutex mutexM;
   int deviceIndexM;
   cSatipSectionFilter *filtersM[eMaxSecFilterCount];
 
   bool Delete(unsigned int indexP);
   bool IsBlackListed(u_short pidP, u_char tidP, u_char maskP) const;
+
+protected:
+  virtual void Action(void);
 
 public:
   cSatipSectionFilterHandler(int deviceIndexP, unsigned int bufferLenP);

@@ -57,30 +57,6 @@ char *StripTags(char *strP)
   return NULL;
 }
 
-int select_single_desc(int descriptorP, const int msP, const bool selectWriteP)
-{
-  // Wait for data
-  struct timeval tv;
-  tv.tv_sec = 0;
-  tv.tv_usec = msP * 1000L;
-  // Use select
-  fd_set infd;
-  fd_set outfd;
-  fd_set errfd;
-  FD_ZERO(&infd);
-  FD_ZERO(&outfd);
-  FD_ZERO(&errfd);
-  FD_SET(descriptorP, &errfd);
-  if (selectWriteP)
-     FD_SET(descriptorP, &outfd);
-  else
-     FD_SET(descriptorP, &infd);
-  int retval = select(descriptorP + 1, &infd, &outfd, &errfd, &tv);
-  // Check if error
-  ERROR_IF_RET(retval < 0, "select()", return retval);
-  return retval;
-}
-
 cString ChangeCase(const cString &strP, bool upperP)
 {
   cString res(strP);

@@ -17,6 +17,7 @@ cSatipSectionFilter::cSatipSectionFilter(int deviceIndexP, uint16_t pidP, uint8_
   secLenM(0),
   tsFeedpM(0),
   pidM(pidP),
+  ringBufferM(new cRingBufferFrame(eDmxMaxSectionCount * eDmxMaxSectionSize)),
   deviceIndexM(deviceIndexP)
 {
   //debug("cSatipSectionFilter::%s(%d, %d)", __FUNCTION__, deviceIndexM, pidM);
@@ -48,7 +49,7 @@ cSatipSectionFilter::cSatipSectionFilter(int deviceIndexP, uint16_t pidP, uint8_
 
   // Create sockets
   socketM[0] = socketM[1] = -1;
-  if (socketpair(AF_UNIX, SOCK_DGRAM, 0, socketM) != 0) {
+  if (socketpair(AF_UNIX, SOCK_SEQPACKET, 0, socketM) != 0) {
      char tmp[64];
      error("Opening section filter sockets failed (device=%d pid=%d): %s", deviceIndexM, pidM, strerror_r(errno, tmp, sizeof(tmp)));
      }
@@ -70,6 +71,7 @@ cSatipSectionFilter::~cSatipSectionFilter()
   if (tmp >= 0)
      close(tmp);
   secBufM = NULL;
+  DELETENULL(ringBufferM);
 }
 
 inline uint16_t cSatipSectionFilter::GetLength(const uint8_t *dataP)
@@ -99,21 +101,8 @@ int cSatipSectionFilter::Filter(void)
      if (doneqM && !neq)
         return 0;
 
-     // There is no data in the read socket, more can be written
-     if ((secLenM > 0) && (socketM[1] >= 0) && (socketM[0] >= 0)) {
-        for (i = 0; i < eWriteMaxRetries; ++i) {
-            if (select_single_desc(socketM[0], 10, false))
-               continue;
-            ssize_t len = write(socketM[1], secBufM, secLenM);
-            ERROR_IF(len < 0, "write()");
-            // Update statistics
-            if (len >= 0)
-               AddSectionStatistic(len, 1);
-            break;
-            }
-        if (i >= eWriteMaxRetries)
-           debug("Skipped section write (%d bytes)", secLenM);
-        }
+     if (ringBufferM && (secLenM > 0))
+        ringBufferM->Put(new cFrame(secBufM, secLenM));
      }
   return 0;
 }
@@ -219,13 +208,31 @@ void cSatipSectionFilter::Process(const uint8_t* dataP)
      }
 }
 
+bool cSatipSectionFilter::Send(void)
+{
+  bool result = false;
+  cFrame *section = ringBufferM->Get();
+  if (section) {
+     uchar *data = section->Data();
+     int count = section->Count();
+     if (data && (count > 0) && (socketM[1] >= 0) && (socketM[0] >= 0)) {
+        ssize_t len = send(socketM[1], data, count, MSG_EOR);
+        ERROR_IF(len < 0 && errno != EAGAIN, "send()");
+        if (len > 0) {
+           ringBufferM->Drop(section);
+           // Update statistics
+           AddSectionStatistic(len, 1);
+           result = true;
+           }
+        }
+     }
+  return result;
+}
+
 
 cSatipSectionFilterHandler::cSatipSectionFilterHandler(int deviceIndexP, unsigned int bufferLenP)
-:
-#ifdef USE_THREADED_SECTIONFILTER
-  cThread("SAT>IP section handler", true),
+: cThread("SAT>IP section handler"),
   ringBufferM(new cRingBufferLinear(bufferLenP, TS_SIZE, false, *cString::sprintf("SAT>IP SECTION HANDLER %d", deviceIndexP))),
-#endif
   mutexM(),
   deviceIndexM(deviceIndexP)
 {
@@ -234,7 +241,6 @@ cSatipSectionFilterHandler::cSatipSectionFilterHandler(int deviceIndexP, unsigne
   // Initialize filter pointers
   memset(filtersM, 0, sizeof(filtersM));
 
-#ifdef USE_THREADED_SECTIONFILTER
   // Create input buffer
   if (ringBufferM) {
      ringBufferM->SetTimeouts(100, 100);
@@ -242,19 +248,17 @@ cSatipSectionFilterHandler::cSatipSectionFilterHandler(int deviceIndexP, unsigne
      }
   else
      error("Failed to allocate buffer for section filter handler (device=%d): ", deviceIndexM);
+
   Start();
-#endif
 }
 
 cSatipSectionFilterHandler::~cSatipSectionFilterHandler()
 {
   debug("cSatipSectionFilterHandler::%s(%d)", __FUNCTION__, deviceIndexM);
-#ifdef USE_THREADED_SECTIONFILTER
   // Stop thread
   if (Running())
      Cancel(3);
   DELETE_POINTER(ringBufferM);
-#endif
 
   // Destroy all filters
   cMutexLock MutexLock(&mutexM);
@@ -262,13 +266,22 @@ cSatipSectionFilterHandler::~cSatipSectionFilterHandler()
       Delete(i);
 }
 
-#ifdef USE_THREADED_SECTIONFILTER
 void cSatipSectionFilterHandler::Action(void)
 {
   debug("cSatipSectionFilterHandler::%s(%d): entering", __FUNCTION__, deviceIndexM);
   bool processed = false;
   // Do the thread loop
   while (Running()) {
+        // Send demuxed section packets through all filters
+        bool retry = false;
+        mutexM.Lock();
+        for (unsigned int i = 0; i < eMaxSecFilterCount; ++i) {
+            if (filtersM[i] && filtersM[i]->Send())
+               retry = true;
+            }
+        mutexM.Unlock();
+        if (retry)
+           continue;
         // Read one TS packet
         if (ringBufferM) {
            int len = 0;
@@ -304,7 +317,6 @@ void cSatipSectionFilterHandler::Action(void)
         }
   debug("cSatipSectionFilterHandler::%s(%d): exiting", __FUNCTION__, deviceIndexM);
 }
-#endif
 
 cString cSatipSectionFilterHandler::GetInformation(void)
 {
@@ -405,35 +417,10 @@ int cSatipSectionFilterHandler::GetPid(int handleP)
 void cSatipSectionFilterHandler::Write(uchar *bufferP, int lengthP)
 {
   //debug("cSatipSectionFilterHandler::%s(%d): length=%d", __FUNCTION__, deviceIndexM, lengthP);
-#ifdef USE_THREADED_SECTIONFILTER
   // Fill up the buffer
   if (ringBufferM) {
      int len = ringBufferM->Put(bufferP, lengthP);
      if (len != lengthP)
         ringBufferM->ReportOverflow(lengthP - len);
      }
-#else
-  // Lock
-  cMutexLock MutexLock(&mutexM);
-  uchar *p = bufferP;
-  int len = lengthP;
-  // Process TS packets through all filters
-  while (p && (len >= TS_SIZE)) {
-        if (*p != TS_SYNC_BYTE) {
-           for (int i = 1; i < len; ++i) {
-               if (p[i] == TS_SYNC_BYTE) {
-                   p += i;
-                   len -= i;
-                   break;
-                   }
-               }
-           }
-        for (unsigned int i = 0; i < eMaxSecFilterCount; ++i) {
-            if (filtersM[i])
-               filtersM[i]->Process(p);
-            }
-        p += TS_SIZE;
-        len -= TS_SIZE;
-        }
-#endif
 }
