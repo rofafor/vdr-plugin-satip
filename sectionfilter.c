@@ -220,9 +220,9 @@ bool cSatipSectionFilter::Send(void)
         ERROR_IF(len < 0 && errno != EAGAIN, "send()");
         if (len > 0) {
            ringBufferM->Drop(section);
+           result = !!ringBufferM->Available();
            // Update statistics
            AddSectionStatistic(len, 1);
-           result = true;
            }
         }
      }
