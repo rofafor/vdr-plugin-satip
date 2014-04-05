@@ -38,3 +38,5 @@ VDR Plugin 'satip' Revision History
 
 - Fixed the default keepalive interval.
 - Refactored the section filtering.
+- Added Catalan translation (Thanks to Gabriel Bonich).
+

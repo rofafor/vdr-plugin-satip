@@ -1,7 +1,7 @@
 # VDR plugin language source file.
 # Copyright (C) 2007-2014 Rolf Ahrenberg
 # This file is distributed under the same license as the satip package.
-# Rolf Ahrenberg, 2014
+# Gabriel Bonich, 2014
 #
 msgid ""
 msgstr ""
@@ -9,9 +9,9 @@ msgstr ""
 "Report-Msgid-Bugs-To: <see README>\n"
 "POT-Creation-Date: 2014-04-05 04:05+0200\n"
 "PO-Revision-Date: 2014-04-05 04:05+0200\n"
-"Last-Translator: Rolf Ahrenberg\n"
-"Language-Team: Finnish <vdr@linuxtv.org>\n"
-"Language: fi\n"
+"Last-Translator: Gabriel Bonich <gbonich@gmail.com>\n"
+"Language-Team: Catalan <vdr@linuxtv.org>\n"
+"Language: ca\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -32,55 +32,55 @@ msgid "TDT (0x70)"
 msgstr "TDT (0x70)"
 
 msgid "SAT>IP Devices"
-msgstr "SAT>IP-laitteet"
+msgstr "SAT>IP Dispositius"
 
 msgid "SAT>IP Device"
-msgstr "SAT>IP-laite"
+msgstr "SAT>IP Dispositiu"
 
 msgid "Address"
-msgstr "Osoite"
+msgstr "Adressa"
 
 msgid "Model"
-msgstr "Malli"
+msgstr "Model"
 
 msgid "Description"
-msgstr "Kuvaus"
+msgstr "Descripció"
 
 msgid "Creation date"
-msgstr "Luontiajankohta"
+msgstr "Creació de data"
 
 msgid "SAT>IP Information"
-msgstr "SAT>IP-tiedot"
+msgstr "SAT>IP Informació"
 
 msgid "General"
-msgstr "Yleiset"
+msgstr "General"
 
 msgid "Pids"
-msgstr "Pidit"
+msgstr "Pids"
 
 msgid "Filters"
-msgstr "Suodattimet"
+msgstr "Filtres"
 
 msgid "Bits/bytes"
-msgstr "Bitit/tavut"
+msgstr "Bits/Bytes"
 
 msgid "SAT>IP information not available!"
-msgstr "SAT>IP-tietoja ei saatavilla!"
+msgstr "SAT>IP Informació no disponible!"
 
 msgid "off"
-msgstr "ei käytössä"
+msgstr "Apagat"
 
 msgid "low"
-msgstr "matala"
+msgstr "Baix"
 
 msgid "normal"
-msgstr "normaali"
+msgstr "Normal"
 
 msgid "high"
-msgstr "korkea"
+msgstr "Alt"
 
 msgid "Operating mode"
-msgstr "Laitteiden toimintatapa"
+msgstr "Mode de operació"
 
 msgid ""
 "Define the used operating mode for all SAT>IP devices:\n"
@@ -90,47 +90,48 @@ msgid ""
 "normal - devices are working within normal parameters\n"
 "high - devices are working at the highest priority"
 msgstr ""
-"Määrittele toimintamoodi SAT>IP-laitteille:\n"
-"ei käytössä - laitteet ovat pois käytöstä\n"
-"matala - laitteet toimivat matalalla prioriteetilla\n"
-"normaali - laitteet toimivat normaalilla prioriteetilla\n"
-"korkea - laitteet toimivat korkealla prioriteetilla"
+"Defineig la manera de operar de tots els SAT>IP Tuners:\n"
+"\n"
+"Apagat - Dispositius desactivats\n"
+"Baix - Dispositius treballan a baixa prioritat\n"
+"Normal - Dispositius treballan en parametres normals\n"
+"Alta - Dispositius treballan a prioritat Alta"
 
 msgid "Enable EPG scanning"
-msgstr "Käytä ohjelmaoppaan taustapäivitystä"
+msgstr "Activa Escaneig EPG"
 
 msgid ""
 "Define whether the EPG background scanning shall be used.\n"
 "\n"
 "This setting disables the automatic EIT scanning functionality for all SAT>IP devices."
 msgstr ""
-"Määrittele ohjelmaoppaan taustapäivityksen olemassaolo.\n"
+"Definir si s'utilitzarà l'anàlisi en segon pla del EPG.\n"
 "\n"
-"Tällä asetuksella saadaan otettua automaattinen EIT-datan päivitys pois päältä kaikilta SAT>IP-laitteilta."
+"Aquesta configuració desactiva la funcionalitat d'escaneig EIT automàtica per a tots els dispositius SAT>IP."
 
 msgid "Disabled filters"
-msgstr "Käytöstä poistetut suodattimet"
+msgstr "Desactiva filtres"
 
 msgid "none"
-msgstr "tyhjä"
+msgstr "no"
 
 msgid ""
 "Define number of section filters to be disabled.\n"
 "\n"
 "Certain section filters might cause some unwanted behaviour to VDR such as time being falsely synchronized. By black-listing the filters here useful section data can be left intact for VDR to process."
 msgstr ""
-"Määrittele käytöstä poistettavien suodattimien lukumäärä sektioille.\n"
+"Definir el nombre de seccions filtres per deshabilitat.\n"
 "\n"
-"Tietyt sektiot saattavat aiheuttaa virheellistä toimintaa VDR:ssä, esimerkiksi asettavat väärän kellonajan, ja näiden poistaminen auttaa VDR:ää toimimaan kunnolla jäljelle jäävien sektioiden kanssa."
+"Certs filtres de secció podrien causar un comportament no desitjat a VDR, com sincronitzar malament el temps. Per la llista negre els filtres aquí dades de la secció útil es pot deixar intacte per VDR per processar."
 
 msgid "Filter"
-msgstr "Suodatin"
+msgstr "Filtra"
 
 msgid "Define an ill-behaving filter to be blacklisted."
-msgstr "Määrittele käytöstä poistettava suodatin, joka lisätään mustalle listalle."
+msgstr "Definir un filtre mal comportar a la llista negra."
 
 msgid "Active SAT>IP devices:"
-msgstr "Aktiiviset SAT>IP-laitteet:"
+msgstr "Dispositius SAT>IP actius:"
 
 msgid "Help"
-msgstr "Opaste"
+msgstr "Ajuda"

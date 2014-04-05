@@ -1,6 +1,6 @@
 # VDR plugin language source file.
-# Copyright (C) 2007-2014 Rolf Ahrenberg & Antti Seppala
-# This file is distributed under the same license as the iptv package.
+# Copyright (C) 2007-2014 Rolf Ahrenberg
+# This file is distributed under the same license as the satip package.
 # Frank Neumann, 2014
 #
 msgid ""
