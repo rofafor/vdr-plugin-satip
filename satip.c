@@ -13,6 +13,10 @@
 #include "discover.h"
 #include "setup.h"
 
+#if defined(LIBCURL_VERSION_NUM) && LIBCURL_VERSION_NUM < 0x072400
+#warning "CURL version >= 0.7.36 is recommended"
+#endif
+
 #if defined(APIVERSNUM) && APIVERSNUM < 20000
 #error "VDR-2.0.0 API version or greater is required!"
 #endif

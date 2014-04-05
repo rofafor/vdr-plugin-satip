@@ -14,7 +14,7 @@ See the file COPYING for more information.
 
 Requirements:
 
-- Libcurl - the multiprotocol file transfer library with RTSP support
+- Libcurl >= 7.36.0 - the multiprotocol file transfer library with RTSP support
   http://curl.haxx.se/libcurl/
 
 - PugiXML - Light-weight, simple and fast XML parser for C++
@@ -23,7 +23,7 @@ Requirements:
   TinyXML - a simple, small, C++ XML parser
   http://www.grinninglizard.com/tinyxml/
 
-- VDR-2.1.4+ for scrambled channels
+- VDR >= 2.1.4 for scrambled channels
 
 Description:
 
@@ -107,13 +107,6 @@ Notes:
 - Stream decryption requires a separate CAM plugin that works without
   direct access to any DVB card devices. The integrated CAM slot in
   Octopus Net devices isn't supported.
-
-- The 100% compliance against SAT>IP specification 1.2 requires a
-  patched VDR providing channel configuration for pilot, T2 system id,
-  and SISO/MISO values.
-
-- If you're using Triax TSS400, you'll need the libcurl from 2013-03-20
-  or newer.
 
 Acknowledgements:
 
