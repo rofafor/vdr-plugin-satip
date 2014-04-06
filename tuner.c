@@ -205,7 +205,7 @@ bool cSatipTuner::Connect(void)
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_CONNECTTIMEOUT_MS, (long)eConnectTimeoutMs);
 
      // Set user-agent
-     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_USERAGENT, *cString::sprintf("vdr-%s/%s", PLUGIN_NAME_I18N, VERSION));
+     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_USERAGENT, *cString::sprintf("vdr-%s/%s (device %d)", PLUGIN_NAME_I18N, VERSION, deviceM->GetId()));
 
      // Set URL
      char *p = curl_easy_unescape(handleM, *streamAddrM, 0, NULL);
@@ -227,16 +227,18 @@ bool cSatipTuner::Connect(void)
         return false;
         }
 
-     // Request server options: "&pids=all" for the whole mux
+     // Request server options
      keepAliveM.Set(timeoutM);
-     uri = cString::sprintf("rtsp://%s/?%s&pids=0", *streamAddrM, *streamParamM);
+     uri = cString::sprintf("rtsp://%s/", *streamAddrM);
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_STREAM_URI, *uri);
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_REQUEST, (long)CURL_RTSPREQ_OPTIONS);
      SATIP_CURL_EASY_PERFORM(handleM);
      if (!ValidateLatestResponse())
         return false;
 
-     // Setup media stream
+     // Setup media stream: "&pids=all" for the whole mux
+     uri = cString::sprintf("rtsp://%s/?%s&pids=0", *streamAddrM, *streamParamM);
+     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_STREAM_URI, *uri);
      transport = cString::sprintf("RTP/AVP;unicast;client_port=%d-%d", rtpSocketM->Port(), rtcpSocketM->Port());
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_TRANSPORT, *transport);
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_REQUEST, (long)CURL_RTSPREQ_SETUP);

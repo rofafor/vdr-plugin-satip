@@ -14,6 +14,7 @@ public:
   virtual ~cSatipDeviceIf() {}
   virtual void WriteData(u_char *bufferP, int lengthP) = 0;
   virtual unsigned int CheckData(void) = 0;
+  virtual int GetId(void) = 0;
 
 private:
   cSatipDeviceIf(const cSatipDeviceIf&);

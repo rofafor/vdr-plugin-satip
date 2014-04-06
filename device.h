@@ -107,6 +107,7 @@ public:
 public:
   virtual void WriteData(u_char *bufferP, int lengthP);
   virtual unsigned int CheckData(void);
+  virtual int GetId(void);
 };
 
 #endif // __SATIP_DEVICE_H

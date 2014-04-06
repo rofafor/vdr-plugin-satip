@@ -381,6 +381,12 @@ unsigned int cSatipDevice::CheckData(void)
   return 0;
 }
 
+int cSatipDevice::GetId(void)
+{
+  //debug("cSatipDevice::%s(%u)", __FUNCTION__, deviceIndexM);
+  return deviceIndexM;
+}
+
 uchar *cSatipDevice::GetData(int *availableP)
 {
   //debug("cSatipDevice::%s(%u)", __FUNCTION__, deviceIndexM);
