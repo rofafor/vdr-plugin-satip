@@ -158,7 +158,7 @@ cString GetTransponderUrlParameters(const cChannel *channelP)
            freq /= 1000L;
 #define ST(s) if (strchr(s, type) && (strchr(s, '0' + dtp.System() + 1) || strchr(s, '*')))
 #define STBUFLEFT (sizeof(buffer) - (q - buffer))
-                q += snprintf(q,       STBUFLEFT, "freq=%s",          *dtoa(freq, "%.3f"));
+                q += snprintf(q,       STBUFLEFT, "freq=%s",          *dtoa(freq, "%lg"));
      ST(" S *") q += snprintf(q,       STBUFLEFT, "&src=%d",          ((src > 0) && (src <= 255)) ? src : 1);
      ST("CS *") q += snprintf(q,       STBUFLEFT, "&sr=%d",           channelP->Srate());
      ST(" S *") q += snprintf(q,       STBUFLEFT, "&pol=%c",          tolower(dtp.Polarization()));
