@@ -191,11 +191,6 @@ bool cSatipTuner::Connect(void)
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_VERBOSE, 1L);
 #endif
 
-     // Set callback
-     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_HEADERFUNCTION, cSatipTuner::HeaderCallback);
-     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_WRITEHEADER, this);
-     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_WRITEDATA, this);
-
      // No progress meter and no signaling
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_NOPROGRESS, 1L);
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_NOSIGNAL, 1L);
@@ -229,7 +224,6 @@ bool cSatipTuner::Connect(void)
 
      // Request server options
      keepAliveM.Set(timeoutM);
-     uri = cString::sprintf("rtsp://%s/", *streamAddrM);
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_STREAM_URI, *uri);
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_REQUEST, (long)CURL_RTSPREQ_OPTIONS);
      SATIP_CURL_EASY_PERFORM(handleM);
@@ -237,23 +231,33 @@ bool cSatipTuner::Connect(void)
         return false;
 
      // Setup media stream: "&pids=all" for the whole mux
-     uri = cString::sprintf("rtsp://%s/?%s&pids=0", *streamAddrM, *streamParamM);
+     uri = cString::sprintf("rtsp://%s/?%s", *streamAddrM, *streamParamM);
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_STREAM_URI, *uri);
      transport = cString::sprintf("RTP/AVP;unicast;client_port=%d-%d", rtpSocketM->Port(), rtcpSocketM->Port());
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_TRANSPORT, *transport);
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_REQUEST, (long)CURL_RTSPREQ_SETUP);
+     // Set header callback for catching the session and timeout
+     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_HEADERFUNCTION, cSatipTuner::HeaderCallback);
+     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_WRITEHEADER, this);
      SATIP_CURL_EASY_PERFORM(handleM);
+     // Session id is now known - disable header parsing
+     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_HEADERFUNCTION, NULL);
+     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_WRITEHEADER, NULL);
+     //SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_SESSION_ID, *sessionM);
      if (!ValidateLatestResponse())
         return false;
 
      // Start playing
-     uri = cString::sprintf("rtsp://%s/stream=%d", *streamAddrM, streamIdM);
-     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_STREAM_URI, *uri);
-     //SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_SESSION_ID, *sessionM);
-     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_REQUEST, (long)CURL_RTSPREQ_PLAY);
-     SATIP_CURL_EASY_PERFORM(handleM);
-     if (!ValidateLatestResponse())
-        return false;
+     if (pidsM.Size()) {
+        uri = cString::sprintf("rtsp://%s/stream=%d?pids=", *streamAddrM, streamIdM);
+        for (int i = 0; i < pidsM.Size(); ++i)
+            uri = cString::sprintf("%s%d%s", *uri, pidsM[i], (i == (pidsM.Size() - 1)) ? "" : ",");
+        SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_STREAM_URI, *uri);
+        SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_REQUEST, (long)CURL_RTSPREQ_PLAY);
+        SATIP_CURL_EASY_PERFORM(handleM);
+        if (!ValidateLatestResponse())
+           return false;
+        }
 
      tunedM = true;
      if (nextServerM) {
@@ -307,6 +311,7 @@ bool cSatipTuner::Disconnect(void)
      cSatipDiscover::GetInstance()->UseServer(currentServerM, false);
   tunedM = false;
   timeoutM = eMinKeepAliveIntervalMs;
+  pidUpdatedM = false;
 
   return true;
 }

@@ -184,7 +184,7 @@ int cSatipDevice::SignalQuality(void) const
 
 bool cSatipDevice::ProvidesSource(int sourceP) const
 {
-  debug("cSatipDevice::%s(%u)", __FUNCTION__, deviceIndexM);
+  //debug("cSatipDevice::%s(%u)", __FUNCTION__, deviceIndexM);
   return (!SatipConfig.IsOperatingModeOff() && !!cSatipDiscover::GetInstance()->GetServer(sourceP));
 }
 

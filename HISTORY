@@ -43,3 +43,6 @@ VDR Plugin 'satip' Revision History
 2014-04-12: Version 0.2.3
 
 - Added Spanish translation (Thanks to Gabriel Bonich).
+- Fixed parameters of the OPTIONS command.
+- Added a device identication into the user agent string.
+- Removed unnecessary PLAY commands and header callbacks.
