@@ -27,7 +27,7 @@ class cSatipTuner : public cThread, public cSatipTunerStatistics {
 private:
   enum {
     eConnectTimeoutMs       = 1500,  // in milliseconds
-    ePidUpdateIntervalMs    = 100,   // in milliseconds
+    ePidUpdateIntervalMs    = 250,   // in milliseconds
     eReConnectTimeoutMs     = 5000,  // in milliseconds
     eMinKeepAliveIntervalMs = 30000  // in milliseconds
   };

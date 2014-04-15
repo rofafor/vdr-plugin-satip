@@ -46,3 +46,7 @@ VDR Plugin 'satip' Revision History
 - Fixed parameters of the OPTIONS command.
 - Added a device identication into the user agent string.
 - Removed unnecessary PLAY commands and header callbacks.
+
+2014-04-20: Version 0.3.0
+
+- Increased the pid update interval to 250ms.
