@@ -34,7 +34,8 @@ cSatipTuner::cSatipTuner(cSatipDeviceIf &deviceP, unsigned int packetLenP)
   signalStrengthM(-1),
   signalQualityM(-1),
   streamIdM(-1),
-  pidUpdatedM(false),
+  addPidsM(),
+  delPidsM(),
   pidsM()
 {
   debug("cSatipTuner::%s(%d) [device %d]", __FUNCTION__, packetBufferLenM, deviceM->GetId());
@@ -174,12 +175,8 @@ bool cSatipTuner::Connect(void)
      // Just retune
      if (tunedM && (streamIdM >= 0)) {
         debug("cSatipTuner::%s(): retune [device %d]", __FUNCTION__, deviceM->GetId());
-        uri = cString::sprintf("rtsp://%s/stream=%d", *streamAddrM, streamIdM);
-        SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_STREAM_URI, *uri);
-        SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_REQUEST, (long)CURL_RTSPREQ_PLAY);
-        SATIP_CURL_EASY_PERFORM(handleM);
-        if (!ValidateLatestResponse())
-           return false;
+        keepAliveM.Set(0);
+        KeepAlive();
         // Flush any old content
         if (rtpSocketM)
            rtpSocketM->Flush();
@@ -248,18 +245,8 @@ bool cSatipTuner::Connect(void)
         return false;
 
      // Start playing
-     if (pidsM.Size()) {
-        uri = cString::sprintf("rtsp://%s/stream=%d?pids=", *streamAddrM, streamIdM);
-        for (int i = 0; i < pidsM.Size(); ++i)
-            uri = cString::sprintf("%s%d%s", *uri, pidsM[i], (i == (pidsM.Size() - 1)) ? "" : ",");
-        SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_STREAM_URI, *uri);
-        SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_REQUEST, (long)CURL_RTSPREQ_PLAY);
-        SATIP_CURL_EASY_PERFORM(handleM);
-        if (!ValidateLatestResponse())
-           return false;
-        }
-
      tunedM = true;
+     UpdatePids(true);
      if (nextServerM) {
         cSatipDiscover::GetInstance()->UseServer(nextServerM, true);
         currentServerM = nextServerM;
@@ -311,7 +298,8 @@ bool cSatipTuner::Disconnect(void)
      cSatipDiscover::GetInstance()->UseServer(currentServerM, false);
   tunedM = false;
   timeoutM = eMinKeepAliveIntervalMs;
-  pidUpdatedM = false;
+  addPidsM.Clear();
+  delPidsM.Clear();
 
   return true;
 }
@@ -416,38 +404,85 @@ bool cSatipTuner::SetPid(int pidP, int typeP, bool onP)
   for (int i = 0; i < pidsM.Size(); ++i) {
       if (pidsM[i] == pidP) {
          found = true;
-         if (!onP) {
+         if (!onP)
             pidsM.Remove(i);
-            pidUpdatedM = true;
-            }
          break;
          }
       }
-  if (onP && !found) {
+  if (onP && !found)
       pidsM.Append(pidP);
-      pidUpdatedM = true;
-      }
+  // Generate deltas
+  found = false;
+  if (onP) {
+     for (int i = 0; i < addPidsM.Size(); ++i) {
+         if (addPidsM[i] == pidP) {
+            found = true;
+            break;
+            }
+         }
+     if (!found)
+        addPidsM.Append(pidP);
+     for (int i = 0; i < delPidsM.Size(); ++i) {
+         if (delPidsM[i] == pidP) {
+            delPidsM.Remove(i);
+            break;
+            }
+         }
+     }
+  else {
+     for (int i = 0; i < delPidsM.Size(); ++i) {
+         if (delPidsM[i] == pidP) {
+            found = true;
+            break;
+            }
+         }
+     if (!found)
+        delPidsM.Append(pidP);
+     for (int i = 0; i < addPidsM.Size(); ++i) {
+         if (addPidsM[i] == pidP) {
+            addPidsM.Remove(i);
+            break;
+            }
+         }
+     }
   pidUpdateCacheM.Set(ePidUpdateIntervalMs);
   return true;
 }
 
-bool cSatipTuner::UpdatePids(void)
+bool cSatipTuner::UpdatePids(bool forceP)
 {
   cMutexLock MutexLock(&mutexM);
-  if (pidUpdateCacheM.TimedOut() && pidUpdatedM && pidsM.Size() && tunedM && handleM && !isempty(*streamAddrM) && (streamIdM > 0)) {
-     //debug("cSatipTuner::%s() [device %d]", __FUNCTION__, deviceM->GetId());
+  if (((forceP && pidsM.Size()) || (pidUpdateCacheM.TimedOut() && (addPidsM.Size() || delPidsM.Size()))) &&
+      tunedM && handleM && !isempty(*streamAddrM) && (streamIdM > 0)) {
      CURLcode res = CURLE_OK;
-     //cString uri = cString::sprintf("rtsp://%s/stream=%d?%spids=%d", *streamAddrM, streamIdM, onP ? "add" : "del", pidP);
-     cString uri = cString::sprintf("rtsp://%s/stream=%d?pids=", *streamAddrM, streamIdM);
-
-     for (int i = 0; i < pidsM.Size(); ++i)
-         uri = cString::sprintf("%s%d%s", *uri, pidsM[i], (i == (pidsM.Size() - 1)) ? "" : ",");
-
+     cString uri = cString::sprintf("rtsp://%s/stream=%d", *streamAddrM, streamIdM);
+     if (forceP) {
+        if (pidsM.Size()) {
+           uri = cString::sprintf("%s?pids=", *uri);
+           for (int i = 0; i < pidsM.Size(); ++i)
+               uri = cString::sprintf("%s%d%s", *uri, pidsM[i], (i == (pidsM.Size() - 1)) ? "" : ",");
+           }
+        }
+     else {
+        if (addPidsM.Size()) {
+           uri = cString::sprintf("%s?addpids=", *uri);
+           for (int i = 0; i < addPidsM.Size(); ++i)
+               uri = cString::sprintf("%s%d%s", *uri, addPidsM[i], (i == (addPidsM.Size() - 1)) ? "" : ",");
+           }
+        if (delPidsM.Size()) {
+           uri = cString::sprintf("%s%sdelpids=", *uri, addPidsM.Size() ? "&" : "?");
+           for (int i = 0; i < delPidsM.Size(); ++i)
+               uri = cString::sprintf("%s%d%s", *uri, delPidsM[i], (i == (delPidsM.Size() - 1)) ? "" : ",");
+           }
+        }
+     //debug("cSatipTuner::%s(): %s [device %d]", __FUNCTION__, *uri, deviceM->GetId());
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_STREAM_URI, *uri);
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_REQUEST, (long)CURL_RTSPREQ_PLAY);
      SATIP_CURL_EASY_PERFORM(handleM);
-     if (ValidateLatestResponse())
-        pidUpdatedM = false;
+     if (ValidateLatestResponse()) {
+        addPidsM.Clear();
+        delPidsM.Clear();
+        }
      else
         Disconnect();
 

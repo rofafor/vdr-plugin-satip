@@ -58,7 +58,8 @@ private:
   int signalStrengthM;
   int signalQualityM;
   int streamIdM;
-  bool pidUpdatedM;
+  cVector<int> addPidsM;
+  cVector<int> delPidsM;
   cVector<int> pidsM;
 
   bool Connect(void);
@@ -69,7 +70,7 @@ private:
   void SetSessionTimeout(const char *sessionP, int timeoutP = 0);
   bool KeepAlive(void);
   bool UpdateSignalInfoCache(void);
-  bool UpdatePids(void);
+  bool UpdatePids(bool forceP = false);
 
 protected:
   virtual void Action(void);

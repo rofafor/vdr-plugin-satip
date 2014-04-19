@@ -49,4 +49,4 @@ VDR Plugin 'satip' Revision History
 
 2014-04-20: Version 0.3.0
 
-- Increased the pid update interval to 250ms.
+- Tweaked the pid update mechanism.
