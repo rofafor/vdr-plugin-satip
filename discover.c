@@ -179,7 +179,7 @@ void cSatipDiscover::Read(void)
         int len = socketM->Read(buf, eProbeBufferSize);
         if (len > 0) {
            //debug("cSatipDiscover::%s(): len=%d", __FUNCTION__, len);
-           bool status = false;
+           bool status = false, valid = false;
            char *s, *p = reinterpret_cast<char *>(buf), *location = NULL;
            char *r = strtok_r(p, "\r\n", &s);
            while (r) {
@@ -187,18 +187,30 @@ void cSatipDiscover::Read(void)
                  // Check the status code
                  // HTTP/1.1 200 OK
                  if (!status && startswith(r, "HTTP/1.1 200 OK")) {
-                     status = true;
-                     }
-                 // Check the location data
-                 // LOCATION: http://192.168.0.115:8888/octonet.xml
-                 if (status && startswith(r, "LOCATION:")) {
-                     location = compactspace(r + 9);
-                     debug("cSatipDiscover::%s(): location='%s'", __FUNCTION__, location);
-                     break;
-                     }
+                    status = true;
+                    }
+                 if (status) {
+                    // Check the location data
+                    // LOCATION: http://192.168.0.115:8888/octonet.xml
+                    if (startswith(r, "LOCATION:")) {
+                       location = compactspace(r + 9);
+                       debug("cSatipDiscover::%s(): location='%s'", __FUNCTION__, location);
+                       }
+                    // Check the source type
+                    // ST: urn:ses-com:device:SatIPServer:1
+                    else if (startswith(r, "ST:")) {
+                       char *st = compactspace(r + 3);
+                       if (strstr(st, "urn:ses-com:device:SatIPServer:1"))
+                          valid = true;
+                       debug("cSatipDiscover::%s(): st='%s'", __FUNCTION__, st);
+                       }
+                    // Check whether all the required data is found
+                    if (valid && !isempty(location))
+                       break;
+                    }
                  r = strtok_r(NULL, "\r\n", &s);
                  }
-           if (handleM && !isempty(location)) {
+           if (handleM && valid && !isempty(location)) {
               long rc = 0;
               CURLcode res = CURLE_OK;
 #ifdef DEBUG

@@ -50,3 +50,7 @@ VDR Plugin 'satip' Revision History
 2014-04-20: Version 0.3.0
 
 - Tweaked the pid update mechanism.
+
+2014-04-27: Version 0.3.1
+
+- Fixed the device discovery.
