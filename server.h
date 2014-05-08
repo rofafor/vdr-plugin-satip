@@ -23,12 +23,19 @@ private:
   cString modelM;
   int modelCountM[eSatipModuleCount];
   int modelTypeM;
+  int quirkM;
   int useCountM;
   time_t createdM;
   cTimeMs lastSeenM;
 
 public:
+  enum eSatipQuirk {
+    eSatipQuirkNone      = 0x00,
+    eSatipQuirkSessionId = 0x01,
+    eSatipQuirkMask      = 0x0F
+  };
   enum eSatipModelType {
+    eSatipModelTypeNone  = 0x00,
     eSatipModelTypeDVBS2 = 0x01,
     eSatipModelTypeDVBT  = 0x02,
     eSatipModelTypeDVBT2 = 0x04,
@@ -43,6 +50,7 @@ public:
   const char *Description() { return *descriptionM; }
   const char *Address()     { return *addressM; }
   const char *Model(void)   { return modelM; }
+  bool Quirk(int quirkP)    { return ((quirkP & eSatipQuirkMask) & quirkM); }
   int ModelType(void)       { return modelTypeM; }
   bool Match(int modelP)    { return ((modelP & eSatipModelTypeMask) & modelTypeM); }
   int Cable()               { return Match(eSatipModelTypeDVBC)  ? (Match(eSatipModelTypeDVBT2) ? modelCountM[eSatipModuleDVBT2] : modelCountM[eSatipModuleDVBT]) : 0; } // an ugly hack

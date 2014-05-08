@@ -240,7 +240,10 @@ bool cSatipTuner::Connect(void)
      // Session id is now known - disable header parsing
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_HEADERFUNCTION, NULL);
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_WRITEHEADER, NULL);
-     //SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_SESSION_ID, *sessionM);
+     if (nextServerM && nextServerM->Quirk(cSatipServer::eSatipQuirkSessionId) && startswith(*sessionM, "0")) {
+        debug("cSatipTuner::%s(): session id quirk [device %d]", __FUNCTION__, deviceM->GetId());
+        SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_SESSION_ID, *sessionM + 1);
+        }
      if (!ValidateLatestResponse())
         return false;
 
