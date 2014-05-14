@@ -26,7 +26,7 @@ cSatipTuner::cSatipTuner(cSatipDeviceIf &deviceP, unsigned int packetLenP)
   headerListM(NULL),
   keepAliveM(),
   pidUpdateCacheM(),
-  sessionM(),
+  sessionM(""),
   timeoutM(eMinKeepAliveIntervalMs),
   openedM(false),
   tunedM(false),
@@ -240,7 +240,7 @@ bool cSatipTuner::Connect(void)
      // Session id is now known - disable header parsing
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_HEADERFUNCTION, NULL);
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_WRITEHEADER, NULL);
-     if (nextServerM && nextServerM->Quirk(cSatipServer::eSatipQuirkSessionId) && startswith(*sessionM, "0")) {
+     if (nextServerM && nextServerM->Quirk(cSatipServer::eSatipQuirkSessionId) && !isempty(*sessionM) && startswith(*sessionM, "0")) {
         debug("cSatipTuner::%s(): session id quirk [device %d]", __FUNCTION__, deviceM->GetId());
         SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_SESSION_ID, *sessionM + 1);
         }
