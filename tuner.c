@@ -242,7 +242,7 @@ bool cSatipTuner::Connect(void)
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_WRITEHEADER, NULL);
      if (nextServerM && nextServerM->Quirk(cSatipServer::eSatipQuirkSessionId) && !isempty(*sessionM) && startswith(*sessionM, "0")) {
         debug("cSatipTuner::%s(): session id quirk [device %d]", __FUNCTION__, deviceM->GetId());
-        SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_SESSION_ID, *sessionM + 1);
+        SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_SESSION_ID, SkipZeroes(*sessionM));
         }
      if (!ValidateLatestResponse())
         return false;

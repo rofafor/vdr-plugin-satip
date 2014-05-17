@@ -25,8 +25,14 @@ cSatipServer::cSatipServer(const char *addressP, const char *descriptionP, const
   memset(modelCountM, 0, sizeof(modelCountM));
   if (isempty(*modelM))
      modelM = "DVBS-1";
-  // Grundig Sat Systems GSS.box DSI 400 has a session id bug
-  if (strstr(*descriptionM, "GSSBOX"))
+  // These devices contain a session id bug:
+  // Inverto Airscreen Server IDL 400 ?
+  // Telestar Digibit R1 ?
+  // Elgato EyeTV Netstream 4Sat ?
+  if (!isempty(*descriptionM) &&
+      (strstr(*descriptionM, "GSSBOX") ||             // Grundig Sat Systems GSS.box DSI 400
+       strstr(*descriptionM, "Triax SatIP Converter") // Triax TSS 400
+     ))
      quirkM |= eSatipQuirkSessionId;
   char *s, *p = strdup(*modelM);
   char *r = strtok_r(p, ",", &s);
@@ -45,7 +51,7 @@ cSatipServer::cSatipServer(const char *addressP, const char *descriptionP, const
            else
               modelCountM[eSatipModuleDVBT2] = 1;
            // Add model quirks here
-           if (strstr(*descriptionM, "OctopusNet"))
+           if (!isempty(*descriptionM) && strstr(*descriptionM, "OctopusNet"))
               modelTypeM |= cSatipServer::eSatipModelTypeDVBC;
            }
         if (strstr(r, "DVBT")) {
@@ -55,7 +61,7 @@ cSatipServer::cSatipServer(const char *addressP, const char *descriptionP, const
            else
               modelCountM[eSatipModuleDVBT] = 1;
            // Add model quirks here
-           if (strstr(*descriptionM, "OctopusNet"))
+           if (!isempty(*descriptionM) && strstr(*descriptionM, "OctopusNet"))
               modelTypeM |= cSatipServer::eSatipModelTypeDVBC;
            }
         r = strtok_r(NULL, ",", &s);

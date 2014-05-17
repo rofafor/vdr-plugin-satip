@@ -5,10 +5,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: vdr-satip 0.3.2\n"
+"Project-Id-Version: vdr-satip 0.3.3\n"
 "Report-Msgid-Bugs-To: <see README>\n"
-"POT-Creation-Date: 2014-05-10 05:10+0200\n"
-"PO-Revision-Date: 2014-05-10 05:10+0200\n"
+"POT-Creation-Date: 2014-05-18 05:18+0200\n"
+"PO-Revision-Date: 2014-05-18 05:18+0200\n"
 "Last-Translator: Gabriel Bonich <gbonich@gmail.com>\n"
 "Language-Team: Spanish <vdr@linuxtv.org>\n"
 "Language: es\n"

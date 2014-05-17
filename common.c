@@ -57,6 +57,15 @@ char *StripTags(char *strP)
   return NULL;
 }
 
+char *SkipZeroes(const char *strP)
+{
+  if ((uchar)*strP != '0')
+     return (char *)strP;
+  while (*strP && (uchar)*strP == '0')
+        strP++;
+  return (char *)strP;
+}
+
 cString ChangeCase(const cString &strP, bool upperP)
 {
   cString res(strP);
