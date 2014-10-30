@@ -51,8 +51,10 @@ cSatipServer::cSatipServer(const char *addressP, const char *descriptionP, const
            else
               modelCountM[eSatipModuleDVBT2] = 1;
            // Add model quirks here
-           if (!isempty(*descriptionM) && strstr(*descriptionM, "OctopusNet"))
+           if (!isempty(*descriptionM) && strstr(*descriptionM, "OctopusNet")) {
               modelTypeM |= cSatipServer::eSatipModelTypeDVBC;
+              modelCountM[eSatipModuleDVBC] = modelCountM[eSatipModuleDVBT2];
+              }
            }
         if (strstr(r, "DVBT")) {
            modelTypeM |= cSatipServer::eSatipModelTypeDVBT;
@@ -63,6 +65,14 @@ cSatipServer::cSatipServer(const char *addressP, const char *descriptionP, const
            // Add model quirks here
            if (!isempty(*descriptionM) && strstr(*descriptionM, "OctopusNet"))
               modelTypeM |= cSatipServer::eSatipModelTypeDVBC;
+              modelCountM[eSatipModuleDVBC] = modelCountM[eSatipModuleDVBT];
+           }
+        if (strstr(r, "DVBC")) {
+           modelTypeM |= cSatipServer::eSatipModelTypeDVBC;
+           if (char *c = strstr(r, "-"))
+              modelCountM[eSatipModuleDVBC] = atoi(++c);
+           else
+              modelCountM[eSatipModuleDVBC] = 1;
            }
         r = strtok_r(NULL, ",", &s);
         }
