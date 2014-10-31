@@ -37,10 +37,10 @@ cSatipSectionFilter::cSatipSectionFilter(int deviceIndexP, uint16_t pidP, uint8_
   for (i = 0; i < eDmxMaxFilterSize; ++i)
       filterValueM[i] ^= 0xFF;
 
-  uint8_t mask, mode, doneq = 0;
+  uint8_t doneq = 0;
   for (i = 0; i < eDmxMaxFilterSize; ++i) {
-      mode = filterModeM[i];
-      mask = filterMaskM[i];
+      uint8_t mode = filterModeM[i];
+      uint8_t mask = filterMaskM[i];
       maskAndModeM[i] = (uint8_t)(mask & mode);
       maskAndNotModeM[i] = (uint8_t)(mask & ~mode);
       doneq |= maskAndNotModeM[i];
@@ -117,7 +117,7 @@ inline int cSatipSectionFilter::Feed(void)
 
 int cSatipSectionFilter::CopyDump(const uint8_t *bufP, uint8_t lenP)
 {
-  uint16_t limit, seclen, n;
+  uint16_t limit, n;
 
   if (tsFeedpM >= eDmxMaxSectionFeedSize)
      return 0;
@@ -139,7 +139,7 @@ int cSatipSectionFilter::CopyDump(const uint8_t *bufP, uint8_t lenP)
   secBufM = secBufBaseM + secBufpM;
 
   for (n = 0; secBufpM + 2 < limit; ++n) {
-      seclen = GetLength(secBufM);
+      uint16_t seclen = GetLength(secBufM);
       if ((seclen <= 0) || (seclen > eDmxMaxSectionSize) || ((seclen + secBufpM) > limit))
          return 0;
       secLenM = seclen;

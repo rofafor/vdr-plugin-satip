@@ -19,6 +19,8 @@ private:
   int operatingModeM;
   const char *operatingModeTextsM[cSatipConfig::eOperatingModeCount];
   int eitScanM;
+  int numDisabledSourcesM;
+  int disabledSourcesM[MAX_DISABLED_SOURCES_COUNT];
   int numDisabledFiltersM;
   int disabledFilterIndexesM[SECTION_FILTER_TABLE_SIZE];
   const char *disabledFilterNamesM[SECTION_FILTER_TABLE_SIZE];
@@ -28,6 +30,7 @@ private:
   eOSState DeviceInfo(void);
   eOSState ShowInfo(void);
   void Setup(void);
+  void StoreSources(const char *nameP, int *sourcesP);
   void StoreFilters(const char *nameP, int *valuesP);
 
 protected:

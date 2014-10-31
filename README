@@ -71,10 +71,13 @@ Setup menu:
 - Enable EPG scanning = yes  If you want exclude all SAT>IP devices
                              from VDR's EIT background scanning, set
                              this option to "no".
+- Disabled sources = none    If your SAT>IP servers don't have certain
+                             satellite positions available you can
+                             disable them via this option.
 - Disabled filters = none    Certain section filters might cause some
                              unwanted behaviour to VDR such as time
                              being falsely synchronized etc. This option
-                             allows creation of  blacklists of ill-behaving
+                             allows creation of blacklists of ill-behaving
                              filters. If this option is set to a non-zero
                              value, the menu page will contain that many
                              "Disable filter" options which allow you

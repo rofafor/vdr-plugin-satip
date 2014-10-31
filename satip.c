@@ -32,6 +32,7 @@ class cPluginSatip : public cPlugin {
 private:
   unsigned int deviceCountM;
   cSatipDiscover *discoverM;
+  int ParseSources(const char *valueP, int *sourcesP);
   int ParseFilters(const char *valueP, int *filtersP);
 public:
   cPluginSatip(void);
@@ -177,6 +178,23 @@ cMenuSetupPage *cPluginSatip::SetupMenu(void)
   return new cSatipPluginSetup();
 }
 
+int cPluginSatip::ParseSources(const char *valueP, int *sourcesP)
+{
+  debug("cPluginSatip::%s(%s)", __FUNCTION__, valueP);
+  int n = 0;
+  char *s, *p = (char *)valueP;
+  char *r = strtok_r(p, " ", &s);
+  while (r) {
+        r = skipspace(r);
+        debug("cPluginSatip::%s(): sources[%d]=%s", __FUNCTION__, n, r);
+        if (n < MAX_DISABLED_SOURCES_COUNT) {
+           sourcesP[n++] = cSource::FromString(r);
+           }
+        r = strtok_r(NULL, " \n", &s);
+        }
+  return n;
+}
+
 int cPluginSatip::ParseFilters(const char *valueP, int *filtersP)
 {
   debug("cPluginSatip::%s(%s)", __FUNCTION__, valueP);
@@ -202,6 +220,14 @@ bool cPluginSatip::SetupParse(const char *nameP, const char *valueP)
      SatipConfig.SetOperatingMode(atoi(valueP));
   else if (!strcasecmp(nameP, "EnableEITScan"))
      SatipConfig.SetEITScan(atoi(valueP));
+  else if (!strcasecmp(nameP, "DisabledSources")) {
+     int DisabledSources[MAX_DISABLED_SOURCES_COUNT];
+     for (unsigned int i = 0; i < ARRAY_SIZE(DisabledSources); ++i)
+         DisabledSources[i] = cSource::stNone;
+     unsigned int DisabledSourcesCount = ParseSources(valueP, DisabledSources);
+     for (unsigned int i = 0; i < DisabledSourcesCount; ++i)
+         SatipConfig.SetDisabledSources(i, DisabledSources[i]);
+     }
   else if (!strcasecmp(nameP, "DisabledFilters")) {
      int DisabledFilters[SECTION_FILTER_TABLE_SIZE];
      for (unsigned int i = 0; i < ARRAY_SIZE(DisabledFilters); ++i)

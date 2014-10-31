@@ -15,9 +15,30 @@ cSatipConfig::cSatipConfig(void)
   eitScanM(1),
   useBytesM(1)
 {
+  for (unsigned int i = 0; i < ARRAY_SIZE(disabledSourcesM); ++i)
+      disabledSourcesM[i] = cSource::stNone;
   for (unsigned int i = 0; i < ARRAY_SIZE(disabledFiltersM); ++i)
       disabledFiltersM[i] = -1;
   memset(configDirectoryM, 0, sizeof(configDirectoryM));
+}
+
+unsigned int cSatipConfig::GetDisabledSourcesCount(void) const
+{
+  unsigned int n = 0;
+  while ((n < ARRAY_SIZE(disabledSourcesM) && (disabledSourcesM[n] != cSource::stNone)))
+        n++;
+  return n;
+}
+
+int cSatipConfig::GetDisabledSources(unsigned int indexP) const
+{
+  return (indexP < ARRAY_SIZE(disabledSourcesM)) ? disabledSourcesM[indexP] : cSource::stNone;
+}
+
+void cSatipConfig::SetDisabledSources(unsigned int indexP, int sourceP)
+{
+  if (indexP < ARRAY_SIZE(disabledSourcesM))
+     disabledSourcesM[indexP] = sourceP;
 }
 
 unsigned int cSatipConfig::GetDisabledFiltersCount(void) const

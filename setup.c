@@ -14,6 +14,72 @@
 #include "discover.h"
 #include "setup.h"
 
+// --- cSatipEditSrcItem ------------------------------------------------------
+// This class is a 99% copy of cMenuEditSrcItem() taken from VDR's menu.c
+
+class cSatipEditSrcItem : public cMenuEditIntItem {
+private:
+  const cSource *source;
+protected:
+  virtual void Set(void);
+public:
+  cSatipEditSrcItem(const char *Name, int *Value);
+  eOSState ProcessKey(eKeys Key);
+  };
+
+cSatipEditSrcItem::cSatipEditSrcItem(const char *Name, int *Value)
+:cMenuEditIntItem(Name, Value, 0)
+{
+  source = Sources.Get(*Value);
+  if (!source)
+     source = Sources.First();
+  Set();
+}
+
+void cSatipEditSrcItem::Set(void)
+{
+  if (source)
+     SetValue(cString::sprintf("%s - %s", *cSource::ToString(source->Code()), source->Description()));
+  else
+     cMenuEditIntItem::Set();
+}
+
+eOSState cSatipEditSrcItem::ProcessKey(eKeys Key)
+{
+  eOSState state = cMenuEditItem::ProcessKey(Key);
+
+  if (state == osUnknown) {
+     bool IsRepeat = Key & k_Repeat;
+     Key = NORMALKEY(Key);
+     if (Key == kLeft) { // TODO might want to increase the delta if repeated quickly?
+        if (source) {
+           if (source->Prev())
+              source = (cSource *)source->Prev();
+           else if (!IsRepeat)
+              source = Sources.Last();
+           *value = source->Code();
+           }
+        }
+     else if (Key == kRight) {
+        if (source) {
+           if (source->Next())
+              source = (cSource *)source->Next();
+           else if (!IsRepeat)
+              source = Sources.First();
+           }
+        else
+           source = Sources.First();
+        if (source)
+           *value = source->Code();
+        }
+     else
+        return state; // we don't call cMenuEditIntItem::ProcessKey(Key) here since we don't accept numerical input
+     Set();
+     state = osContinue;
+     }
+  return state;
+}
+
 // --- cSatipServerInfo -------------------------------------------------------
 
 class cSatipServerInfo : public cOsdMenu
@@ -198,6 +264,7 @@ cSatipPluginSetup::cSatipPluginSetup()
 : deviceCountM(0),
   operatingModeM(SatipConfig.GetOperatingMode()),
   eitScanM(SatipConfig.GetEITScan()),
+  numDisabledSourcesM(SatipConfig.GetDisabledSourcesCount()),
   numDisabledFiltersM(SatipConfig.GetDisabledFiltersCount())
 {
   debug("cSatipPluginSetup::%s()", __FUNCTION__);
@@ -205,6 +272,10 @@ cSatipPluginSetup::cSatipPluginSetup()
   operatingModeTextsM[cSatipConfig::eOperatingModeLow]    = tr("low");
   operatingModeTextsM[cSatipConfig::eOperatingModeNormal] = tr("normal");
   operatingModeTextsM[cSatipConfig::eOperatingModeHigh]   = tr("high");
+  if (numDisabledSourcesM > MAX_DISABLED_SOURCES_COUNT)
+     numDisabledSourcesM = MAX_DISABLED_SOURCES_COUNT;
+  for (int i = 0; i < MAX_DISABLED_SOURCES_COUNT; ++i)
+      disabledSourcesM[i] = SatipConfig.GetDisabledSources(i);
   if (numDisabledFiltersM > SECTION_FILTER_TABLE_SIZE)
      numDisabledFiltersM = SECTION_FILTER_TABLE_SIZE;
   for (int i = 0; i < SECTION_FILTER_TABLE_SIZE; ++i) {
@@ -230,8 +301,16 @@ void cSatipPluginSetup::Setup(void)
      Add(new cMenuEditBoolItem(tr("Enable EPG scanning"), &eitScanM));
      helpM.Append(tr("Define whether the EPG background scanning shall be used.\n\nThis setting disables the automatic EIT scanning functionality for all SAT>IP devices."));
 
+     Add(new cMenuEditIntItem(tr("Disabled sources"), &numDisabledSourcesM, 0, MAX_DISABLED_SOURCES_COUNT, tr("none")));
+     helpM.Append(tr("Define number of sources to be disabled.\n\nSAT>IP servers might not have all satellite positions available and such sources can be blacklisted here."));
+
+     for (int i = 0; i < numDisabledSourcesM; ++i) {
+         Add(new cSatipEditSrcItem(*cString::sprintf(" %s %d", trVDR("Source"), i + 1), &disabledSourcesM[i]));
+         helpM.Append(tr("Define a source to be blacklisted."));
+         }
+
      Add(new cMenuEditIntItem(tr("Disabled filters"), &numDisabledFiltersM, 0, SECTION_FILTER_TABLE_SIZE, tr("none")));
-     helpM.Append(tr("Define number of section filters to be disabled.\n\nCertain section filters might cause some unwanted behaviour to VDR such as time being falsely synchronized. By black-listing the filters here useful section data can be left intact for VDR to process."));
+     helpM.Append(tr("Define number of section filters to be disabled.\n\nCertain section filters might cause some unwanted behaviour to VDR such as time being falsely synchronized. By blacklisting the filters here, useful section data can be left intact for VDR to process."));
 
      for (int i = 0; i < numDisabledFiltersM; ++i) {
          Add(new cMenuEditStraItem(*cString::sprintf(" %s %d", tr("Filter"), i + 1), &disabledFilterIndexesM[i], SECTION_FILTER_TABLE_SIZE, disabledFilterNamesM));
@@ -286,6 +365,7 @@ eOSState cSatipPluginSetup::ProcessKey(eKeys keyP)
 {
   bool hadSubMenu = HasSubMenu();
   int oldOperatingMode = operatingModeM;
+  int oldNumDisabledSources = numDisabledSourcesM;
   int oldNumDisabledFilters = numDisabledFiltersM;
   eOSState state = cMenuSetupPage::ProcessKey(keyP);
 
@@ -307,7 +387,9 @@ eOSState cSatipPluginSetup::ProcessKey(eKeys keyP)
   if ((keyP == kNone) && (cSatipDiscover::GetInstance()->GetServers()->Count() != deviceCountM))
      Setup();
 
-  if ((keyP != kNone) && ((numDisabledFiltersM != oldNumDisabledFilters) || (operatingModeM != oldOperatingMode))) {
+  if ((keyP != kNone) && ((numDisabledSourcesM != oldNumDisabledSources) || (numDisabledFiltersM != oldNumDisabledFilters) || (operatingModeM != oldOperatingMode))) {
+     while ((numDisabledSourcesM < oldNumDisabledSources) && (oldNumDisabledSources > 0))
+           disabledSourcesM[--oldNumDisabledSources] = cSource::stNone;
      while ((numDisabledFiltersM < oldNumDisabledFilters) && (oldNumDisabledFilters > 0))
            disabledFilterIndexesM[--oldNumDisabledFilters] = -1;
      Setup();
@@ -316,23 +398,36 @@ eOSState cSatipPluginSetup::ProcessKey(eKeys keyP)
   return state;
 }
 
+void cSatipPluginSetup::StoreSources(const char *nameP, int *sourcesP)
+{
+  cString buffer = "";
+  int n = 0;
+  for (int i = 0; i < MAX_DISABLED_SOURCES_COUNT; ++i) {
+      if (sourcesP[i] == cSource::stNone)
+         break;
+      if (n++ > 0)
+         buffer = cString::sprintf("%s %s", *buffer, *cSource::ToString(sourcesP[i]));
+      else
+         buffer = cString::sprintf("%s", *cSource::ToString(sourcesP[i]));
+      }
+  debug("cSatipPluginSetup::%s(%s, %s)", __FUNCTION__, nameP, *buffer);
+  SetupStore(nameP, *buffer);
+}
+
 void cSatipPluginSetup::StoreFilters(const char *nameP, int *valuesP)
 {
-  char buffer[SECTION_FILTER_TABLE_SIZE * 4];
-  char *q = buffer;
+  cString buffer = "";
+  int n = 0;
   for (int i = 0; i < SECTION_FILTER_TABLE_SIZE; ++i) {
-      char s[3];
       if (valuesP[i] < 0)
          break;
-      if (q > buffer)
-         *q++ = ' ';
-      snprintf(s, sizeof(s), "%d", valuesP[i]);
-      strncpy(q, s, strlen(s));
-      q += strlen(s);
+      if (n++ > 0)
+         buffer = cString::sprintf("%s %d", *buffer, valuesP[i]);
+      else
+         buffer = cString::sprintf("%d", valuesP[i]);
       }
-  *q = 0;
-  debug("cSatipPluginSetup::%s(%s, %s)", __FUNCTION__, nameP, buffer);
-  SetupStore(nameP, buffer);
+  debug("cSatipPluginSetup::%s(%s, %s)", __FUNCTION__, nameP, *buffer);
+  SetupStore(nameP, *buffer);
 }
 
 void cSatipPluginSetup::Store(void)
@@ -340,10 +435,13 @@ void cSatipPluginSetup::Store(void)
   // Store values into setup.conf
   SetupStore("OperatingMode", operatingModeM);
   SetupStore("EnableEITScan", eitScanM);
+  StoreSources("DisabledSources", disabledSourcesM);
   StoreFilters("DisabledFilters", disabledFilterIndexesM);
   // Update global config
   SatipConfig.SetOperatingMode(operatingModeM);
   SatipConfig.SetEITScan(eitScanM);
+  for (int i = 0; i < MAX_DISABLED_SOURCES_COUNT; ++i)
+      SatipConfig.SetDisabledSources(i, disabledSourcesM[i]);
   for (int i = 0; i < SECTION_FILTER_TABLE_SIZE; ++i)
       SatipConfig.SetDisabledFilters(i, disabledFilterIndexesM[i]);
 }

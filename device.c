@@ -185,7 +185,15 @@ int cSatipDevice::SignalQuality(void) const
 bool cSatipDevice::ProvidesSource(int sourceP) const
 {
   //debug("cSatipDevice::%s(%u)", __FUNCTION__, deviceIndexM);
-  return (!SatipConfig.IsOperatingModeOff() && !!cSatipDiscover::GetInstance()->GetServer(sourceP));
+  if (!SatipConfig.IsOperatingModeOff() && !!cSatipDiscover::GetInstance()->GetServer(sourceP)) {
+     int numDisabledSourcesM = SatipConfig.GetDisabledSourcesCount();
+     for (int i = 0; i < numDisabledSourcesM; ++i) {
+         if (sourceP == SatipConfig.GetDisabledSources(i))
+            return false;
+         }
+     return true;
+     }
+  return false;
 }
 
 bool cSatipDevice::ProvidesTransponder(const cChannel *channelP) const

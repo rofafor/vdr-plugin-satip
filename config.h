@@ -17,6 +17,7 @@ private:
   unsigned int operatingModeM;
   unsigned int eitScanM;
   unsigned int useBytesM;
+  int disabledSourcesM[MAX_DISABLED_SOURCES_COUNT];
   int disabledFiltersM[SECTION_FILTER_TABLE_SIZE];
   char configDirectoryM[PATH_MAX];
 
@@ -38,6 +39,8 @@ public:
   unsigned int GetEITScan(void) const { return eitScanM; }
   unsigned int GetUseBytes(void) const { return useBytesM; }
   const char *GetConfigDirectory(void) const { return configDirectoryM; }
+  unsigned int GetDisabledSourcesCount(void) const;
+  int GetDisabledSources(unsigned int indexP) const;
   unsigned int GetDisabledFiltersCount(void) const;
   int GetDisabledFilters(unsigned int indexP) const;
 
@@ -45,6 +48,7 @@ public:
   void SetEITScan(unsigned int onOffP) { eitScanM = onOffP; }
   void SetUseBytes(unsigned int onOffP) { useBytesM = onOffP; }
   void SetConfigDirectory(const char *directoryP);
+  void SetDisabledSources(unsigned int indexP, int sourceP);
   void SetDisabledFilters(unsigned int indexP, int numberP);
 };
 
