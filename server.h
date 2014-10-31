@@ -33,6 +33,7 @@ public:
   enum eSatipQuirk {
     eSatipQuirkNone      = 0x00,
     eSatipQuirkSessionId = 0x01,
+    eSatipQuirkPlayPids  = 0x02,
     eSatipQuirkMask      = 0x0F
   };
   enum eSatipModelType {

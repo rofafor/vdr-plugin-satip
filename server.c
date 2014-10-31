@@ -25,15 +25,19 @@ cSatipServer::cSatipServer(const char *addressP, const char *descriptionP, const
   memset(modelCountM, 0, sizeof(modelCountM));
   if (isempty(*modelM))
      modelM = "DVBS-1";
-  // These devices contain a session id bug:
-  // Inverto Airscreen Server IDL 400 ?
-  // Telestar Digibit R1 ?
-  // Elgato EyeTV Netstream 4Sat ?
-  if (!isempty(*descriptionM) &&
-      (strstr(*descriptionM, "GSSBOX") ||             // Grundig Sat Systems GSS.box DSI 400
-       strstr(*descriptionM, "Triax SatIP Converter") // Triax TSS 400
-     ))
-     quirkM |= eSatipQuirkSessionId;
+  if (!isempty(*descriptionM)) {
+     // These devices contain a session id bug:
+     // Inverto Airscreen Server IDL 400 ?
+     // Telestar Digibit R1 ?
+     // Elgato EyeTV Netstream 4Sat ?
+     if (strstr(*descriptionM, "GSSBOX") ||             // Grundig Sat Systems GSS.box DSI 400
+         strstr(*descriptionM, "Triax SatIP Converter") // Triax TSS 400
+        )
+        quirkM |= eSatipQuirkSessionId;
+     // These devices contain a play (*pids) parameter bug:
+     if (strstr(*descriptionM, "fritzdvbc"))            // Fritz!WLAN Repeater DVB-C
+        quirkM |= eSatipQuirkPlayPids;
+  }
   char *s, *p = strdup(*modelM);
   char *r = strtok_r(p, ",", &s);
   while (r) {
@@ -73,6 +77,7 @@ cSatipServer::cSatipServer(const char *addressP, const char *descriptionP, const
               modelCountM[eSatipModuleDVBC] = atoi(++c);
            else
               modelCountM[eSatipModuleDVBC] = 1;
+           // Add model quirks here
            }
         r = strtok_r(NULL, ",", &s);
         }

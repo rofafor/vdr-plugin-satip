@@ -459,7 +459,7 @@ bool cSatipTuner::UpdatePids(bool forceP)
       tunedM && handleM && !isempty(*streamAddrM) && (streamIdM > 0)) {
      CURLcode res = CURLE_OK;
      cString uri = cString::sprintf("rtsp://%s/stream=%d", *streamAddrM, streamIdM);
-     if (forceP) {
+     if (forceP || (currentServerM && currentServerM->Quirk(cSatipServer::eSatipQuirkPlayPids))) {
         if (pidsM.Size()) {
            uri = cString::sprintf("%s?pids=", *uri);
            for (int i = 0; i < pidsM.Size(); ++i)
