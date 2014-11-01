@@ -26,6 +26,7 @@ private:
   int modelTypeM;
   int quirkM;
   int useCountM;
+  int transponderM;
   time_t createdM;
   cTimeMs lastSeenM;
 
@@ -48,6 +49,8 @@ public:
   virtual ~cSatipServer();
   virtual int Compare(const cListObject &listObjectP) const;
   void Use(bool onOffP);
+  void SetTransponder(const int transponderP) { transponderM = transponderP; }
+  int Transponder(void)     { return transponderM; }
   bool Used(void)           { return !!useCountM; }
   const char *Description() { return *descriptionM; }
   const char *Address()     { return *addressM; }
@@ -69,7 +72,8 @@ public:
 class cSatipServers : public cList<cSatipServer> {
 public:
   cSatipServer *Find(cSatipServer *serverP);
-  cSatipServer *Find(int sourceP, int systemP);
+  cSatipServer *Find(int sourceP, int transponderP, int systemP);
+  void SetTransponder(cSatipServer *serverP, bool transponderP);
   cSatipServer *Update(cSatipServer *serverP);
   void Use(cSatipServer *serverP, bool onOffP);
   void Cleanup(uint64_t intervalMsP = 0);

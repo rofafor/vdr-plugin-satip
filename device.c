@@ -288,11 +288,12 @@ bool cSatipDevice::SetChannelDevice(const cChannel *channelP, bool liveViewP)
         return false;
         }
      cString address;
-     cSatipServer *server = cSatipDiscover::GetInstance()->GetServer(channelP->Source(), dtp.System());
+     cSatipServer *server = cSatipDiscover::GetInstance()->GetServer(channelP->Source(), channelP->Transponder(), dtp.System());
      if (!server) {
         debug("cSatipDevice::%s(%u): no suitable server found", __FUNCTION__, deviceIndexM);
         return false;
         }
+     cSatipDiscover::GetInstance()->SetTransponder(server, channelP->Transponder());
      if (pTunerM && pTunerM->SetSource(server, *params, deviceIndexM)) {
         deviceNameM = cString::sprintf("%s %d %s", *DeviceType(), deviceIndexM, *cSatipDiscover::GetInstance()->GetServerString(server));
         channelM = *channelP;

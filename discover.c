@@ -270,11 +270,11 @@ int cSatipDiscover::GetServerCount(void)
   return serversM ? serversM->Count() : -1;
 }
 
-cSatipServer *cSatipDiscover::GetServer(int sourceP, int systemP)
+cSatipServer *cSatipDiscover::GetServer(int sourceP, int transponderP, int systemP)
 {
-  //debug("cSatipDiscover::%s(%d, %d)", __FUNCTION__, sourceP, systemP);
+  //debug("cSatipDiscover::%s(%d, %d, %d)", __FUNCTION__, sourceP, transponderP, systemP);
   cMutexLock MutexLock(&mutexM);
-  return serversM ? serversM->Find(sourceP, systemP) : NULL;
+  return serversM ? serversM->Find(sourceP, transponderP, systemP) : NULL;
 }
 
 cSatipServer *cSatipDiscover::GetServer(cSatipServer *serverP)
@@ -293,21 +293,29 @@ cSatipServers *cSatipDiscover::GetServers(void)
 
 cString cSatipDiscover::GetServerString(cSatipServer *serverP)
 {
-  //debug("cSatipDiscover::%s(%d)", __FUNCTION__, modelP);
+  //debug("cSatipDiscover::%s()", __FUNCTION__);
   cMutexLock MutexLock(&mutexM);
   return serversM ? serversM->GetString(serverP) : "";
 }
 
 cString cSatipDiscover::GetServerList(void)
 {
-  //debug("cSatipDiscover::%s(%d)", __FUNCTION__, modelP);
+  //debug("cSatipDiscover::%s()", __FUNCTION__);
   cMutexLock MutexLock(&mutexM);
   return serversM ? serversM->List() : "";
 }
 
+void cSatipDiscover::SetTransponder(cSatipServer *serverP, int transponderP)
+{
+  //debug("cSatipDiscover::%s(%d)", __FUNCTION__, transponderP);
+  cMutexLock MutexLock(&mutexM);
+  if (serversM)
+     serversM->SetTransponder(serverP, transponderP);
+}
+
 void cSatipDiscover::UseServer(cSatipServer *serverP, bool onOffP)
 {
-  //debug("cSatipDiscover::%s(%d)", __FUNCTION__, modelP);
+  //debug("cSatipDiscover::%s(%d)", __FUNCTION__, onOffP);
   cMutexLock MutexLock(&mutexM);
   if (serversM)
      serversM->Use(serverP, onOffP);
@@ -315,7 +323,7 @@ void cSatipDiscover::UseServer(cSatipServer *serverP, bool onOffP)
 
 int cSatipDiscover::NumProvidedSystems(void)
 {
-  //debug("cSatipDiscover::%s(%d)", __FUNCTION__, modelP);
+  //debug("cSatipDiscover::%s()", __FUNCTION__);
   cMutexLock MutexLock(&mutexM);
   return serversM ? serversM->NumProvidedSystems() : 0;
 }

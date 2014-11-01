@@ -19,6 +19,7 @@ cSatipServer::cSatipServer(const char *addressP, const char *descriptionP, const
   modelTypeM(eSatipModelTypeNone),
   quirkM(eSatipQuirkNone),
   useCountM(0),
+  transponderM(0),
   createdM(time(NULL)),
   lastSeenM(0)
 {
@@ -34,7 +35,7 @@ cSatipServer::cSatipServer(const char *addressP, const char *descriptionP, const
          strstr(*descriptionM, "Triax SatIP Converter") // Triax TSS 400
         )
         quirkM |= eSatipQuirkSessionId;
-     // These devices contain a play (*pids) parameter bug:
+     // These devices contain a play (add/delpids) parameter bug:
      if (strstr(*descriptionM, "fritzdvbc"))            // Fritz!WLAN Repeater DVB-C
         quirkM |= eSatipQuirkPlayPids;
   }
@@ -113,7 +114,7 @@ cSatipServer *cSatipServers::Find(cSatipServer *serverP)
   return NULL;
 }
 
-cSatipServer *cSatipServers::Find(int sourceP, int systemP)
+cSatipServer *cSatipServers::Find(int sourceP, int transponderP, int systemP)
 {
   cSatipServer *result = NULL;
   int model = 0;
@@ -128,6 +129,10 @@ cSatipServer *cSatipServers::Find(int sourceP, int systemP)
   else if (cSource::IsType(sourceP, 'C'))
      model |= cSatipServer::eSatipModelTypeDVBC;
   for (cSatipServer *s = First(); s; s = Next(s)) {
+      if (s->Match(model) && s->Used() && (s->Transponder() == transponderP))
+         return s;
+      }
+  for (cSatipServer *s = First(); s; s = Next(s)) {
       if (s->Match(model)) {
          result = s;
          if (!s->Used()) {
@@ -136,6 +141,16 @@ cSatipServer *cSatipServers::Find(int sourceP, int systemP)
          }
       }
   return result;
+}
+
+void cSatipServers::SetTransponder(cSatipServer *serverP, bool transponderP)
+{
+  for (cSatipServer *s = First(); s; s = Next(s)) {
+      if (s == serverP) {
+         s->SetTransponder(transponderP);
+         break;
+         }
+      }
 }
 
 cSatipServer *cSatipServers::Update(cSatipServer *serverP)
@@ -193,10 +208,13 @@ int cSatipServers::NumProvidedSystems(void)
 {
   int count = 0;
   for (cSatipServer *s = First(); s; s = Next(s)) {
-      // DVB-S*: qpsk, 8psk
+      // DVB-S2: qpsk, 8psk, 16apsk, 32apsk
       count += s->Satellite() * 4;
-      // DVB-T*: qpsk, qam16, qam64, qam256
-      count += (s->Terrestrial2() ? s->Terrestrial2() : s->Terrestrial()) * 4;
+      // DVB-T2: qpsk, qam16, qam64, qam256
+      // DVB-T: qpsk, qam16, qam64
+      count += s->Terrestrial2() ? s->Terrestrial2() * 4 : s->Terrestrial() * 3;
+      // DVB-C: qam64, qam128, qam256
+      count += s->Cable() * 3;
       }
   return count;
 }

@@ -57,10 +57,11 @@ public:
   virtual ~cSatipDiscover();
   void TriggerScan(void) { probeIntervalM.Set(0); }
   int GetServerCount(void);
-  cSatipServer *GetServer(int sourceP, int systemP = -1);
+  cSatipServer *GetServer(int sourceP, int transponderP = 0, int systemP = -1);
   cSatipServer *GetServer(cSatipServer *serverP);
   cSatipServers *GetServers(void);
   cString GetServerString(cSatipServer *serverP);
+  void SetTransponder(cSatipServer *serverP, int transponderP);
   void UseServer(cSatipServer *serverP, bool onOffP);
   cString GetServerList(void);
   int NumProvidedSystems(void);
