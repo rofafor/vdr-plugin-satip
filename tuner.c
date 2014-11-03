@@ -255,6 +255,11 @@ bool cSatipTuner::Connect(void)
 
      // Start playing
      tunedM = true;
+     if (!pidsM.Size()) {
+        SetPid(0, 5, true);
+        if (nextServerM && nextServerM->Quirk(cSatipServer::eSatipQuirkPlayPids))
+           SetPid(eDummyPid, 5, true);
+        }
      UpdatePids(true);
      if (nextServerM) {
         cSatipDiscover::GetInstance()->UseServer(nextServerM, true);
@@ -394,14 +399,18 @@ bool cSatipTuner::SetSource(cSatipServer *serverP, const char *parameterP, const
 {
   debug("cSatipTuner::%s(%s, %d) [device %d]", __FUNCTION__, parameterP, indexP, deviceM->GetId());
   cMutexLock MutexLock(&mutexM);
-  nextServerM = cSatipDiscover::GetInstance()->GetServer(serverP);
-  if (nextServerM && !isempty(nextServerM->Address()) && !isempty(parameterP)) {
-     // Update stream address and parameter
-     streamAddrM = nextServerM->Address();
-     streamParamM = parameterP;
-     // Reconnect
-     Connect();
+  if (serverP) {
+     nextServerM = cSatipDiscover::GetInstance()->GetServer(serverP);
+     if (nextServerM && !isempty(nextServerM->Address()) && !isempty(parameterP)) {
+        // Update stream address and parameter
+        streamAddrM = nextServerM->Address();
+        streamParamM = parameterP;
+        // Reconnect
+        Connect();
+        }
      }
+  else
+     Disconnect();
   return true;
 }
 
@@ -470,8 +479,6 @@ bool cSatipTuner::UpdatePids(bool forceP)
            uri = cString::sprintf("%s?pids=", *uri);
            for (int i = 0; i < pidsM.Size(); ++i)
                uri = cString::sprintf("%s%d%s", *uri, pidsM[i], (i == (pidsM.Size() - 1)) ? "" : ",");
-           if  (currentServerM && currentServerM->Quirk(cSatipServer::eSatipQuirkPlayPids))
-               uri = cString::sprintf("%s,%d", *uri, eDummyPid);
            }
         }
      else {

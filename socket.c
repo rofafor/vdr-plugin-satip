@@ -229,6 +229,7 @@ int cSatipSocket::ReadApplication(unsigned char *bufferAddrP, unsigned int buffe
               if (string_length > 0) {
                  // Set argument point to payload in read buffer
                  memmove(bufferAddrP, &bufferAddrP[offset + 16], string_length);
+                 bufferAddrP[string_length] = 0;
                  return string_length;
                  }
               }

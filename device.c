@@ -184,7 +184,7 @@ int cSatipDevice::SignalQuality(void) const
 
 bool cSatipDevice::ProvidesSource(int sourceP) const
 {
-  //debug("cSatipDevice::%s(%u)", __FUNCTION__, deviceIndexM);
+  //debug("cSatipDevice::%s(%u): source=%c", __FUNCTION__, deviceIndexM, cSource::ToChar(sourceP));
   if (!SatipConfig.IsOperatingModeOff() && !!cSatipDiscover::GetInstance()->GetServer(sourceP)) {
      int numDisabledSourcesM = SatipConfig.GetDisabledSourcesCount();
      for (int i = 0; i < numDisabledSourcesM; ++i) {
@@ -198,7 +198,7 @@ bool cSatipDevice::ProvidesSource(int sourceP) const
 
 bool cSatipDevice::ProvidesTransponder(const cChannel *channelP) const
 {
-  debug("cSatipDevice::%s(%u)", __FUNCTION__, deviceIndexM);
+  debug("cSatipDevice::%s(%u): transponder=%d source=%c", __FUNCTION__, deviceIndexM, channelP ? channelP->Transponder() : -1, channelP ? cSource::ToChar(channelP->Source()) : '?');
   return (ProvidesSource(channelP->Source()));
 }
 
@@ -208,7 +208,7 @@ bool cSatipDevice::ProvidesChannel(const cChannel *channelP, int priorityP, bool
   bool hasPriority = (priorityP == IDLEPRIORITY) || (priorityP > this->Priority());
   bool needsDetachReceivers = false;
 
-  debug("cSatipDevice::%s(%u)", __FUNCTION__, deviceIndexM);
+  debug("cSatipDevice::%s(%u): channel=%d priority=%d", __FUNCTION__, deviceIndexM, channelP ? channelP->Number() : -1, priorityP);
 
   if (channelP && ProvidesTransponder(channelP)) {
      result = hasPriority;
@@ -299,6 +299,10 @@ bool cSatipDevice::SetChannelDevice(const cChannel *channelP, bool liveViewP)
         channelM = *channelP;
         return true;
         }
+     }
+  else if (pTunerM) {
+     pTunerM->SetSource(NULL, NULL, deviceIndexM);
+     return true;
      }
   return false;
 }
