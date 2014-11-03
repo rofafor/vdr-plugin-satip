@@ -70,3 +70,5 @@ VDR Plugin 'satip' Revision History
 - Fixed the cable only device detection.
 - Added support for blacklisted sources.
 - Fixed server reuse for active transponders.
+- Added a preliminary support for Fritz!WLAN Repeater DVB-C
+  (Thanks to Christian Wick).

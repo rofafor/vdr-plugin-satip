@@ -119,6 +119,12 @@ void cSatipTuner::Action(void)
                  timeout.Set(eReConnectTimeoutMs);
                  }
               }
+           // Quirk for devices without valid reception data
+           if (currentServerM && currentServerM->Quirk(cSatipServer::eSatipQuirkForceLock)) {
+              hasLockM = true;
+              signalStrengthM = eDefaultSignalStrength;
+              signalQualityM = eDefaultSignalQuality;
+              }
            // Read data
            if (rtpSocketM && rtpSocketM->IsOpen())
               length = rtpSocketM->ReadVideo(packetBufferM, size);
@@ -464,6 +470,8 @@ bool cSatipTuner::UpdatePids(bool forceP)
            uri = cString::sprintf("%s?pids=", *uri);
            for (int i = 0; i < pidsM.Size(); ++i)
                uri = cString::sprintf("%s%d%s", *uri, pidsM[i], (i == (pidsM.Size() - 1)) ? "" : ",");
+           if  (currentServerM && currentServerM->Quirk(cSatipServer::eSatipQuirkPlayPids))
+               uri = cString::sprintf("%s,%d", *uri, eDummyPid);
            }
         }
      else {

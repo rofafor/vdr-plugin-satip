@@ -37,7 +37,7 @@ cSatipServer::cSatipServer(const char *addressP, const char *descriptionP, const
         quirkM |= eSatipQuirkSessionId;
      // These devices contain a play (add/delpids) parameter bug:
      if (strstr(*descriptionM, "fritzdvbc"))            // Fritz!WLAN Repeater DVB-C
-        quirkM |= eSatipQuirkPlayPids;
+        quirkM |= eSatipQuirkPlayPids | eSatipQuirkForceLock;
   }
   char *s, *p = strdup(*modelM);
   char *r = strtok_r(p, ",", &s);
