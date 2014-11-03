@@ -24,7 +24,7 @@
 
 #define ELEMENTS(x)                      (sizeof(x) / sizeof(x[0]))
 
-#define SATIP_BUFFER_SIZE                MEGABYTE(1)
+#define SATIP_BUFFER_SIZE                KILOBYTE(512)
 
 #define SATIP_DEVICE_INFO_ALL            0
 #define SATIP_DEVICE_INFO_GENERAL        1
