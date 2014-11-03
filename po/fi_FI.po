@@ -34,8 +34,8 @@ msgstr "TDT (0x70)"
 msgid "SAT>IP Devices"
 msgstr "SAT>IP-laitteet"
 
-msgid "SAT>IP Device"
-msgstr "SAT>IP-laite"
+msgid "SAT>IP Server"
+msgstr "SAT>IP-palvelin"
 
 msgid "Address"
 msgstr "Osoite"
@@ -48,6 +48,12 @@ msgstr "Kuvaus"
 
 msgid "Creation date"
 msgstr "Luontiajankohta"
+
+msgid "SAT>IP Device Status"
+msgstr "SAT>IP-laitteiden tiedot"
+
+msgid "SAT>IP information not available!"
+msgstr "SAT>IP-tietoja ei saatavilla!"
 
 msgid "SAT>IP Information"
 msgstr "SAT>IP-tiedot"
@@ -64,9 +70,6 @@ msgstr "Suodattimet"
 msgid "Bits/bytes"
 msgstr "Bitit/tavut"
 
-msgid "SAT>IP information not available!"
-msgstr "SAT>IP-tietoja ei saatavilla!"
-
 msgid "off"
 msgstr "ei käytössä"
 
@@ -78,6 +81,9 @@ msgstr "normaali"
 
 msgid "high"
 msgstr "korkea"
+
+msgid "Button$Devices"
+msgstr "Laitteet"
 
 msgid "Operating mode"
 msgstr "Laitteiden toimintatapa"
@@ -144,8 +150,8 @@ msgstr "Suodatin"
 msgid "Define an ill-behaving filter to be blacklisted."
 msgstr "Määrittele käytöstä poistettava suodatin, joka lisätään mustalle listalle."
 
-msgid "Active SAT>IP devices:"
-msgstr "Aktiiviset SAT>IP-laitteet:"
+msgid "Active SAT>IP servers:"
+msgstr "Aktiiviset SAT>IP-palvelimet:"
 
 msgid "Help"
 msgstr "Opaste"

@@ -84,6 +84,7 @@ Setup menu:
                              to disable the individual section filters.
                              Valid range: "none" = 0 ... 7
 - [Red:Scan]                 Forces network scanning of SAT>IP hardware.
+- [Yellow:Devices]           Opens SAT>IP device status menu.
 - [Blue:Info]                Opens SAT>IP information/statistics menu.
 - [Ok]                       Opens information menu of selected SAT>IP
                              device.

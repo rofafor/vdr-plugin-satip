@@ -72,3 +72,4 @@ VDR Plugin 'satip' Revision History
 - Fixed server reuse for active transponders.
 - Added a preliminary support for Fritz!WLAN Repeater DVB-C
   (Thanks to Christian Wick).
+- Added a new device status menu.

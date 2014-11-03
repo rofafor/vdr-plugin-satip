@@ -28,6 +28,7 @@ private:
 
   eOSState DeviceScan(void);
   eOSState DeviceInfo(void);
+  eOSState ShowDeviceStatus(void);
   eOSState ShowInfo(void);
   void Setup(void);
   void StoreSources(const char *nameP, int *sourcesP);

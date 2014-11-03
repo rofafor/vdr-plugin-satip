@@ -34,8 +34,8 @@ msgstr "TDT (0x70)"
 msgid "SAT>IP Devices"
 msgstr "SAT>IP Dispositivos"
 
-msgid "SAT>IP Device"
-msgstr "SAT>IP Dispositivo"
+msgid "SAT>IP Server"
+msgstr ""
 
 msgid "Address"
 msgstr "Dirección"
@@ -48,6 +48,12 @@ msgstr "Descripción"
 
 msgid "Creation date"
 msgstr "Fecha creación"
+
+msgid "SAT>IP Device Status"
+msgstr ""
+
+msgid "SAT>IP information not available!"
+msgstr "SAT>IP Información no disponible!"
 
 msgid "SAT>IP Information"
 msgstr "SAT>IP Información"
@@ -64,9 +70,6 @@ msgstr "Filtros"
 msgid "Bits/bytes"
 msgstr "Bits/Bytes"
 
-msgid "SAT>IP information not available!"
-msgstr "SAT>IP Información no disponible!"
-
 msgid "off"
 msgstr "Apagado"
 
@@ -78,6 +81,9 @@ msgstr "Normal"
 
 msgid "high"
 msgstr "Alto"
+
+msgid "Button$Devices"
+msgstr ""
 
 msgid "Operating mode"
 msgstr "Modo de operación"
@@ -142,8 +148,8 @@ msgstr "Filtra"
 msgid "Define an ill-behaving filter to be blacklisted."
 msgstr "Define un filtro para poner en la lista negra."
 
-msgid "Active SAT>IP devices:"
-msgstr "Dispositivos SAT>IP activos:"
+msgid "Active SAT>IP servers:"
+msgstr ""
 
 msgid "Help"
 msgstr "Ayuda"

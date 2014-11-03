@@ -98,7 +98,7 @@ public:
 };
 
 cSatipServerInfo::cSatipServerInfo(cSatipServer *serverP)
-: cOsdMenu(tr("SAT>IP Device"), 20),
+: cOsdMenu(tr("SAT>IP Server"), 20),
   addressM(serverP ? serverP->Address() : "---"),
   modelM(serverP ? serverP->Model() : "---"),
   descriptionM(serverP ? serverP->Description() : "---"),
@@ -158,6 +158,99 @@ void cSatipServerItem::SetMenuItem(cSkinDisplayMenu *displayMenuP, int indexP, b
 {
   if (displayMenuP)
      displayMenuP->SetItem(Text(), indexP, currentP, selectableP);
+}
+
+// --- cSatipMenuDeviceStatus -------------------------------------------------
+
+class cSatipMenuDeviceStatus : public cOsdMenu
+{
+private:
+  enum {
+    eInfoTimeoutMs = 15000
+  };
+  cString textM;
+  cTimeMs timeoutM;
+  void UpdateInfo();
+
+public:
+  cSatipMenuDeviceStatus();
+  virtual ~cSatipMenuDeviceStatus();
+  virtual void Display(void);
+  virtual eOSState ProcessKey(eKeys keyP);
+};
+
+cSatipMenuDeviceStatus::cSatipMenuDeviceStatus()
+: cOsdMenu(tr("SAT>IP Device Status")),
+  textM(""),
+  timeoutM()
+{
+  SetMenuCategory(mcText);
+  timeoutM.Set(eInfoTimeoutMs);
+  UpdateInfo();
+  SetHelp(NULL, NULL, NULL, NULL);
+}
+
+cSatipMenuDeviceStatus::~cSatipMenuDeviceStatus()
+{
+}
+
+void cSatipMenuDeviceStatus::UpdateInfo()
+{
+  textM = "";
+  for (int i = 0; i < cDevice::NumDevices(); i++) {
+      const cDevice *device = cDevice::GetDevice(i);
+      if (device && strstr(device->DeviceType(), "SAT>IP")) {
+         int timers = 0;
+         bool live = (device == cDevice::ActualDevice());
+         bool lock = device->HasLock();
+         const cChannel *channel = device->GetCurrentlyTunedTransponder();
+         for (cTimer *timer = Timers.First(); timer; timer = Timers.Next(timer)) {
+             if (timer->Recording()) {
+                cRecordControl *control = cRecordControls::GetRecordControl(timer);
+                if (control && control->Device() == device)
+                   timers++;
+                }
+            }
+         textM = cString::sprintf("%sDevice: %s\n", *textM, *device->DeviceName());
+         if (lock)
+            textM = cString::sprintf("%sCardIndex: %d  HasLock: yes  Strength: %d  Quality: %d%s\n", *textM, device->CardIndex(), device->SignalStrength(), device->SignalQuality(), live ? "  Live: yes" : "");
+         else
+            textM = cString::sprintf("%sCardIndex: %d  HasLock: no\n", *textM, device->CardIndex());
+         if (channel && channel->Number() > 0)
+            textM = cString::sprintf("%sChannel: %s\n", *textM, (channel && channel->Number() > 0) ? channel->Name() : "---");
+         if (timers)
+            textM = cString::sprintf("%sRecording: %d timer%s\n", *textM, timers, (timers > 1) ? "s" : "");
+         textM = cString::sprintf("%s\n", *textM);
+         }
+      }
+  if (isempty(*textM))
+     textM = cString(tr("SAT>IP information not available!"));
+  Display();
+  timeoutM.Set(eInfoTimeoutMs);
+}
+
+void cSatipMenuDeviceStatus::Display(void)
+{
+  cOsdMenu::Display();
+  DisplayMenu()->SetText(textM, true);
+  if (*textM)
+     cStatus::MsgOsdTextItem(textM);
+}
+
+eOSState cSatipMenuDeviceStatus::ProcessKey(eKeys keyP)
+{
+  eOSState state = cOsdMenu::ProcessKey(keyP);
+
+  if (state == osUnknown) {
+     switch (keyP) {
+       case kOk: state = osBack;     break;
+       default:  if (timeoutM.TimedOut())
+                    UpdateInfo();
+                 state = osContinue;
+                 break;
+       }
+     }
+  return state;
 }
 
 // --- cSatipMenuInfo ---------------------------------------------------------
@@ -284,7 +377,7 @@ cSatipPluginSetup::cSatipPluginSetup()
       }
   SetMenuCategory(mcSetupPlugins);
   Setup();
-  SetHelp(trVDR("Button$Scan"), NULL, NULL, trVDR("Button$Info"));
+  SetHelp(trVDR("Button$Scan"), NULL, tr("Button$Devices"), trVDR("Button$Info"));
 }
 
 void cSatipPluginSetup::Setup(void)
@@ -317,7 +410,7 @@ void cSatipPluginSetup::Setup(void)
          helpM.Append(tr("Define an ill-behaving filter to be blacklisted."));
          }
      }
-  Add(new cOsdItem(tr("Active SAT>IP devices:"), osUnknown, false));
+  Add(new cOsdItem(tr("Active SAT>IP servers:"), osUnknown, false));
   helpM.Append("");
 
   cSatipServers *servers = cSatipDiscover::GetInstance()->GetServers();
@@ -352,6 +445,15 @@ eOSState cSatipPluginSetup::DeviceInfo(void)
   return osContinue;
 }
 
+eOSState cSatipPluginSetup::ShowDeviceStatus(void)
+{
+  debug("cSatipPluginSetup::%s()", __FUNCTION__);
+  if (HasSubMenu() || Count() == 0)
+     return osContinue;
+
+  return AddSubMenu(new cSatipMenuDeviceStatus());
+}
+
 eOSState cSatipPluginSetup::ShowInfo(void)
 {
   debug("cSatipPluginSetup::%s()", __FUNCTION__);
@@ -376,11 +478,12 @@ eOSState cSatipPluginSetup::ProcessKey(eKeys keyP)
 
   if (state == osUnknown) {
      switch (keyP) {
-       case kRed:  return DeviceScan();
-       case kBlue: return ShowInfo();
-       case kInfo: if (Current() < helpM.Size())
-                      return AddSubMenu(new cMenuText(cString::sprintf("%s - %s '%s'", tr("Help"), trVDR("Plugin"), PLUGIN_NAME_I18N), helpM[Current()]));
-       default:    state = osContinue; break;
+       case kRed:    return DeviceScan();
+       case kYellow: return ShowDeviceStatus();
+       case kBlue:   return ShowInfo();
+       case kInfo:   if (Current() < helpM.Size())
+                        return AddSubMenu(new cMenuText(cString::sprintf("%s - %s '%s'", tr("Help"), trVDR("Plugin"), PLUGIN_NAME_I18N), helpM[Current()]));
+       default:      state = osContinue; break;
        }
      }
 
