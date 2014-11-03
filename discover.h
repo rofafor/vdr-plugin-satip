@@ -52,7 +52,7 @@ protected:
 
 public:
   static cSatipDiscover *GetInstance(void);
-  static bool Initialize(void);
+  static bool Initialize(const char *serverAddrP, const char *serverDescriptionP, const char *serverModelP);
   static void Destroy(void);
   virtual ~cSatipDiscover();
   void TriggerScan(void) { probeIntervalM.Set(0); }

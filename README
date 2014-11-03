@@ -44,6 +44,10 @@ The plugin accepts a "--devices" (-d) command-line parameter defaulting
 to one. This parameter defines how many simultaneous transponders can
 be received, if there are available SAT>IP tuners.
 
+The plugin accepts also a "--server" (-s) command-line parameter, that
+can be used to manually configure one SAT>IP server, if autodetection
+via UPnP somehow can't be used.
+
 SAT>IP satellite positions (aka. signal sources) shall be defined via
 sources.conf. If the source description begins with a number, it's used
 as SAT>IP signal source selection parameter. Otherwise, the default
