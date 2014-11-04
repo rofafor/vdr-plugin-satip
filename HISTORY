@@ -77,3 +77,5 @@ VDR Plugin 'satip' Revision History
 - Added a new device status menu.
 - Added a command-line switch for manually defining
   used SAT>IP servers.
+- Added support for SAT>IP frontend selection via
+  Radio ID.

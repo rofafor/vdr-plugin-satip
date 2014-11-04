@@ -62,6 +62,10 @@ S19.2E  2
 S19.2E  3 Astra 1KR/1L/1M/2C
 => Signal source = 3
 
+A channel can be assigned into a specific SAT>IP frontend by giving the
+identifier number in RID field of a channels.conf entry.
+Valid range: 1 ... 8
+
 Setup menu:
 
 - Operating mode = off       If you want exclude all SAT>IP devices
