@@ -75,5 +75,5 @@ VDR Plugin 'satip' Revision History
 - Added support for Telestar Digibit R1
   (Thanks to Dirk Wagner).
 - Added a new device status menu.
-- Added a command-line switch for manually defining a
-  SAT>IP server.
+- Added a command-line switch for manually defining
+  used SAT>IP servers.

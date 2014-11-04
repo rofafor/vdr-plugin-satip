@@ -32,12 +32,14 @@ cSatipDiscover *cSatipDiscover::GetInstance(void)
   return instanceS;
 }
 
-bool cSatipDiscover::Initialize(const char *serverAddrP, const char *serverDescriptionP, const char *serverModelP)
+bool cSatipDiscover::Initialize(cSatipDiscoverServers *serversP)
 {
-  debug("cSatipDiscover::%s(%s, %s, %s)", __FUNCTION__, serverAddrP ? serverAddrP : "auto", serverDescriptionP ? serverDescriptionP : "auto", serverModelP ? serverModelP : "auto");
+  debug("cSatipDiscover::%s()", __FUNCTION__);
   if (instanceS) {
-     if (serverAddrP && serverDescriptionP && serverModelP)
-        instanceS->AddServer(serverAddrP, serverDescriptionP, serverModelP);
+       if (serversP) {
+          for (cSatipDiscoverServer *s = serversP->First(); s; s = serversP->Next(s))
+              instanceS->AddServer(s->IpAddress(), s->Description(), s->Model());
+          }
      else
         instanceS->Activate();
      }

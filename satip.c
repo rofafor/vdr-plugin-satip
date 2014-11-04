@@ -31,9 +31,7 @@ static const char DESCRIPTION[] = trNOOP("SAT>IP Devices");
 class cPluginSatip : public cPlugin {
 private:
   unsigned int deviceCountM;
-  cString serverAddrM;
-  cString serverDescriptionM;
-  cString serverModelM;
+  cSatipDiscoverServers *serversM;
   void ParseServer(const char *paramP);
   int ParseSources(const char *valueP, int *sourcesP);
   int ParseFilters(const char *valueP, int *filtersP);
@@ -62,9 +60,7 @@ public:
 
 cPluginSatip::cPluginSatip(void)
 : deviceCountM(1),
-  serverAddrM(),
-  serverDescriptionM(),
-  serverModelM()
+  serversM(NULL)
 {
   //debug("cPluginSatip::%s()", __FUNCTION__);
   // Initialize any member variables here.
@@ -82,8 +78,9 @@ const char *cPluginSatip::CommandLineHelp(void)
 {
   debug("cPluginSatip::%s()", __FUNCTION__);
   // Return a string that describes all known command line options.
-  return "  -d <num>, --devices=<number> number of devices to be created\n"
-         "  -s <ipaddr>;<model>;<desc>, --server=<ipaddr>;<model>;<desc> use a hard-coded SAT>IP server\n";
+  return "  -d <num>, --devices=<number>  set number of devices to be created\n"
+         "  -s <ipaddr>|<model>|<desc>, --server=<ipaddr1>|<model1>|<desc1>;<ipaddr2>|<model2>|<desc2>\n"
+         "                                define hard-coded SAT>IP server(s)\n";
 }
 
 bool cPluginSatip::ProcessArgs(int argc, char *argv[])
@@ -119,7 +116,7 @@ bool cPluginSatip::Initialize(void)
   if (curl_global_init(CURL_GLOBAL_ALL) != CURLE_OK)
      error("Unable to initialize CURL");
   SatipConfig.SetConfigDirectory(cPlugin::ResourceDirectory(PLUGIN_NAME_I18N));
-  cSatipDiscover::GetInstance()->Initialize(*serverAddrM, *serverDescriptionM, *serverModelM);
+  cSatipDiscover::GetInstance()->Initialize(serversM);
   return cSatipDevice::Initialize(deviceCountM);
 }
 
@@ -196,23 +193,37 @@ void cPluginSatip::ParseServer(const char *paramP)
   char *r = strtok_r(p, ";", &s);
   while (r) {
         r = skipspace(r);
-        //debug("cPluginSatip::%s(): serverparam[%d]=%s", __FUNCTION__, n, r);
-        switch (n++) {
-               case 0:
-                    serverAddrM = r;
-                    break;
-               case 1:
-                    serverModelM = r;
-                    break;
-               case 2:
-                    serverDescriptionM = r;
-                    break;
-               default:
-                    break;
-               }
+        //debug("cPluginSatip::%s(): server[%d]=%s", __FUNCTION__, n, r);
+        cString serverAddr, serverModel, serverDescription;
+        int n2 = 0;
+        char *s2, *p2 = r;
+        char *r2 = strtok_r(p2, "|", &s2);
+        while (r2) {
+              //debug("cPluginSatip::%s(): param[%d]=%s", __FUNCTION__, n2, r2);
+              switch (n2++) {
+                     case 0:
+                          serverAddr = r2;
+                          break;
+                     case 1:
+                          serverModel = r2;
+                          break;
+                     case 2:
+                          serverDescription = r2;
+                          break;
+                     default:
+                          break;
+                     }
+              r2 = strtok_r(NULL, "|", &s2);
+              }
+        if (*serverAddr && *serverModel && *serverDescription) {
+           debug("cPluginSatip::%s(): ipaddr=%s model=%s desc=%s", __FUNCTION__, *serverAddr, *serverModel, *serverDescription);
+           if (!serversM)
+              serversM = new cSatipDiscoverServers();
+           serversM->Add(new cSatipDiscoverServer(*serverAddr, *serverDescription, *serverModel));
+           }
+        ++n;
         r = strtok_r(NULL, ";", &s);
         }
-  //debug("cPluginSatip::%s(): ipaddr=%s model=%s desc=%s", __FUNCTION__, *serverAddrM, *serverModelM, *serverDescriptionM);
 }
 
 int cPluginSatip::ParseSources(const char *valueP, int *sourcesP)

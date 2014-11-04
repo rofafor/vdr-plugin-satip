@@ -16,6 +16,24 @@
 #include "server.h"
 #include "socket.h"
 
+class cSatipDiscoverServer : public cListObject {
+private:
+  cString ipAddressM;
+  cString descriptionM;
+  cString modelM;
+public:
+  cSatipDiscoverServer(const char *ipAddressP, const char *descriptionP, const char *modelP)
+  {
+    ipAddressM = ipAddressP; descriptionM = descriptionP; modelM = modelP;
+  }
+  const char *IpAddress(void)   { return *ipAddressM; }
+  const char *Description(void) { return *descriptionM; }
+  const char *Model(void)       { return *modelM; }
+};
+
+class cSatipDiscoverServers : public cList<cSatipDiscoverServer> {
+};
+
 class cSatipDiscover : public cThread {
 private:
   enum {
@@ -52,7 +70,7 @@ protected:
 
 public:
   static cSatipDiscover *GetInstance(void);
-  static bool Initialize(const char *serverAddrP, const char *serverDescriptionP, const char *serverModelP);
+  static bool Initialize(cSatipDiscoverServers *serversP);
   static void Destroy(void);
   virtual ~cSatipDiscover();
   void TriggerScan(void) { probeIntervalM.Set(0); }

@@ -45,7 +45,7 @@ to one. This parameter defines how many simultaneous transponders can
 be received, if there are available SAT>IP tuners.
 
 The plugin accepts also a "--server" (-s) command-line parameter, that
-can be used to manually configure one SAT>IP server, if autodetection
+can be used to manually configure static SAT>IP servers if autodetection
 via UPnP somehow can't be used.
 
 SAT>IP satellite positions (aka. signal sources) shall be defined via
