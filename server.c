@@ -29,9 +29,9 @@ cSatipServer::cSatipServer(const char *addressP, const char *descriptionP, const
   if (!isempty(*descriptionM)) {
      // These devices contain a session id bug:
      // Inverto Airscreen Server IDL 400 ?
-     // Telestar Digibit R1 ?
      // Elgato EyeTV Netstream 4Sat ?
      if (strstr(*descriptionM, "GSSBOX") ||             // Grundig Sat Systems GSS.box DSI 400
+         strstr(*descriptionM, "DIGIBIT") ||            // Telestar Digibit R1
          strstr(*descriptionM, "Triax SatIP Converter") // Triax TSS 400
         )
         quirkM |= eSatipQuirkSessionId;
