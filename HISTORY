@@ -79,3 +79,4 @@ VDR Plugin 'satip' Revision History
   used SAT>IP servers.
 - Added support for SAT>IP frontend selection via
   Radio ID.
+- Fixed EIT scan (Thanks to Stefan Schallenberg).

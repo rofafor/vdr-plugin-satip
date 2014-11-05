@@ -29,6 +29,7 @@ private:
     eDummyPid               = 100,
     eDefaultSignalStrength  = 15,
     eDefaultSignalQuality   = 224,
+    eStatusUpdateTimeoutMs  = 1000,  // in milliseconds
     eConnectTimeoutMs       = 1500,  // in milliseconds
     ePidUpdateIntervalMs    = 250,   // in milliseconds
     eReConnectTimeoutMs     = 5000,  // in milliseconds
@@ -36,6 +37,7 @@ private:
   };
 
   static size_t HeaderCallback(void *ptrP, size_t sizeP, size_t nmembP, void *dataP);
+  static size_t DataCallback(void *ptrP, size_t sizeP, size_t nmembP, void *dataP);
 
   cCondWait sleepM;
   cSatipDeviceIf* deviceM;
@@ -51,6 +53,7 @@ private:
   CURL *handleM;
   struct curl_slist *headerListM;
   cTimeMs keepAliveM;
+  cTimeMs statusUpdateM;
   cTimeMs signalInfoCacheM;
   cTimeMs pidUpdateCacheM;
   cString sessionM;
@@ -72,6 +75,7 @@ private:
   void SetStreamId(int streamIdP);
   void SetSessionTimeout(const char *sessionP, int timeoutP = 0);
   bool KeepAlive(void);
+  bool ReadReceptionStatus(void);
   bool UpdateSignalInfoCache(void);
   bool UpdatePids(bool forceP = false);
 
