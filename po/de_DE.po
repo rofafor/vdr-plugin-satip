@@ -35,7 +35,7 @@ msgid "SAT>IP Devices"
 msgstr "SAT>IP Geräte"
 
 msgid "SAT>IP Server"
-msgstr ""
+msgstr "SAT>IP Server"
 
 msgid "Address"
 msgstr "Adresse"
@@ -50,7 +50,7 @@ msgid "Creation date"
 msgstr "Zeitpunkt der Erstellung"
 
 msgid "SAT>IP Device Status"
-msgstr ""
+msgstr "SAT>IP Geräte Status"
 
 msgid "SAT>IP information not available!"
 msgstr "Keine SAT>IP Informationen verfügbar!"
@@ -116,7 +116,7 @@ msgstr ""
 "Diese Einstellung schaltet die automatische EIT Aktualisierung für alle SAT>IP Geräte."
 
 msgid "Disabled sources"
-msgstr ""
+msgstr "Deaktivierte Quellen"
 
 msgid "none"
 msgstr "keine"
@@ -126,9 +126,12 @@ msgid ""
 "\n"
 "SAT>IP servers might not have all satellite positions available and such sources can be blacklisted here."
 msgstr ""
+"Definiert die Anzahl der deaktivierten Quellen.\n"
+"\n"
+"Für einige SAT>IP server sind nicht alle Satellitenpositionen verfügbar, nicht verfügbare Quellen können hier ausgeblendet werden"
 
 msgid "Define a source to be blacklisted."
-msgstr ""
+msgstr "Bestimme eine Quelle, die ausgeblendet wird"
 
 msgid "Disabled filters"
 msgstr "Deaktivierte Filter"
@@ -149,7 +152,7 @@ msgid "Define an ill-behaving filter to be blacklisted."
 msgstr "Bestimme einen fehlerhaften Filter der ausgeblendet werden soll."
 
 msgid "Active SAT>IP servers:"
-msgstr ""
+msgstr "Aktive SAT>IP Server"
 
 msgid "Help"
 msgstr "Hilfe"
