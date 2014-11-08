@@ -287,7 +287,6 @@ bool cSatipDevice::SetChannelDevice(const cChannel *channelP, bool liveViewP)
         error("Unrecognized SAT>IP channel parameters: %s", channelP->Parameters());
         return false;
         }
-     cString address;
      cSatipServer *server = cSatipDiscover::GetInstance()->GetServer(channelP->Source(), channelP->Transponder(), dtp.System());
      if (!server) {
         debug("cSatipDevice::%s(%u): no suitable server found", __FUNCTION__, deviceIndexM);

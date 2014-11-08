@@ -8,13 +8,6 @@
 #ifndef __SATIP_TUNER_H
 #define __SATIP_TUNER_H
 
-#include <curl/curl.h>
-#include <curl/easy.h>
-
-#ifndef CURLOPT_RTSPHEADER
-#error "libcurl is missing required RTSP support"
-#endif
-
 #include <vdr/thread.h>
 #include <vdr/tools.h>
 
@@ -22,6 +15,7 @@
 #include "server.h"
 #include "statistics.h"
 #include "socket.h"
+#include "data.h"
 
 class cSatipTuner : public cThread, public cSatipTunerStatistics {
 private:
@@ -38,11 +32,12 @@ private:
 
   static size_t HeaderCallback(void *ptrP, size_t sizeP, size_t nmembP, void *dataP);
   static size_t DataCallback(void *ptrP, size_t sizeP, size_t nmembP, void *dataP);
+  static void   DataTimeoutCallback(void *objP);
+  static int    RtspDebugCallback(CURL *handleP, curl_infotype typeP, char *dataP, size_t sizeP, void *userPtrP);
 
+  cSatipTunerDataThread dataThreadM;
   cCondWait sleepM;
   cSatipDeviceIf* deviceM;
-  unsigned char* packetBufferM;
-  unsigned int packetBufferLenM;
   cSatipSocket *rtpSocketM;
   cSatipSocket *rtcpSocketM;
   cString streamAddrM;
@@ -51,22 +46,21 @@ private:
   cSatipServer *nextServerM;
   cMutex mutexM;
   CURL *handleM;
-  struct curl_slist *headerListM;
   cTimeMs keepAliveM;
   cTimeMs statusUpdateM;
   cTimeMs signalInfoCacheM;
   cTimeMs pidUpdateCacheM;
   cString sessionM;
   int timeoutM;
-  bool openedM;
+  bool reconnectM;
   bool tunedM;
   bool hasLockM;
   int signalStrengthM;
   int signalQualityM;
   int streamIdM;
-  cVector<int> addPidsM;
-  cVector<int> delPidsM;
-  cVector<int> pidsM;
+  cSatipVector<int> addPidsM;
+  cSatipVector<int> delPidsM;
+  cSatipVector<int> pidsM;
 
   bool Connect(void);
   bool Disconnect(void);
@@ -75,9 +69,17 @@ private:
   void SetStreamId(int streamIdP);
   void SetSessionTimeout(const char *sessionP, int timeoutP = 0);
   bool KeepAlive(void);
-  bool ReadReceptionStatus(void);
   bool UpdateSignalInfoCache(void);
   bool UpdatePids(bool forceP = false);
+  cString GeneratePidParameter(bool allPidsP = false);
+
+  bool RtspInitialize(void);
+  bool RtspTerminate(void);
+  bool RtspOptions(void);
+  bool RtspSetup(const char *paramP, int rtpPortP, int rtcpPortP);
+  bool RtspDescribe(void);
+  bool RtspPlay(const char *paramP = NULL);
+  bool RtspTeardown(void);
 
 protected:
   virtual void Action(void);
