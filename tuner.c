@@ -43,9 +43,12 @@ cSatipTuner::cSatipTuner(cSatipDeviceIf &deviceP, unsigned int packetLenP)
 
   RtspInitialize();
 
+  bool waitSocket = false;
+
   // Open sockets
   for (int i = 100; i > 0; --i) {
-      if (rtpSocketM->Open() && rtcpSocketM->Open(rtpSocketM->Port() + 1))
+      if (rtpSocketM->Open(0, waitSocket) &&
+          rtcpSocketM->Open(rtpSocketM->Port() + 1), waitSocket)
          break;
       rtpSocketM->Close();
       rtcpSocketM->Close();
@@ -94,7 +97,7 @@ void cSatipTuner::Action(void)
   // Do the thread loop
   while (Running()) {
         if (reconnectM) {
-           info("SAT>IP Device %d timed out. Reconnecting.", deviceM->GetId());
+           info("SAT>IP Device %d reconnecting.", deviceM->GetId());
            cMutexLock MutexLock(&mutexM);
            if (tunedM)
               Disconnect();
@@ -130,20 +133,22 @@ void cSatipTuner::Action(void)
               signalQualityM = eDefaultSignalQuality;
               }
 
-           if (rtcpTimeout.TimedOut())
+           if (rtcpTimeout.TimedOut()) {
+              error("No RTP Data received for %d ms [device %d], Reconnect initiated",
+                    (int)rtcpTimeout.Elapsed(), deviceM->GetId());
+              rtcpTimeout.Set(eReConnectTimeoutMs);
               reconnectM = true;
+              }
 
            int passedMs = dataThreadM.LastReceivedMs();
            if (passedMs >= eReConnectTimeoutMs) {
-              error("No Data received for %d ms [device %d], Reconnect initiated",
+              error("No RTP Data received for %d ms [device %d], Reconnect initiated",
                     (int)passedMs, deviceM->GetId());
               dataThreadM.ResetLastReceivedMs();
               reconnectM = true;
               }
-
-
            }
-        sleepM.Wait(10); // to avoid busy loop and reduce cpu load
+        sleepM.Wait(50); // to avoid busy loop and reduce cpu load
         }
   debug("cSatipTuner::%s(): exiting [device %d]", __FUNCTION__, deviceIdM);
 }

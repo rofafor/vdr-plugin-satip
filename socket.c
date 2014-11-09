@@ -23,7 +23,8 @@ cSatipSocket::cSatipSocket()
   socketDescM(-1),
   lastErrorReportM(0),
   packetErrorsM(0),
-  sequenceNumberM(-1)
+  sequenceNumberM(-1),
+  waitM(false)
 {
   debug("cSatipSocket::%s()", __FUNCTION__);
   memset(&sockAddrM, 0, sizeof(sockAddrM));
@@ -36,17 +37,22 @@ cSatipSocket::~cSatipSocket()
   Close();
 }
 
-bool cSatipSocket::Open(const int portP)
+bool cSatipSocket::Open(const int portP, bool waitP)
 {
   // Bind to the socket if it is not active already
   if (socketDescM < 0) {
+     waitM = waitP;
+
      socklen_t len = sizeof(sockAddrM);
      // Create socket
      socketDescM = socket(PF_INET, SOCK_DGRAM, 0);
      ERROR_IF_RET(socketDescM < 0, "socket()", return false);
-     // Make it use non-blocking I/O to avoid stuck read calls
-     ERROR_IF_FUNC(fcntl(socketDescM, F_SETFL, O_NONBLOCK), "fcntl(O_NONBLOCK)",
-                   Close(), return false);
+
+     if (!waitP)
+        // Make it use non-blocking I/O to avoid stuck read calls
+        ERROR_IF_FUNC(fcntl(socketDescM, F_SETFL, O_NONBLOCK), "fcntl(O_NONBLOCK)",
+                      Close(), return false);
+
      // Allow multiple sockets to use the same PORT number
      int yes = 1;
      ERROR_IF_FUNC(setsockopt(socketDescM, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) < 0,
@@ -63,7 +69,8 @@ bool cSatipSocket::Open(const int portP)
                    "getsockname()", Close(), return false);
      socketPortM = ntohs(sockAddrM.sin_port);
      }
-  debug("cSatipSocket::%s(%d): socketPort=%d", __FUNCTION__, portP, socketPortM);
+  debug("cSatipSocket::%s(%d,%d): socketPort=%d",
+        __FUNCTION__, portP, socketPortM, waitP);
   return true;
 }
 
@@ -133,7 +140,7 @@ int cSatipSocket::Read(unsigned char *bufferAddrP, unsigned int bufferLenP)
     msgh.msg_flags = 0;
 
     if (socketDescM && bufferAddrP && (bufferLenP > 0))
-       len = (int)recvmsg(socketDescM, &msgh, MSG_DONTWAIT);
+       len = (int)recvmsg(socketDescM, &msgh, waitM ? 0 : MSG_DONTWAIT);
     if (len > 0)
        return len;
     } while (len > 0);

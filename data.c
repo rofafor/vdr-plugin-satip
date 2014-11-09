@@ -20,7 +20,7 @@ enum LOGLEVEL {
    logAll = 0xFFFF
    };
 
-int logLevel = logFunc | logFuncPerf | logData;
+int logLevel = logFunc /*| logFuncPerf | logData*/;
 
 #define log(lvl) \
    if (logLevel & lvl) \
@@ -79,7 +79,9 @@ int cSatipTunerDataThread::LastReceivedMs()
 {
   int rc = timeDataReceivedM.Elapsed();
 
-  log2(logFunc, "returning %d", rc);
+  log2(logFuncPerf, "returning %d", rc);
+
+  return rc;
 }
 
 void cSatipTunerDataThread::ResetLastReceivedMs()
@@ -107,6 +109,7 @@ void cSatipTunerDataThread::Flush(void)
 void cSatipTunerDataThread::Action(void)
 {
   log(logFunc);
+  bool polling = SatipConfig.IsPolling();
 
   // Increase priority
   SetPriority(-1);
@@ -121,6 +124,9 @@ void cSatipTunerDataThread::Action(void)
         // Read data
         if (rtpSocketM && rtpSocketM->IsOpen()) {
            length = rtpSocketM->ReadVideo(packetBufferM, size);
+           if (!polling || length > 0)
+              timeDataReceivedM.Set();
+
            log2(logData, "received %d bytes", length);
            }
 
@@ -132,13 +138,12 @@ void cSatipTunerDataThread::Action(void)
            if (statisticsM)
               statisticsM->AddTunerStatistic(length);
 
-           timeDataReceivedM.Set();
            }
 
         mutexM.Unlock();
 
         // to avoid busy loop and reduce cpu load
-        if (length <= 0)
+        if (polling && length <= 0)
            sleepM.Wait(10);
         }
 }

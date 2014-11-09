@@ -13,7 +13,8 @@ cSatipConfig SatipConfig;
 cSatipConfig::cSatipConfig(void)
 : operatingModeM(eOperatingModeLow),
   eitScanM(1),
-  useBytesM(1)
+  useBytesM(1),
+  usePollingM(true)
 {
   for (unsigned int i = 0; i < ARRAY_SIZE(disabledSourcesM); ++i)
       disabledSourcesM[i] = cSource::stNone;

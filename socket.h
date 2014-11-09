@@ -21,11 +21,12 @@ private:
   time_t lastErrorReportM;
   int packetErrorsM;
   int sequenceNumberM;
+  bool waitM;
 
 public:
   cSatipSocket();
   ~cSatipSocket();
-  bool Open(const int portP = 0);
+  bool Open(const int portP = 0, bool waitP = false);
   void Close(void);
   int Port(void) { return socketPortM; }
   bool IsOpen(void) { return (socketDescM >= 0); }
