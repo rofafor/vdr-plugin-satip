@@ -94,6 +94,35 @@ size_t cSatipDiscover::WriteCallback(char *ptrP, size_t sizeP, size_t nmembP, vo
   return len;
 }
 
+int cSatipDiscover::DebugCallback(CURL *handleP, curl_infotype typeP, char *dataP, size_t sizeP, void *userPtrP)
+{
+  cSatipDiscover *obj = reinterpret_cast<cSatipDiscover *>(userPtrP);
+
+  if (obj) {
+     switch (typeP) {
+       case CURLINFO_TEXT:
+            debug("cSatipDiscover::%s(): HTTP INFO %.*s", __FUNCTION__, (int)sizeP, dataP);
+            break;
+       case CURLINFO_HEADER_IN:
+            debug("cSatipDiscover::%s(): HTTP HEAD <<< %.*s", __FUNCTION__, (int)sizeP, dataP);
+            break;
+       case CURLINFO_HEADER_OUT:
+            debug("cSatipDiscover::%s(): HTTP HEAD >>>\n%.*s", __FUNCTION__, (int)sizeP, dataP);
+            break;
+       case CURLINFO_DATA_IN:
+            debug("cSatipDiscover::%s(): HTTP DATA <<< %.*s", __FUNCTION__, (int)sizeP, dataP);
+            break;
+       case CURLINFO_DATA_OUT:
+            debug("cSatipDiscover::%s(): HTTP DATA >>>\n%.*s", __FUNCTION__, (int)sizeP, dataP);
+            break;
+       default:
+            break;
+       }
+     }
+
+  return 0;
+}
+
 cSatipDiscover::cSatipDiscover()
 : cThread("SAT>IP discover"),
   mutexM(),
@@ -220,6 +249,8 @@ void cSatipDiscover::Read(void)
 #ifdef DEBUG
               // Verbose output
               SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_VERBOSE, 1L);
+              SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_DEBUGFUNCTION, cSatipDiscover::DebugCallback);
+              SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_DEBUGDATA, this);
 #endif
               // Set callback
               SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_WRITEFUNCTION, cSatipDiscover::WriteCallback);

@@ -47,6 +47,7 @@ private:
   static const char *bcastAddressS;
   static const char *bcastMessageS;
   static size_t WriteCallback(char *ptrP, size_t sizeP, size_t nmembP, void *dataP);
+  static int    DebugCallback(CURL *handleP, curl_infotype typeP, char *dataP, size_t sizeP, void *userPtrP);
   cMutex mutexM;
   CURL *handleM;
   cSatipSocket *socketM;

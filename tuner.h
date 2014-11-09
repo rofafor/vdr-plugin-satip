@@ -46,9 +46,11 @@ public:
 class cSatipTuner : public cThread, public cSatipTunerStatistics, public cSatipTunerIf {
 private:
   enum {
+    eMaxFileDescriptors     = 2,     // RTP + RTCP
     eDummyPid               = 100,
     eDefaultSignalStrength  = 15,
     eDefaultSignalQuality   = 224,
+    eReadTimeoutMs          = 500,   // in milliseconds
     eStatusUpdateTimeoutMs  = 1000,  // in milliseconds
     eConnectTimeoutMs       = 1500,  // in milliseconds
     ePidUpdateIntervalMs    = 250,   // in milliseconds
@@ -74,6 +76,7 @@ private:
   cTimeMs signalInfoCacheM;
   cTimeMs pidUpdateCacheM;
   cString sessionM;
+  int fdM;
   int timeoutM;
   bool openedM;
   bool tunedM;

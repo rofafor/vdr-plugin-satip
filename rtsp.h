@@ -24,7 +24,7 @@ private:
   static int    DebugCallback(CURL *handleP, curl_infotype typeP, char *dataP, size_t sizeP, void *userPtrP);
 
   enum {
-    eConnectTimeoutMs       = 1500,  // in milliseconds
+    eConnectTimeoutMs = 1500,  // in milliseconds
   };
 
   cSatipTunerIf* tunerM;

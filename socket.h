@@ -27,6 +27,7 @@ public:
   ~cSatipSocket();
   bool Open(const int portP = 0);
   void Close(void);
+  int Fd(void) { return socketDescM; }
   int Port(void) { return socketPortM; }
   bool IsOpen(void) { return (socketDescM >= 0); }
   bool Flush(void);
