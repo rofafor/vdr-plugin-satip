@@ -474,50 +474,15 @@ bool cSatipTuner::SetPid(int pidP, int typeP, bool onP)
 {
   //debug("cSatipTuner::%s(%d, %d, %d) [device %d]", __FUNCTION__, pidP, typeP, onP, deviceM->GetId());
   cMutexLock MutexLock(&mutexM);
-  bool found = false;
-  for (int i = 0; i < pidsM.Size(); ++i) {
-      if (pidsM[i] == pidP) {
-         found = true;
-         if (!onP)
-            pidsM.Remove(i);
-         break;
-         }
-      }
-  if (onP && !found)
-      pidsM.Append(pidP);
-  // Generate deltas
-  found = false;
   if (onP) {
-     for (int i = 0; i < addPidsM.Size(); ++i) {
-         if (addPidsM[i] == pidP) {
-            found = true;
-            break;
-            }
-         }
-     if (!found)
-        addPidsM.Append(pidP);
-     for (int i = 0; i < delPidsM.Size(); ++i) {
-         if (delPidsM[i] == pidP) {
-            delPidsM.Remove(i);
-            break;
-            }
-         }
+     pidsM.AddPid(pidP);
+     addPidsM.AddPid(pidP);
+     delPidsM.RemovePid(pidP);
      }
   else {
-     for (int i = 0; i < delPidsM.Size(); ++i) {
-         if (delPidsM[i] == pidP) {
-            found = true;
-            break;
-            }
-         }
-     if (!found)
-        delPidsM.Append(pidP);
-     for (int i = 0; i < addPidsM.Size(); ++i) {
-         if (addPidsM[i] == pidP) {
-            addPidsM.Remove(i);
-            break;
-            }
-         }
+     pidsM.RemovePid(pidP);
+     delPidsM.AddPid(pidP);
+     addPidsM.RemovePid(pidP);
      }
   pidUpdateCacheM.Set(ePidUpdateIntervalMs);
   return true;
