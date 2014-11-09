@@ -111,6 +111,35 @@ size_t cSatipTuner::DataCallback(void *ptrP, size_t sizeP, size_t nmembP, void *
   return len;
 }
 
+int cSatipTuner::DebugCallback(CURL *handleP, curl_infotype typeP, char *dataP, size_t sizeP, void *userPtrP)
+{
+  cSatipTuner *obj = reinterpret_cast<cSatipTuner *>(userPtrP);
+
+  if (obj) {
+     switch (typeP) {
+       case CURLINFO_TEXT:
+            debug("cSatipTuner::%s(%d): RTSP INFO %.*s", __FUNCTION__, obj->deviceM->GetId(), (int)sizeP, dataP);
+            break;
+       case CURLINFO_HEADER_IN:
+            debug("cSatipTuner::%s(%d): RTSP HEAD <<< %.*s", __FUNCTION__, obj->deviceM->GetId(), (int)sizeP, dataP);
+            break;
+       case CURLINFO_HEADER_OUT:
+            debug("cSatipTuner::%s(%d): RTSP HEAD >>> %.*s", __FUNCTION__, obj->deviceM->GetId(), (int)sizeP, dataP);
+            break;
+       case CURLINFO_DATA_IN:
+            debug("cSatipTuner::%s(%d): RTSP DATA <<< %.*s", __FUNCTION__, obj->deviceM->GetId(), (int)sizeP, dataP);
+            break;
+       case CURLINFO_DATA_OUT:
+            debug("cSatipTuner::%s(%d): RTSP DATA >>> %.*s", __FUNCTION__, obj->deviceM->GetId(), (int)sizeP, dataP);
+            break;
+       default:
+            break;
+       }
+     }
+
+  return 0;
+}
+
 void cSatipTuner::Action(void)
 {
   debug("cSatipTuner::%s(): entering [device %d]", __FUNCTION__, deviceM->GetId());
@@ -212,6 +241,8 @@ bool cSatipTuner::Connect(void)
 #ifdef DEBUG
      // Verbose output
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_VERBOSE, 1L);
+     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_DEBUGFUNCTION, cSatipTuner::DebugCallback);
+     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_DEBUGDATA, this);
 #endif
 
      // No progress meter and no signaling

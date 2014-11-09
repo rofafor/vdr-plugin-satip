@@ -38,6 +38,7 @@ private:
 
   static size_t HeaderCallback(void *ptrP, size_t sizeP, size_t nmembP, void *dataP);
   static size_t DataCallback(void *ptrP, size_t sizeP, size_t nmembP, void *dataP);
+  static int    DebugCallback(CURL *handleP, curl_infotype typeP, char *dataP, size_t sizeP, void *userPtrP);
 
   cCondWait sleepM;
   cSatipDeviceIf* deviceM;
