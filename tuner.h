@@ -8,17 +8,11 @@
 #ifndef __SATIP_TUNER_H
 #define __SATIP_TUNER_H
 
-#include <curl/curl.h>
-#include <curl/easy.h>
-
-#ifndef CURLOPT_RTSPHEADER
-#error "libcurl is missing required RTSP support"
-#endif
-
 #include <vdr/thread.h>
 #include <vdr/tools.h>
 
 #include "deviceif.h"
+#include "rtsp.h"
 #include "server.h"
 #include "statistics.h"
 #include "socket.h"
@@ -49,7 +43,7 @@ public:
   }
 };
 
-class cSatipTuner : public cThread, public cSatipTunerStatistics {
+class cSatipTuner : public cThread, public cSatipTunerStatistics, public cSatipTunerIf {
 private:
   enum {
     eDummyPid               = 100,
@@ -62,14 +56,12 @@ private:
     eMinKeepAliveIntervalMs = 30000  // in milliseconds
   };
 
-  static size_t HeaderCallback(void *ptrP, size_t sizeP, size_t nmembP, void *dataP);
-  static size_t DataCallback(void *ptrP, size_t sizeP, size_t nmembP, void *dataP);
-  static int    DebugCallback(CURL *handleP, curl_infotype typeP, char *dataP, size_t sizeP, void *userPtrP);
-
   cCondWait sleepM;
   cSatipDeviceIf* deviceM;
+  int deviceIdM;
   unsigned char* packetBufferM;
   unsigned int packetBufferLenM;
+  cSatipRtsp *rtspM;
   cSatipSocket *rtpSocketM;
   cSatipSocket *rtcpSocketM;
   cString streamAddrM;
@@ -77,8 +69,6 @@ private:
   cSatipServer *currentServerM;
   cSatipServer *nextServerM;
   cMutex mutexM;
-  CURL *handleM;
-  struct curl_slist *headerListM;
   cTimeMs keepAliveM;
   cTimeMs statusUpdateM;
   cTimeMs signalInfoCacheM;
@@ -97,10 +87,6 @@ private:
 
   bool Connect(void);
   bool Disconnect(void);
-  bool ValidateLatestResponse(void);
-  void ParseReceptionParameters(const char *paramP);
-  void SetStreamId(int streamIdP);
-  void SetSessionTimeout(const char *sessionP, int timeoutP = 0);
   bool KeepAlive(void);
   bool ReadReceptionStatus(void);
   bool UpdateSignalInfoCache(void);
@@ -122,6 +108,13 @@ public:
   bool HasLock(void);
   cString GetSignalStatus(void);
   cString GetInformation(void);
+
+  // for internal tuner interface
+public:
+  virtual void ParseReceptionParameters(const char *paramP);
+  virtual void SetStreamId(int streamIdP);
+  virtual void SetSessionTimeout(const char *sessionP, int timeoutP);
+  virtual int GetId(void);
 };
 
 #endif // __SATIP_TUNER_H

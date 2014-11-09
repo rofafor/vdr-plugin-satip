@@ -38,7 +38,6 @@ cSatipSocket::~cSatipSocket()
 
 bool cSatipSocket::Open(const int portP)
 {
-  debug("cSatipSocket::%s(%d)", __FUNCTION__, portP);
   // Bind to the socket if it is not active already
   if (socketDescM < 0) {
      socklen_t len = sizeof(sockAddrM);
@@ -64,12 +63,13 @@ bool cSatipSocket::Open(const int portP)
                    "getsockname()", Close(), return false);
      socketPortM = ntohs(sockAddrM.sin_port);
      }
+  debug("cSatipSocket::%s(%d): socketPort=%d", __FUNCTION__, portP, socketPortM);
   return true;
 }
 
 void cSatipSocket::Close(void)
 {
-  debug("cSatipSocket::%s()", __FUNCTION__);
+  debug("cSatipSocket::%s(%d)", __FUNCTION__, socketPortM);
   // Check if socket exists
   if (socketDescM >= 0) {
      close(socketDescM);

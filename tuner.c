@@ -14,7 +14,9 @@ cSatipTuner::cSatipTuner(cSatipDeviceIf &deviceP, unsigned int packetLenP)
 : cThread("SAT>IP tuner"),
   sleepM(),
   deviceM(&deviceP),
+  deviceIdM(deviceM ? deviceM->GetId() : -1),
   packetBufferLenM(packetLenP),
+  rtspM(new cSatipRtsp(*this)),
   rtpSocketM(new cSatipSocket()),
   rtcpSocketM(new cSatipSocket()),
   streamAddrM(""),
@@ -22,8 +24,6 @@ cSatipTuner::cSatipTuner(cSatipDeviceIf &deviceP, unsigned int packetLenP)
   currentServerM(NULL),
   nextServerM(NULL),
   mutexM(),
-  handleM(NULL),
-  headerListM(NULL),
   keepAliveM(),
   statusUpdateM(),
   pidUpdateCacheM(),
@@ -39,110 +39,52 @@ cSatipTuner::cSatipTuner(cSatipDeviceIf &deviceP, unsigned int packetLenP)
   delPidsM(),
   pidsM()
 {
-  debug("cSatipTuner::%s(%d) [device %d]", __FUNCTION__, packetBufferLenM, deviceM->GetId());
+  debug("cSatipTuner::%s(%d) [device %d]", __FUNCTION__, packetBufferLenM, deviceIdM);
   // Allocate packet buffer
   packetBufferM = MALLOC(unsigned char, packetBufferLenM);
   if (packetBufferM)
      memset(packetBufferM, 0, packetBufferLenM);
   else
-     error("MALLOC() failed for packet buffer [device %d]",  deviceM->GetId());
+     error("MALLOC() failed for packet buffer [device %d]", deviceIdM);
+
+  // Open sockets
+  int i = 100;
+  while (i-- > 0) {
+        if (rtpSocketM->Open() && rtcpSocketM->Open(rtpSocketM->Port() + 1))
+           break;
+        rtpSocketM->Close();
+        rtcpSocketM->Close();
+        }
+  if ((rtpSocketM->Port() <= 0) || (rtcpSocketM->Port() <= 0)) {
+     error("Cannot open required RTP/RTCP ports [device %d]", deviceIdM);
+     }
+
   // Start thread
   Start();
 }
 
 cSatipTuner::~cSatipTuner()
 {
-  debug("cSatipTuner::%s() [device %d]", __FUNCTION__, deviceM->GetId());
+  debug("cSatipTuner::%s() [device %d]", __FUNCTION__, deviceIdM);
   // Stop thread
   sleepM.Signal();
   if (Running())
      Cancel(3);
   Close();
+
+  // Close the listening sockets
+  rtpSocketM->Close();
+  rtcpSocketM->Close();
+
   // Free allocated memory
   free(packetBufferM);
   DELETENULL(rtcpSocketM);
   DELETENULL(rtpSocketM);
 }
 
-size_t cSatipTuner::HeaderCallback(void *ptrP, size_t sizeP, size_t nmembP, void *dataP)
-{
-  cSatipTuner *obj = reinterpret_cast<cSatipTuner *>(dataP);
-  size_t len = sizeP * nmembP;
-  //debug("cSatipTuner::%s(%zu)", __FUNCTION__, len);
-
-  char *s, *p = (char *)ptrP;
-  char *r = strtok_r(p, "\r\n", &s);
-
-  while (obj && r) {
-        //debug("cSatipTuner::%s(%zu): %s", __FUNCTION__, len, r);
-        r = skipspace(r);
-        if (strstr(r, "com.ses.streamID")) {
-           int streamid = -1;
-           if (sscanf(r, "com.ses.streamID:%11d", &streamid) == 1)
-              obj->SetStreamId(streamid);
-           }
-        else if (strstr(r, "Session:")) {
-           int timeout = -1;
-           char *session = NULL;
-           if (sscanf(r, "Session:%m[^;];timeout=%11d", &session, &timeout) == 2)
-              obj->SetSessionTimeout(skipspace(session), timeout * 1000);
-           else if (sscanf(r, "Session:%m[^;]", &session) == 1)
-              obj->SetSessionTimeout(skipspace(session));
-           FREE_POINTER(session);
-           }
-        r = strtok_r(NULL, "\r\n", &s);
-        }
-
-  return len;
-}
-
-size_t cSatipTuner::DataCallback(void *ptrP, size_t sizeP, size_t nmembP, void *dataP)
-{
-  cSatipTuner *obj = reinterpret_cast<cSatipTuner *>(dataP);
-  size_t len = sizeP * nmembP;
-  //debug("cSatipTuner::%s(%zu)", __FUNCTION__, len);
-
-  if (obj && (len > 0)) {
-     char *data = strndup((char*)ptrP, len);
-     obj->ParseReceptionParameters(data);
-     FREE_POINTER(data);
-     }
-
-  return len;
-}
-
-int cSatipTuner::DebugCallback(CURL *handleP, curl_infotype typeP, char *dataP, size_t sizeP, void *userPtrP)
-{
-  cSatipTuner *obj = reinterpret_cast<cSatipTuner *>(userPtrP);
-
-  if (obj) {
-     switch (typeP) {
-       case CURLINFO_TEXT:
-            debug("cSatipTuner::%s(%d): RTSP INFO %.*s", __FUNCTION__, obj->deviceM->GetId(), (int)sizeP, dataP);
-            break;
-       case CURLINFO_HEADER_IN:
-            debug("cSatipTuner::%s(%d): RTSP HEAD <<< %.*s", __FUNCTION__, obj->deviceM->GetId(), (int)sizeP, dataP);
-            break;
-       case CURLINFO_HEADER_OUT:
-            debug("cSatipTuner::%s(%d): RTSP HEAD >>> %.*s", __FUNCTION__, obj->deviceM->GetId(), (int)sizeP, dataP);
-            break;
-       case CURLINFO_DATA_IN:
-            debug("cSatipTuner::%s(%d): RTSP DATA <<< %.*s", __FUNCTION__, obj->deviceM->GetId(), (int)sizeP, dataP);
-            break;
-       case CURLINFO_DATA_OUT:
-            debug("cSatipTuner::%s(%d): RTSP DATA >>> %.*s", __FUNCTION__, obj->deviceM->GetId(), (int)sizeP, dataP);
-            break;
-       default:
-            break;
-       }
-     }
-
-  return 0;
-}
-
 void cSatipTuner::Action(void)
 {
-  debug("cSatipTuner::%s(): entering [device %d]", __FUNCTION__, deviceM->GetId());
+  debug("cSatipTuner::%s(): entering [device %d]", __FUNCTION__, deviceIdM);
   cTimeMs timeout(eReConnectTimeoutMs);
   // Increase priority
   SetPriority(-1);
@@ -190,134 +132,54 @@ void cSatipTuner::Action(void)
            sleepM.Wait(10); // to avoid busy loop and reduce cpu load
            }
         }
-  debug("cSatipTuner::%s(): exiting [device %d]", __FUNCTION__, deviceM->GetId());
+  debug("cSatipTuner::%s(): exiting [device %d]", __FUNCTION__, deviceIdM);
 }
 
 bool cSatipTuner::Open(void)
 {
-  debug("cSatipTuner::%s() [device %d]", __FUNCTION__, deviceM->GetId());
+  debug("cSatipTuner::%s() [device %d]", __FUNCTION__, deviceIdM);
   return Connect();
 }
 
 bool cSatipTuner::Close(void)
 {
-  debug("cSatipTuner::%s() [device %d]", __FUNCTION__, deviceM->GetId());
+  debug("cSatipTuner::%s() [device %d]", __FUNCTION__, deviceIdM);
   return Disconnect();
 }
 
 bool cSatipTuner::Connect(void)
 {
   cMutexLock MutexLock(&mutexM);
-  debug("cSatipTuner::%s() [device %d]", __FUNCTION__, deviceM->GetId());
+  debug("cSatipTuner::%s() [device %d]", __FUNCTION__, deviceIdM);
 
-  // Initialize the curl session
-  if (!handleM)
-     handleM = curl_easy_init();
-
-  if (handleM && !isempty(*streamAddrM)) {
-     cString uri, control, transport, range;
-     CURLcode res = CURLE_OK;
-
+  if (!isempty(*streamAddrM)) {
+     cString connectionUri = cString::sprintf("rtsp://%s", *streamAddrM);
+     cString uri = cString::sprintf("%s/?%s", *connectionUri, *streamParamM);
      // Just retune
      if (tunedM && (streamIdM >= 0)) {
-        debug("cSatipTuner::%s(): retune [device %d]", __FUNCTION__, deviceM->GetId());
+        debug("cSatipTuner::%s(): retune [device %d]", __FUNCTION__, deviceIdM);
         keepAliveM.Set(0);
         KeepAlive();
         // Flush any old content
         if (rtpSocketM)
            rtpSocketM->Flush();
-
-        uri = cString::sprintf("rtsp://%s/?%s", *streamAddrM, *streamParamM);
-        SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_STREAM_URI, *uri);
-        transport = cString::sprintf("RTP/AVP;unicast;client_port=%d-%d", rtpSocketM->Port(), rtcpSocketM->Port());
-        SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_TRANSPORT, *transport);
-        SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_REQUEST, (long)CURL_RTSPREQ_SETUP);
-        SATIP_CURL_EASY_PERFORM(handleM);
-
-        openedM = true;
+        openedM = rtspM->Setup(*uri, rtpSocketM->Port(), rtcpSocketM->Port());
         return openedM;
         }
-
-#ifdef DEBUG
-     // Verbose output
-     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_VERBOSE, 1L);
-     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_DEBUGFUNCTION, cSatipTuner::DebugCallback);
-     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_DEBUGDATA, this);
-#endif
-
-     // No progress meter and no signaling
-     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_NOPROGRESS, 1L);
-     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_NOSIGNAL, 1L);
-
-     // Set timeouts
-     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_TIMEOUT_MS, (long)eConnectTimeoutMs);
-     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_CONNECTTIMEOUT_MS, (long)eConnectTimeoutMs);
-
-     // Set user-agent
-     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_USERAGENT, *cString::sprintf("vdr-%s/%s (device %d)", PLUGIN_NAME_I18N, VERSION, deviceM->GetId()));
-
-     // Set URL
-     char *p = curl_easy_unescape(handleM, *streamAddrM, 0, NULL);
-     streamAddrM = p;
-     curl_free(p);
-     uri = cString::sprintf("rtsp://%s/", *streamAddrM);
-     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_URL, *uri);
-
-     // Open sockets
-     int i = 100;
-     while (i-- > 0) {
-           if (rtpSocketM->Open() && rtcpSocketM->Open(rtpSocketM->Port() + 1))
-              break;
-           rtpSocketM->Close();
-           rtcpSocketM->Close();
-           }
-     if ((rtpSocketM->Port() <= 0) || (rtcpSocketM->Port() <= 0)) {
-        error("Cannot open required RTP/RTCP ports [device %d]", deviceM->GetId());
-        openedM = false;
-        return openedM;
-        }
-
-     // Request server options
      keepAliveM.Set(timeoutM);
-     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_STREAM_URI, *uri);
-     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_REQUEST, (long)CURL_RTSPREQ_OPTIONS);
-     SATIP_CURL_EASY_PERFORM(handleM);
-     if (!ValidateLatestResponse()) {
-        openedM = false;
-        return openedM;
+     openedM = rtspM->Options(*connectionUri) && rtspM->Setup(*uri, rtpSocketM->Port(), rtcpSocketM->Port());
+     if (openedM) {
+        if (nextServerM && nextServerM->Quirk(cSatipServer::eSatipQuirkSessionId))
+           rtspM->SetSession(SkipZeroes(*sessionM));
+        tunedM = true;
+        UpdatePids(true);
+        if (nextServerM) {
+           cSatipDiscover::GetInstance()->UseServer(nextServerM, true);
+           currentServerM = nextServerM;
+           nextServerM = NULL;
+           }
         }
 
-     // Setup media stream: "&pids=all" for the whole mux
-     uri = cString::sprintf("rtsp://%s/?%s", *streamAddrM, *streamParamM);
-     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_STREAM_URI, *uri);
-     transport = cString::sprintf("RTP/AVP;unicast;client_port=%d-%d", rtpSocketM->Port(), rtcpSocketM->Port());
-     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_TRANSPORT, *transport);
-     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_REQUEST, (long)CURL_RTSPREQ_SETUP);
-     // Set header callback for catching the session and timeout
-     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_HEADERFUNCTION, cSatipTuner::HeaderCallback);
-     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_WRITEHEADER, this);
-     SATIP_CURL_EASY_PERFORM(handleM);
-     // Session id is now known - disable header parsing
-     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_HEADERFUNCTION, NULL);
-     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_WRITEHEADER, NULL);
-     if (nextServerM && nextServerM->Quirk(cSatipServer::eSatipQuirkSessionId) && !isempty(*sessionM) && startswith(*sessionM, "0")) {
-        debug("cSatipTuner::%s(): session id quirk [device %d]", __FUNCTION__, deviceM->GetId());
-        SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_SESSION_ID, SkipZeroes(*sessionM));
-        }
-     if (!ValidateLatestResponse()) {
-        openedM = false;
-        return openedM;
-        }
-
-     // Start playing
-     tunedM = true;
-     UpdatePids(true);
-     if (nextServerM) {
-        cSatipDiscover::GetInstance()->UseServer(nextServerM, true);
-        currentServerM = nextServerM;
-        nextServerM = NULL;
-        }
-     openedM = true;
      return openedM;
      }
 
@@ -328,34 +190,13 @@ bool cSatipTuner::Connect(void)
 bool cSatipTuner::Disconnect(void)
 {
   cMutexLock MutexLock(&mutexM);
-  debug("cSatipTuner::%s() [device %d]", __FUNCTION__, deviceM->GetId());
+  debug("cSatipTuner::%s() [device %d]", __FUNCTION__, deviceIdM);
   openedM = false;
 
-  // Terminate curl session
-  if (handleM) {
-     // Teardown rtsp session
-     if (!isempty(*streamAddrM) && streamIdM >= 0) {
-        CURLcode res = CURLE_OK;
-
-        cString uri = cString::sprintf("rtsp://%s/stream=%d", *streamAddrM, streamIdM);
-        SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_STREAM_URI, *uri);
-        SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_REQUEST, (long)CURL_RTSPREQ_TEARDOWN);
-        SATIP_CURL_EASY_PERFORM(handleM);
-        ValidateLatestResponse();
-        }
-
-     // Cleanup curl stuff
-     if (headerListM) {
-        curl_slist_free_all(headerListM);
-        headerListM = NULL;
-        }
-     curl_easy_cleanup(handleM);
-     handleM = NULL;
+  if (!isempty(*streamAddrM)) {
+     cString uri = cString::sprintf("rtsp://%s/stream=%d", *streamAddrM, streamIdM);
+     rtspM->Teardown(*uri);
      }
-
-  // Close the listening sockets
-  rtpSocketM->Close();
-  rtcpSocketM->Close();
 
   // Reset signal parameters
   hasLockM = false;
@@ -374,25 +215,9 @@ bool cSatipTuner::Disconnect(void)
   return true;
 }
 
-bool cSatipTuner::ValidateLatestResponse(void)
-{
-  //debug("cSatipTuner::%s() [device %d]", __FUNCTION__, deviceM->GetId());
-  if (handleM) {
-     long rc = 0;
-     CURLcode res = CURLE_OK;
-     SATIP_CURL_EASY_GETINFO(handleM, CURLINFO_RESPONSE_CODE, &rc);
-     if (rc == 200)
-        return true;
-     else if (rc != 0)
-        error("Tuner detected invalid status code %ld [device %d]", rc, deviceM->GetId());
-     }
-
-  return false;
-}
-
 void cSatipTuner::ParseReceptionParameters(const char *paramP)
 {
-  //debug("cSatipTuner::%s(%s) [device %d]", __FUNCTION__, paramP, deviceM->GetId());
+  //debug("cSatipTuner::%s(%s) [device %d]", __FUNCTION__, paramP, deviceIdM);
   // DVB-S2:
   // ver=<major>.<minor>;src=<srcID>;tuner=<feID>,<level>,<lock>,<quality>,<frequency>,<polarisation>,<system>,<type>,<pilots>,<roll_off>,<symbol_rate>,<fec_inner>;pids=<pid0>,...,<pidn>
   // DVB-T2:
@@ -439,27 +264,33 @@ void cSatipTuner::ParseReceptionParameters(const char *paramP)
 void cSatipTuner::SetStreamId(int streamIdP)
 {
   cMutexLock MutexLock(&mutexM);
-  debug("cSatipTuner::%s(%d) [device %d]", __FUNCTION__, streamIdP, deviceM->GetId());
+  debug("cSatipTuner::%s(%d) [device %d]", __FUNCTION__, streamIdP, deviceIdM);
   streamIdM = streamIdP;
 }
 
 void cSatipTuner::SetSessionTimeout(const char *sessionP, int timeoutP)
 {
   cMutexLock MutexLock(&mutexM);
-  debug("cSatipTuner::%s(%s, %d) [device %d]", __FUNCTION__, sessionP, timeoutP, deviceM->GetId());
+  debug("cSatipTuner::%s(%s, %d) [device %d]", __FUNCTION__, sessionP, timeoutP, deviceIdM);
   sessionM = sessionP;
   timeoutM = (timeoutP > eMinKeepAliveIntervalMs) ? timeoutP : eMinKeepAliveIntervalMs;
 }
 
+int cSatipTuner::GetId(void)
+{
+  //debug("cSatipTuner::%s() [device %d]", __FUNCTION__, deviceIdM);
+  return deviceIdM;
+}
+
 bool cSatipTuner::SetSource(cSatipServer *serverP, const char *parameterP, const int indexP)
 {
-  debug("cSatipTuner::%s(%s, %d) [device %d]", __FUNCTION__, parameterP, indexP, deviceM->GetId());
+  debug("cSatipTuner::%s(%s, %d) [device %d]", __FUNCTION__, parameterP, indexP, deviceIdM);
   cMutexLock MutexLock(&mutexM);
   if (serverP) {
      nextServerM = cSatipDiscover::GetInstance()->GetServer(serverP);
      if (nextServerM && !isempty(nextServerM->Address()) && !isempty(parameterP)) {
         // Update stream address and parameter
-        streamAddrM = nextServerM->Address();
+        streamAddrM = rtspM->RtspUnescapeString(nextServerM->Address());
         streamParamM = parameterP;
         // Reconnect
         Connect();
@@ -472,7 +303,7 @@ bool cSatipTuner::SetSource(cSatipServer *serverP, const char *parameterP, const
 
 bool cSatipTuner::SetPid(int pidP, int typeP, bool onP)
 {
-  //debug("cSatipTuner::%s(%d, %d, %d) [device %d]", __FUNCTION__, pidP, typeP, onP, deviceM->GetId());
+  //debug("cSatipTuner::%s(%d, %d, %d) [device %d]", __FUNCTION__, pidP, typeP, onP, deviceIdM);
   cMutexLock MutexLock(&mutexM);
   if (onP) {
      pidsM.AddPid(pidP);
@@ -492,8 +323,7 @@ bool cSatipTuner::UpdatePids(bool forceP)
 {
   cMutexLock MutexLock(&mutexM);
   if (((forceP && pidsM.Size()) || (pidUpdateCacheM.TimedOut() && (addPidsM.Size() || delPidsM.Size()))) &&
-      tunedM && handleM && !isempty(*streamAddrM) && (streamIdM > 0)) {
-     CURLcode res = CURLE_OK;
+      tunedM && !isempty(*streamAddrM) && (streamIdM > 0)) {
      cString uri = cString::sprintf("rtsp://%s/stream=%d", *streamAddrM, streamIdM);
      bool usedummy = !!(currentServerM && currentServerM->Quirk(cSatipServer::eSatipQuirkPlayPids));
      if (forceP || usedummy) {
@@ -517,18 +347,12 @@ bool cSatipTuner::UpdatePids(bool forceP)
                uri = cString::sprintf("%s%d%s", *uri, delPidsM[i], (i == (delPidsM.Size() - 1)) ? "" : ",");
            }
         }
-     //debug("cSatipTuner::%s(): %s [device %d]", __FUNCTION__, *uri, deviceM->GetId());
-     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_STREAM_URI, *uri);
-     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_REQUEST, (long)CURL_RTSPREQ_PLAY);
-     SATIP_CURL_EASY_PERFORM(handleM);
-     if (ValidateLatestResponse()) {
+     if (rtspM->Play(*uri)) {
         addPidsM.Clear();
         delPidsM.Clear();
+        return true;
         }
-     else
-        Disconnect();
-
-     return true;
+     Disconnect();
      }
 
   return false;
@@ -537,20 +361,13 @@ bool cSatipTuner::UpdatePids(bool forceP)
 bool cSatipTuner::KeepAlive(void)
 {
   cMutexLock MutexLock(&mutexM);
-  if (tunedM && handleM && keepAliveM.TimedOut()) {
-     debug("cSatipTuner::%s() [device %d]", __FUNCTION__, deviceM->GetId());
-     CURLcode res = CURLE_OK;
+  if (tunedM && keepAliveM.TimedOut()) {
      cString uri = cString::sprintf("rtsp://%s/stream=%d", *streamAddrM, streamIdM);
-
-     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_STREAM_URI, *uri);
-     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_REQUEST, (long)CURL_RTSPREQ_OPTIONS);
-     SATIP_CURL_EASY_PERFORM(handleM);
-     if (ValidateLatestResponse())
+     if (rtspM->Options(*uri)) {
         keepAliveM.Set(timeoutM);
-     else
-        Disconnect();
-
-     return true;
+        return true;
+        }
+     Disconnect();
      }
 
   return false;
@@ -559,24 +376,13 @@ bool cSatipTuner::KeepAlive(void)
 bool cSatipTuner::ReadReceptionStatus(void)
 {
   cMutexLock MutexLock(&mutexM);
-  if (tunedM && handleM && !pidsM.Size() && statusUpdateM.TimedOut() ) {
-     debug("cSatipTuner::%s() [device %d]", __FUNCTION__, deviceM->GetId());
-     CURLcode res = CURLE_OK;
+  if (tunedM && !pidsM.Size() && statusUpdateM.TimedOut() ) {
      cString uri = cString::sprintf("rtsp://%s/stream=%d", *streamAddrM, streamIdM);
-
-     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_STREAM_URI, *uri);
-     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_REQUEST, (long)CURL_RTSPREQ_DESCRIBE);
-     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_WRITEFUNCTION, cSatipTuner::DataCallback);
-     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_WRITEDATA, this);
-     SATIP_CURL_EASY_PERFORM(handleM);
-     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_WRITEFUNCTION, NULL);
-     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_WRITEDATA, NULL);
-     if (ValidateLatestResponse())
+     if (rtspM->Describe(*uri)) {
         statusUpdateM.Set(eStatusUpdateTimeoutMs);
-     else
-        Disconnect();
-
-     return true;
+        return true;
+        }
+     Disconnect();
      }
 
   return false;
@@ -584,30 +390,30 @@ bool cSatipTuner::ReadReceptionStatus(void)
 
 int cSatipTuner::SignalStrength(void)
 {
-  //debug("cSatipTuner::%s() [device %d]", __FUNCTION__, deviceM->GetId());
+  //debug("cSatipTuner::%s() [device %d]", __FUNCTION__, deviceIdM);
   return signalStrengthM;
 }
 
 int cSatipTuner::SignalQuality(void)
 {
-  //debug("cSatipTuner::%s() [device %d]", __FUNCTION__, deviceM->GetId());
+  //debug("cSatipTuner::%s() [device %d]", __FUNCTION__, deviceIdM);
   return signalQualityM;
 }
 
 bool cSatipTuner::HasLock(void)
 {
-  //debug("cSatipTuner::%s() [device %d]", __FUNCTION__, deviceM->GetId());
+  //debug("cSatipTuner::%s() [device %d]", __FUNCTION__, deviceIdM);
   return tunedM && hasLockM;
 }
 
 cString cSatipTuner::GetSignalStatus(void)
 {
-  //debug("cSatipTuner::%s() [device %d]", __FUNCTION__, deviceM->GetId());
+  //debug("cSatipTuner::%s() [device %d]", __FUNCTION__, deviceIdM);
   return cString::sprintf("lock=%d strength=%d quality=%d", HasLock(), SignalStrength(), SignalQuality());
 }
 
 cString cSatipTuner::GetInformation(void)
 {
-  //debug("cSatipTuner::%s() [device %d]", __FUNCTION__, deviceM->GetId());
+  //debug("cSatipTuner::%s() [device %d]", __FUNCTION__, deviceIdM);
   return tunedM ? cString::sprintf("rtsp://%s/?%s [stream=%d]", *streamAddrM, *streamParamM, streamIdM) : "connection failed";
 }
