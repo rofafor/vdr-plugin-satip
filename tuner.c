@@ -11,7 +11,7 @@
 #include "tuner.h"
 
 cSatipTuner::cSatipTuner(cSatipDeviceIf &deviceP, unsigned int packetLenP)
-: cThread("SAT>IP tuner"),
+: cThread(cString::sprintf("SAT>IP tuner %d", deviceP.GetId())),
   dataThreadM(deviceP, *this, packetLenP),
   sleepM(),
   deviceM(&deviceP),

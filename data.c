@@ -34,7 +34,7 @@ int logLevel = logFunc | logFuncPerf | logData;
 #define __CLASS__ "cSatipTunerDataThread"
 
 cSatipTunerDataThread::cSatipTunerDataThread(cSatipDeviceIf &deviceP, cSatipTunerStatistics &statisticsP, unsigned int packetLenP)
-: cThread("SAT>IP data"),
+: cThread(cString::sprintf("SAT>IP data %d", deviceP.GetId())),
   deviceM(&deviceP),
   statisticsM(&statisticsP),
   packetBufferLenM(packetLenP),
