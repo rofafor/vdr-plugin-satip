@@ -40,10 +40,7 @@ cSatipTunerDataThread::cSatipTunerDataThread(cSatipDeviceIf &deviceP, cSatipTune
   packetBufferLenM(packetLenP),
   packetBufferM(NULL),
   rtpSocketM(NULL),
-  timeoutM(-1),
-  timeoutHandlerM(0),
-  timeoutFuncM(NULL),
-  timeoutParamM(NULL),
+  timeDataReceivedM(),
   sleepM(),
   mutexM()
 {
@@ -78,23 +75,18 @@ void cSatipTunerDataThread::Start(cSatipSocket *rtpSocketP)
   cThread::Start();
 }
 
-void cSatipTunerDataThread::SetTimeout(int timeoutP, fCallback callbackP, void *paramP)
+int cSatipTunerDataThread::LastReceivedMs()
 {
-  log2(logFunc, "(%d, ...)", timeoutP);
-  cMutexLock MutexLock(&mutexM);
+  int rc = timeDataReceivedM.Elapsed();
 
-  if (timeoutP > 0) {
-     timeoutM = timeoutP;
-     timeoutFuncM = callbackP;
-     timeoutParamM = paramP;
-     timeoutHandlerM.Set(timeoutM);
-     }
-  else {
-     timeoutM = -1;
-     timeoutFuncM = NULL;
-     timeoutParamM = NULL;
-     timeoutHandlerM.Set(0);
-     }
+  log2(logFunc, "returning %d", rc);
+}
+
+void cSatipTunerDataThread::ResetLastReceivedMs()
+{
+  log(logFunc);
+
+  timeDataReceivedM.Set();
 }
 
 void cSatipTunerDataThread::Cancel(int WaitSeconds)
@@ -140,13 +132,7 @@ void cSatipTunerDataThread::Action(void)
            if (statisticsM)
               statisticsM->AddTunerStatistic(length);
 
-           timeoutHandlerM.Set(timeoutM);
-           }
-
-        if (timeoutM > 0 && timeoutFuncM && timeoutHandlerM.TimedOut()) {
-           error("No Data received for %d ms [device %d], timeout handling started", timeoutM, deviceM->GetId());
-           (*timeoutFuncM)(timeoutParamM);
-           timeoutHandlerM.Set(timeoutM);
+           timeDataReceivedM.Set();
            }
 
         mutexM.Unlock();

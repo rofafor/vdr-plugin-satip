@@ -57,8 +57,6 @@ private:
     eMinKeepAliveIntervalMs = 30000  // in milliseconds
   };
 
-  static void   DataTimeoutCallback(void *objP);
-
   cSatipTunerDataThread dataThreadM;
   cCondWait sleepM;
   cSatipDeviceIf* deviceM;

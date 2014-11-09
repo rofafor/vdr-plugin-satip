@@ -133,6 +133,15 @@ void cSatipTuner::Action(void)
            if (rtcpTimeout.TimedOut())
               reconnectM = true;
 
+           int passedMs = dataThreadM.LastReceivedMs();
+           if (passedMs >= eReConnectTimeoutMs) {
+              error("No Data received for %d ms [device %d], Reconnect initiated",
+                    (int)passedMs, deviceM->GetId());
+              dataThreadM.ResetLastReceivedMs();
+              reconnectM = true;
+              }
+
+
            }
         sleepM.Wait(10); // to avoid busy loop and reduce cpu load
         }
@@ -376,11 +385,9 @@ bool cSatipTuner::UpdatePids(bool forceP)
                                     *GeneratePidParameter(forceP));
 
      // Disable RTP Timeout while sending PLAY Command
-     dataThreadM.SetTimeout(-1, &DataTimeoutCallback, this);
      if (RtspPlay(*uri)) {
         addPidsM.Clear();
         delPidsM.Clear();
-        dataThreadM.SetTimeout(eReConnectTimeoutMs, &DataTimeoutCallback, this);
         return true;
         }
      Disconnect();

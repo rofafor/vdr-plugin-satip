@@ -29,7 +29,11 @@ public:
   cSatipTunerDataThread(cSatipDeviceIf &deviceP, cSatipTunerStatistics &statisticsP, unsigned int packetLenP);
   ~cSatipTunerDataThread(void);
   void Start(cSatipSocket *rtpSocketP);
-  void SetTimeout(int timeoutP, fCallback callbackP, void *parmP);
+
+
+      // returns number of milliseconds since last time we received Data
+  int LastReceivedMs();
+  void ResetLastReceivedMs();
   void Cancel(int WaitSeconds = 0);
   void Flush();
 
@@ -44,10 +48,7 @@ private:
   unsigned int packetBufferLenM;
   unsigned char *packetBufferM;
   cSatipSocket *rtpSocketM;
-  int timeoutM;
-  cTimeMs timeoutHandlerM;
-  fCallback timeoutFuncM;
-  void *timeoutParamM;
+  cTimeMs timeDataReceivedM;
   cCondWait sleepM;
   cMutex mutexM;
 };
