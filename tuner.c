@@ -141,30 +141,31 @@ void cSatipTuner::DataTimeoutCallback(void *objP)
      obj->reconnectM = true;
 }
 
-int cSatipTuner::RtspDebugCallback(CURL *handleP, curl_infotype typeP, char *dataP, size_t sizeP, void *userPtrP)
+int cSatipTuner::DebugCallback(CURL *handleP, curl_infotype typeP, char *dataP, size_t sizeP, void *userPtrP)
 {
-  //cSatipTuner *obj = reinterpret_cast<cSatipTuner *>(userPtrP);
-  //debug("cSatipTuner::%s(%d) [device %d]", __FUNCTION__, (int)typeP, obj->deviceM->GetId());
+  cSatipTuner *obj = reinterpret_cast<cSatipTuner *>(userPtrP);
 
-  switch (typeP) {
-    case CURLINFO_TEXT:
-         debug("RTSP INFO  %.*s", (int)sizeP, dataP);
-         break;
-    case CURLINFO_HEADER_IN:
-         debug("RTSP HEAD< %.*s", (int)sizeP, dataP);
-         break;
-    case CURLINFO_HEADER_OUT:
-         debug("RTSP HEAD> %.*s", (int)sizeP, dataP);
-         break;
-    case CURLINFO_DATA_IN:
-         debug("RTSP DATA< %.*s", (int)sizeP, dataP);
-         break;
-    case CURLINFO_DATA_OUT:
-         debug("RTSP DATA> %.*s", (int)sizeP, dataP);
-         break;
-    default:
-         break;
-    }
+  if (obj) {
+     switch (typeP) {
+       case CURLINFO_TEXT:
+            debug("cSatipTuner::%s(%d): RTSP INFO %.*s", __FUNCTION__, obj->deviceM->GetId(), (int)sizeP, dataP);
+            break;
+       case CURLINFO_HEADER_IN:
+            debug("cSatipTuner::%s(%d): RTSP HEAD <<< %.*s", __FUNCTION__, obj->deviceM->GetId(), (int)sizeP, dataP);
+            break;
+       case CURLINFO_HEADER_OUT:
+            debug("cSatipTuner::%s(%d): RTSP HEAD >>> %.*s", __FUNCTION__, obj->deviceM->GetId(), (int)sizeP, dataP);
+            break;
+       case CURLINFO_DATA_IN:
+            debug("cSatipTuner::%s(%d): RTSP DATA <<< %.*s", __FUNCTION__, obj->deviceM->GetId(), (int)sizeP, dataP);
+            break;
+       case CURLINFO_DATA_OUT:
+            debug("cSatipTuner::%s(%d): RTSP DATA >>> %.*s", __FUNCTION__, obj->deviceM->GetId(), (int)sizeP, dataP);
+            break;
+       default:
+            break;
+       }
+     }
 
   return 0;
 }
