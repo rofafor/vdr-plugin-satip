@@ -13,13 +13,13 @@
 #include <vdr/i18n.h>
 
 #ifdef DEBUG
-#define debug(x...) dsyslog("SATIP: " x);
-#define info(x...)  isyslog("SATIP: " x);
-#define error(x...) esyslog("ERROR: " x);
+#define debug(x...) dsyslog("SATIP: " x)
+#define info(x...)  isyslog("SATIP: " x)
+#define error(x...) esyslog("ERROR: " x)
 #else
 #define debug(x...) ;
-#define info(x...)  isyslog("SATIP: " x);
-#define error(x...) esyslog("ERROR: " x);
+#define info(x...)  isyslog("SATIP: " x)
+#define error(x...) esyslog("ERROR: " x)
 #endif
 
 #define ELEMENTS(x)                      (sizeof(x) / sizeof(x[0]))

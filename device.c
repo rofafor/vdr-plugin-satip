@@ -7,7 +7,6 @@
 
 #include "config.h"
 #include "discover.h"
-#include "param.h"
 #include "device.h"
 
 #define SATIP_MAX_DEVICES MAXDEVICES
