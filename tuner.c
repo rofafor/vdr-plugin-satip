@@ -398,14 +398,14 @@ bool cSatipTuner::SetPid(int pidP, int typeP, bool onP)
   cMutexLock MutexLock(&mutexM);
 
   if (onP) {
-     pidsM.AppendUnique(pidP);
-     addPidsM.AppendUnique(pidP);
-     delPidsM.RemoveElement(pidP);
+     pidsM.AddPid(pidP);
+     addPidsM.AddPid(pidP);
+     delPidsM.RemovePid(pidP);
      }
   else {
-     pidsM.RemoveElement(pidP);
-     delPidsM.AppendUnique(pidP);
-     addPidsM.RemoveElement(pidP);
+     pidsM.RemovePid(pidP);
+     delPidsM.AddPid(pidP);
+     addPidsM.RemovePid(pidP);
      }
 
   pidUpdateCacheM.Set(ePidUpdateIntervalMs);

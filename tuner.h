@@ -17,6 +17,32 @@
 #include "socket.h"
 #include "data.h"
 
+class cSatipPid : public cVector<int> {
+private:
+  int PidIndex(const int &pidP)
+  {
+    for (int i = 0; i < this->Size(); ++i) {
+        if (pidP == this->At(i))
+           return i;
+        }
+    return -1;
+  }
+
+public:
+  void RemovePid(const int &pidP)
+  {
+    int i = PidIndex(pidP);
+    if (i >= 0)
+       this->Remove(i);
+  }
+
+  void AddPid(int pidP)
+  {
+    if (PidIndex(pidP) < 0)
+       this->Append(pidP);
+  }
+};
+
 class cSatipTuner : public cThread, public cSatipTunerStatistics {
 private:
   enum {
@@ -58,9 +84,9 @@ private:
   int signalStrengthM;
   int signalQualityM;
   int streamIdM;
-  cSatipVector<int> addPidsM;
-  cSatipVector<int> delPidsM;
-  cSatipVector<int> pidsM;
+  cSatipPid addPidsM;
+  cSatipPid delPidsM;
+  cSatipPid pidsM;
 
   bool Connect(void);
   bool Disconnect(void);
