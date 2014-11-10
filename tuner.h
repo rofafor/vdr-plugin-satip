@@ -16,6 +16,7 @@
 #include "server.h"
 #include "statistics.h"
 #include "socket.h"
+#include "data.h"
 
 class cSatipPid : public cVector<int> {
 private:
@@ -56,11 +57,10 @@ private:
     eMinKeepAliveIntervalMs = 30000  // in milliseconds
   };
 
+  cSatipTunerDataThread dataThreadM;
   cCondWait sleepM;
   cSatipDeviceIf* deviceM;
   int deviceIdM;
-  unsigned char* packetBufferM;
-  unsigned int packetBufferLenM;
   cSatipRtsp *rtspM;
   cSatipSocket *rtpSocketM;
   cSatipSocket *rtcpSocketM;
@@ -75,7 +75,7 @@ private:
   cTimeMs pidUpdateCacheM;
   cString sessionM;
   int timeoutM;
-  bool openedM;
+  bool reconnectM;
   bool tunedM;
   bool hasLockM;
   int signalStrengthM;
@@ -88,7 +88,6 @@ private:
   bool Connect(void);
   bool Disconnect(void);
   bool KeepAlive(void);
-  bool ReadReceptionStatus(void);
   bool UpdateSignalInfoCache(void);
   bool UpdatePids(bool forceP = false);
 

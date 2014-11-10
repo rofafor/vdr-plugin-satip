@@ -58,6 +58,7 @@ public:
   cString GetTunerStatistic();
 
 protected:
+  friend class cSatipTunerDataThread;
   void AddTunerStatistic(long bytesP);
 
 private:

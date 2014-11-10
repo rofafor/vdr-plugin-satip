@@ -20,6 +20,7 @@ private:
   int disabledSourcesM[MAX_DISABLED_SOURCES_COUNT];
   int disabledFiltersM[SECTION_FILTER_TABLE_SIZE];
   char configDirectoryM[PATH_MAX];
+  bool usePollingM;
 
 public:
   enum {
@@ -50,6 +51,7 @@ public:
   void SetConfigDirectory(const char *directoryP);
   void SetDisabledSources(unsigned int indexP, int sourceP);
   void SetDisabledFilters(unsigned int indexP, int numberP);
+  bool IsPolling() {return usePollingM;}
 };
 
 extern cSatipConfig SatipConfig;

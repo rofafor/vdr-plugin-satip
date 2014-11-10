@@ -13,13 +13,13 @@
 #include <vdr/i18n.h>
 
 #ifdef DEBUG
-#define debug(x...) dsyslog("SATIP: " x);
-#define info(x...)  isyslog("SATIP: " x);
-#define error(x...) esyslog("ERROR: " x);
+#define debug(x...) dsyslog("SATIP: " x)
+#define info(x...)  isyslog("SATIP: " x)
+#define error(x...) esyslog("ERROR: " x)
 #else
 #define debug(x...) ;
-#define info(x...)  isyslog("SATIP: " x);
-#define error(x...) esyslog("ERROR: " x);
+#define info(x...)  isyslog("SATIP: " x)
+#define error(x...) esyslog("ERROR: " x)
 #endif
 
 #define ELEMENTS(x)                      (sizeof(x) / sizeof(x[0]))
@@ -108,6 +108,25 @@ struct section_filter_table_type {
 extern const section_filter_table_type section_filter_table[SECTION_FILTER_TABLE_SIZE];
 
 extern const char VERSION[];
+
+template <class T> class cSatipVector : public cVector<T> {
+public:
+  int IndexOf(const T &Data)
+  {
+    for (int i = 0; i < this->Size(); ++i)
+        if (Data == this->At(i))
+           return i;
+    return -1;
+  }
+
+  void RemoveElement(const T &Data)
+  {
+    int i = IndexOf(Data);
+    if (i >= 0)
+       this->Remove(i);
+  }
+
+};
 
 #endif // __SATIP_COMMON_H
 
