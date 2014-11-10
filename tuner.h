@@ -90,15 +90,6 @@ private:
   bool KeepAlive(void);
   bool UpdateSignalInfoCache(void);
   bool UpdatePids(bool forceP = false);
-  cString GeneratePidParameter(bool allPidsP = false);
-
-  bool RtspInitialize(void);
-  bool RtspTerminate(void);
-  bool RtspOptions(void);
-  bool RtspSetup(const char *paramP, int rtpPortP, int rtcpPortP);
-  bool RtspDescribe(void);
-  bool RtspPlay(const char *paramP = NULL);
-  bool RtspTeardown(void);
 
 protected:
   virtual void Action(void);

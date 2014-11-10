@@ -126,17 +126,6 @@ public:
        this->Remove(i);
   }
 
-  void InsertUnique(T Data, int Before = 0)
-  {
-    if (IndexOf(Data) < 0)
-       this->Insert(Data, Before);
-  }
-
-  void AppendUnique(T Data)
-  {
-    if (IndexOf(Data) < 0)
-       this->Append(Data);
-  }
 };
 
 #endif // __SATIP_COMMON_H

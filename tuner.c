@@ -76,9 +76,6 @@ cSatipTuner::~cSatipTuner()
      Cancel(3);
   Close();
 
-  // Terminate curl session
-  RtspTerminate();
-
   // Close the listening sockets
   rtpSocketM->Close();
   rtcpSocketM->Close();
@@ -373,7 +370,7 @@ cString cSatipTuner::GeneratePidParameter(bool allPidsP)
         }
      }
 
-   return param;
+  return param;
 }
 
 bool cSatipTuner::UpdatePids(bool forceP)
