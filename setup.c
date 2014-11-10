@@ -196,35 +196,7 @@ cSatipMenuDeviceStatus::~cSatipMenuDeviceStatus()
 
 void cSatipMenuDeviceStatus::UpdateInfo()
 {
-  textM = "";
-  for (int i = 0; i < cDevice::NumDevices(); i++) {
-      const cDevice *device = cDevice::GetDevice(i);
-      if (device && strstr(device->DeviceType(), "SAT>IP")) {
-         int timers = 0;
-         bool live = (device == cDevice::ActualDevice());
-         bool lock = device->HasLock();
-         const cChannel *channel = device->GetCurrentlyTunedTransponder();
-         for (cTimer *timer = Timers.First(); timer; timer = Timers.Next(timer)) {
-             if (timer->Recording()) {
-                cRecordControl *control = cRecordControls::GetRecordControl(timer);
-                if (control && control->Device() == device)
-                   timers++;
-                }
-            }
-         textM = cString::sprintf("%sDevice: %s\n", *textM, *device->DeviceName());
-         if (lock)
-            textM = cString::sprintf("%sCardIndex: %d  HasLock: yes  Strength: %d  Quality: %d%s\n", *textM, device->CardIndex(), device->SignalStrength(), device->SignalQuality(), live ? "  Live: yes" : "");
-         else
-            textM = cString::sprintf("%sCardIndex: %d  HasLock: no\n", *textM, device->CardIndex());
-         if (channel && channel->Number() > 0)
-            textM = cString::sprintf("%sChannel: %s\n", *textM, (channel && channel->Number() > 0) ? channel->Name() : "---");
-         if (timers)
-            textM = cString::sprintf("%sRecording: %d timer%s\n", *textM, timers, (timers > 1) ? "s" : "");
-         textM = cString::sprintf("%s\n", *textM);
-         }
-      }
-  if (isempty(*textM))
-     textM = cString(tr("SAT>IP information not available!"));
+  textM = cSatipDevice::GetSatipStatus();
   Display();
   timeoutM.Set(eInfoTimeoutMs);
 }

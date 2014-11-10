@@ -5,6 +5,8 @@
  *
  */
 
+#include <vdr/menu.h> // cRecordControl
+
 #include "config.h"
 #include "discover.h"
 #include "param.h"
@@ -90,6 +92,38 @@ cSatipDevice *cSatipDevice::GetSatipDevice(int cardIndexP)
          }
       }
   return NULL;
+}
+
+cString cSatipDevice::GetSatipStatus(void)
+{
+  cString info = "";
+  for (int i = 0; i < cDevice::NumDevices(); i++) {
+      const cDevice *device = cDevice::GetDevice(i);
+      if (device && strstr(device->DeviceType(), "SAT>IP")) {
+         int timers = 0;
+         bool live = (device == cDevice::ActualDevice());
+         bool lock = device->HasLock();
+         const cChannel *channel = device->GetCurrentlyTunedTransponder();
+         for (cTimer *timer = Timers.First(); timer; timer = Timers.Next(timer)) {
+             if (timer->Recording()) {
+                cRecordControl *control = cRecordControls::GetRecordControl(timer);
+                if (control && control->Device() == device)
+                   timers++;
+                }
+            }
+         info = cString::sprintf("%sDevice: %s\n", *info, *device->DeviceName());
+         if (lock)
+            info = cString::sprintf("%sCardIndex: %d  HasLock: yes  Strength: %d  Quality: %d%s\n", *info, device->CardIndex(), device->SignalStrength(), device->SignalQuality(), live ? "  Live: yes" : "");
+         else
+            info = cString::sprintf("%sCardIndex: %d  HasLock: no\n", *info, device->CardIndex());
+         if (channel && channel->Number() > 0)
+            info = cString::sprintf("%sChannel: %s\n", *info, (channel && channel->Number() > 0) ? channel->Name() : "---");
+         if (timers)
+            info = cString::sprintf("%sRecording: %d timer%s\n", *info, timers, (timers > 1) ? "s" : "");
+         info = cString::sprintf("%s\n", *info);
+         }
+      }
+  return isempty(*info) ? cString(tr("SAT>IP information not available!")) : info;
 }
 
 cString cSatipDevice::GetGeneralInformation(void)

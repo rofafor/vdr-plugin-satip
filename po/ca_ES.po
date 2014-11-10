@@ -31,6 +31,9 @@ msgstr "EIT (0x4E/0x4F/0x5X/0x6X)"
 msgid "TDT (0x70)"
 msgstr "TDT (0x70)"
 
+msgid "SAT>IP information not available!"
+msgstr "SAT>IP Informació no disponible!"
+
 msgid "SAT>IP Devices"
 msgstr "SAT>IP Dispositius"
 
@@ -51,9 +54,6 @@ msgstr "Creació de data"
 
 msgid "SAT>IP Device Status"
 msgstr ""
-
-msgid "SAT>IP information not available!"
-msgstr "SAT>IP Informació no disponible!"
 
 msgid "SAT>IP Information"
 msgstr "SAT>IP Informació"

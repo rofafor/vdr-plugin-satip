@@ -23,6 +23,7 @@ public:
   static void Shutdown(void);
   static unsigned int Count(void);
   static cSatipDevice *GetSatipDevice(int CardIndex);
+  static cString GetSatipStatus(void);
 
   // private parts
 private:
