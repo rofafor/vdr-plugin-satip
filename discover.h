@@ -22,13 +22,13 @@ private:
   cString descriptionM;
   cString modelM;
 public:
-  cSatipDiscoverServer(const char *ipAddressP, const char *descriptionP, const char *modelP)
+  cSatipDiscoverServer(const char *ipAddressP, const char *modelP, const char *descriptionP)
   {
-    ipAddressM = ipAddressP; descriptionM = descriptionP; modelM = modelP;
+    ipAddressM = ipAddressP; modelM = modelP; descriptionM = descriptionP;
   }
   const char *IpAddress(void)   { return *ipAddressM; }
-  const char *Description(void) { return *descriptionM; }
   const char *Model(void)       { return *modelM; }
+  const char *Description(void) { return *descriptionM; }
 };
 
 class cSatipDiscoverServers : public cList<cSatipDiscoverServer> {
@@ -59,7 +59,7 @@ private:
   void Janitor(void);
   void Probe(void);
   void Read(void);
-  void AddServer(const char *addrP, const char *descP, const char *modelP);
+  void AddServer(const char *addrP, const char *modelP, const char *descP);
   // constructor
   cSatipDiscover();
   // to prevent copy constructor and assignment

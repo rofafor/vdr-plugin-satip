@@ -219,7 +219,7 @@ void cPluginSatip::ParseServer(const char *paramP)
            debug("cPluginSatip::%s(): ipaddr=%s model=%s desc=%s", __FUNCTION__, *serverAddr, *serverModel, *serverDescription);
            if (!serversM)
               serversM = new cSatipDiscoverServers();
-           serversM->Add(new cSatipDiscoverServer(*serverAddr, *serverDescription, *serverModel));
+           serversM->Add(new cSatipDiscoverServer(*serverAddr, *serverModel, *serverDescription));
            }
         ++n;
         r = strtok_r(NULL, ";", &s);

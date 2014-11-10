@@ -38,7 +38,7 @@ bool cSatipDiscover::Initialize(cSatipDiscoverServers *serversP)
   if (instanceS) {
        if (serversP) {
           for (cSatipDiscoverServer *s = serversP->First(); s; s = serversP->Next(s))
-              instanceS->AddServer(s->IpAddress(), s->Description(), s->Model());
+              instanceS->AddServer(s->IpAddress(), s->Model(), s->Description());
           }
      else
         instanceS->Activate();
@@ -88,7 +88,7 @@ size_t cSatipDiscover::WriteCallback(char *ptrP, size_t sizeP, size_t nmembP, vo
         }
 #endif
      SATIP_CURL_EASY_GETINFO(obj->handleM, CURLINFO_PRIMARY_IP, &addr);
-     obj->AddServer(addr, desc, model);
+     obj->AddServer(addr, model, desc);
      }
 
   return len;
@@ -282,15 +282,15 @@ void cSatipDiscover::Read(void)
      }
 }
 
-void cSatipDiscover::AddServer(const char *addrP, const char *descP, const char * modelP)
+void cSatipDiscover::AddServer(const char *addrP, const char *modelP, const char * descP)
 {
-  debug("cSatipDiscover::%s(%s, %s, %s)", __FUNCTION__, addrP, descP, modelP);
+  debug("cSatipDiscover::%s(%s, %s, %s)", __FUNCTION__, addrP, modelP, descP);
   cMutexLock MutexLock(&mutexM);
   if (serversM) {
-     cSatipServer *tmp = new cSatipServer(addrP, descP, modelP);
+     cSatipServer *tmp = new cSatipServer(addrP, modelP, descP);
      // Validate against existing servers
      if (!serversM->Update(tmp)) {
-        info("Adding device %s (%s %s)", tmp->Description(), tmp->Address(), tmp->Model());
+        info("Adding device '%s|%s|%s'",  tmp->Address(), tmp->Model(), tmp->Description());
         serversM->Add(tmp);
         }
      else

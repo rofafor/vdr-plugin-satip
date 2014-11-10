@@ -20,8 +20,8 @@ private:
     eSatipModuleCount
   };
   cString addressM;
-  cString descriptionM;
   cString modelM;
+  cString descriptionM;
   int modelCountM[eSatipModuleCount];
   int modelTypeM;
   int quirkM;
@@ -46,16 +46,16 @@ public:
     eSatipModelTypeDVBC  = 0x08,
     eSatipModelTypeMask  = 0x0F
   };
-  cSatipServer(const char *addressP, const char *descriptionP, const char *modelP);
+  cSatipServer(const char *addressP, const char *modelP, const char *descriptionP);
   virtual ~cSatipServer();
   virtual int Compare(const cListObject &listObjectP) const;
   void Use(bool onOffP);
   void SetTransponder(const int transponderP) { transponderM = transponderP; }
   int Transponder(void)     { return transponderM; }
   bool Used(void)           { return !!useCountM; }
-  const char *Description() { return *descriptionM; }
   const char *Address()     { return *addressM; }
-  const char *Model(void)   { return modelM; }
+  const char *Model(void)   { return *modelM; }
+  const char *Description() { return *descriptionM; }
   bool Quirk(int quirkP)    { return ((quirkP & eSatipQuirkMask) & quirkM); }
   int ModelType(void)       { return modelTypeM; }
   bool Match(int modelP)    { return ((modelP & eSatipModelTypeMask) & modelTypeM); }

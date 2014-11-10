@@ -12,10 +12,10 @@
 
 // --- cSatipServer -----------------------------------------------------------
 
-cSatipServer::cSatipServer(const char *addressP, const char *descriptionP, const char *modelP)
+cSatipServer::cSatipServer(const char *addressP, const char *modelP, const char *descriptionP)
 : addressM(addressP),
-  descriptionM(descriptionP),
   modelM(modelP),
+  descriptionM(descriptionP),
   modelTypeM(eSatipModelTypeNone),
   quirkM(eSatipQuirkNone),
   useCountM(0),
