@@ -13,10 +13,10 @@
 #include "tuner.h"
 
 cSatipTuner::cSatipTuner(cSatipDeviceIf &deviceP, unsigned int packetLenP)
-: cThread("SAT>IP tuner"),
+: cThread(cString::sprintf("SAT>IP %d tuner", deviceP.GetId())),
   sleepM(),
   deviceM(&deviceP),
-  deviceIdM(deviceM ? deviceM->GetId() : -1),
+  deviceIdM(deviceP.GetId()),
   packetBufferLenM(packetLenP),
   rtspM(new cSatipRtsp(*this)),
   rtpSocketM(new cSatipSocket()),
@@ -114,6 +114,7 @@ cSatipTuner::~cSatipTuner()
   free(packetBufferM);
   DELETENULL(rtcpSocketM);
   DELETENULL(rtpSocketM);
+  DELETENULL(rtspM);
 }
 
 void cSatipTuner::Action(void)
@@ -235,9 +236,8 @@ bool cSatipTuner::Disconnect(void)
 {
   cMutexLock MutexLock(&mutexM);
   debug("cSatipTuner::%s() [device %d]", __FUNCTION__, deviceIdM);
-  openedM = false;
 
-  if (!isempty(*streamAddrM)) {
+  if (openedM && !isempty(*streamAddrM)) {
      cString uri = cString::sprintf("rtsp://%s/stream=%d", *streamAddrM, streamIdM);
      rtspM->Teardown(*uri);
      }
@@ -249,6 +249,7 @@ bool cSatipTuner::Disconnect(void)
 
   if (currentServerM)
      cSatipDiscover::GetInstance()->UseServer(currentServerM, false);
+  openedM = false;
   tunedM = false;
   statusUpdateM.Set(0);
   timeoutM = eMinKeepAliveIntervalMs;
@@ -288,7 +289,7 @@ void cSatipTuner::ParseReceptionParameters(const char *paramP)
         // "0" the frontend is not locked
         // "1" the frontend is locked
         c = strstr(c, ",");
-        hasLockM = atoi(++c);
+        hasLockM = !!atoi(++c);
 
         // quality:
         // Numerical value between 0 and 15

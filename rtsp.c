@@ -10,7 +10,7 @@
 
 cSatipRtsp::cSatipRtsp(cSatipTunerIf &tunerP)
 : tunerM(&tunerP),
-  tunerIdM(tunerM ? tunerM->GetId() : -1),
+  tunerIdM(tunerP.GetId()),
   handleM(curl_easy_init()),
   headerListM(NULL)
 {
