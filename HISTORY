@@ -81,3 +81,4 @@ VDR Plugin 'satip' Revision History
   Radio ID.
 - Fixed EIT scan (Thanks to Stefan Schallenberg).
 - Refactored input thread to increase performance.
+- Added new STAT command into the SVDRP interface.
