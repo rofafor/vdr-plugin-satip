@@ -12,6 +12,7 @@
 #include <vdr/tools.h>
 
 #include "deviceif.h"
+#include "pollerif.h"
 #include "rtsp.h"
 #include "server.h"
 #include "statistics.h"
@@ -43,14 +44,12 @@ public:
   }
 };
 
-class cSatipTuner : public cThread, public cSatipTunerStatistics, public cSatipTunerIf {
+class cSatipTuner : public cThread, public cSatipTunerStatistics, public cSatipTunerIf, public cSatipPollerIf {
 private:
   enum {
-    eMaxFileDescriptors     = 2,     // RTP + RTCP
     eDummyPid               = 100,
     eDefaultSignalStrength  = 15,
     eDefaultSignalQuality   = 224,
-    eReadTimeoutMs          = 500,   // in milliseconds
     eStatusUpdateTimeoutMs  = 1000,  // in milliseconds
     eConnectTimeoutMs       = 1500,  // in milliseconds
     ePidUpdateIntervalMs    = 250,   // in milliseconds
@@ -76,7 +75,6 @@ private:
   cTimeMs signalInfoCacheM;
   cTimeMs pidUpdateCacheM;
   cString sessionM;
-  int fdM;
   int timeoutM;
   bool openedM;
   bool tunedM;
@@ -118,6 +116,13 @@ public:
   virtual void SetStreamId(int streamIdP);
   virtual void SetSessionTimeout(const char *sessionP, int timeoutP);
   virtual int GetId(void);
+
+  // for internal poller interface
+  virtual void ReadVideo(void);
+  virtual void ReadApplication(void);
+  virtual int GetPollerId(void) { return GetId(); }
+  virtual int GetVideoFd(void) { return rtpSocketM ? rtpSocketM->Fd() : -1; };
+  virtual int GetApplicationFd(void) { return rtcpSocketM ? rtcpSocketM->Fd() : -1; }
 };
 
 #endif // __SATIP_TUNER_H

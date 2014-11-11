@@ -5,11 +5,10 @@
  *
  */
 
-#include <sys/epoll.h>
-
 #include "common.h"
 #include "config.h"
 #include "discover.h"
+#include "poller.h"
 #include "tuner.h"
 
 cSatipTuner::cSatipTuner(cSatipDeviceIf &deviceP, unsigned int packetLenP)
@@ -30,7 +29,6 @@ cSatipTuner::cSatipTuner(cSatipDeviceIf &deviceP, unsigned int packetLenP)
   statusUpdateM(),
   pidUpdateCacheM(),
   sessionM(""),
-  fdM(epoll_create(eMaxFileDescriptors)),
   timeoutM(eMinKeepAliveIntervalMs),
   openedM(false),
   tunedM(false),
@@ -61,26 +59,8 @@ cSatipTuner::cSatipTuner(cSatipDeviceIf &deviceP, unsigned int packetLenP)
   if ((rtpSocketM->Port() <= 0) || (rtcpSocketM->Port() <= 0)) {
      error("Cannot open required RTP/RTCP ports [device %d]", deviceIdM);
      }
-
-  // Setup epoll
-  if (fdM >= 0) {
-     if (rtpSocketM->Fd() >= 0) {
-        struct epoll_event ev;
-        ev.events = EPOLLIN | EPOLLET;
-        ev.data.fd = rtpSocketM->Fd();
-        if (epoll_ctl(fdM, EPOLL_CTL_ADD, rtpSocketM->Fd(), &ev) == -1) {
-           error("Cannot add RTP socket into epoll [device %d]", deviceIdM);
-           }
-        }
-     if (rtcpSocketM->Fd() >= 0) {
-        struct epoll_event ev;
-        ev.events = EPOLLIN | EPOLLET;
-        ev.data.fd = rtcpSocketM->Fd();
-        if (epoll_ctl(fdM, EPOLL_CTL_ADD, rtcpSocketM->Fd(), &ev) == -1) {
-           error("Cannot add RTP socket into epoll [device %d]", deviceIdM);
-           }
-        }
-     }
+  // Must be done after socket initialization!
+  cSatipPoller::GetInstance()->Register(*this);
 
   // Start thread
   Start();
@@ -95,18 +75,8 @@ cSatipTuner::~cSatipTuner()
      Cancel(3);
   Close();
 
-  // Cleanup epoll
-  if (fdM >= 0) {
-     if ((rtpSocketM->Fd() >= 0) && (epoll_ctl(fdM, EPOLL_CTL_DEL, rtpSocketM->Fd(), NULL) == -1)) {
-        error("Cannot remove RTP socket from epoll [device %d]", deviceIdM);
-        }
-     if ((rtcpSocketM->Fd() >= 0) && (epoll_ctl(fdM, EPOLL_CTL_DEL, rtcpSocketM->Fd(), NULL) == -1)) {
-        error("Cannot remove RTP socket from epoll [device %d]", deviceIdM);
-        }
-     close(fdM);
-     }
-
   // Close the listening sockets
+  cSatipPoller::GetInstance()->Unregister(*this);
   rtpSocketM->Close();
   rtcpSocketM->Close();
 
@@ -121,57 +91,28 @@ void cSatipTuner::Action(void)
 {
   debug("cSatipTuner::%s(): entering [device %d]", __FUNCTION__, deviceIdM);
   cTimeMs timeout(eReConnectTimeoutMs);
-  // Increase priority
-  SetPriority(-1);
   // Do the thread loop
-  while (packetBufferM && rtpSocketM && rtcpSocketM && Running()) {
-        struct epoll_event events[eMaxFileDescriptors];
-        int nfds = epoll_wait(fdM, events, eMaxFileDescriptors, eReadTimeoutMs);
-        switch (nfds) {
-          default:
-               for (int i = 0; i < nfds; ++i) {
-                   timeout.Set(eReConnectTimeoutMs);
-                   if (events[i].data.fd == rtpSocketM->Fd()) {
-                      // Read data
-                      int length = rtpSocketM->ReadVideo(packetBufferM, min(deviceM->CheckData(), packetBufferLenM));
-                      if (length > 0) {
-                         AddTunerStatistic(length);
-                         deviceM->WriteData(packetBufferM, length);
-                         }
-                      }
-                   else if (events[i].data.fd == rtcpSocketM->Fd()) {
-                      unsigned char buf[1450];
-                      memset(buf, 0, sizeof(buf));
-                      if (rtcpSocketM->ReadApplication(buf, sizeof(buf)) > 0)
-                         ParseReceptionParameters((const char *)buf);
-                      }
-                   }
-               // fall through!
-          case 0:
-               // Update pids
-               UpdatePids();
-               // Remember the heart beat
-               KeepAlive();
-               // Read reception statistics via DESCRIBE and RTCP
-               if (ReadReceptionStatus()) {
-                  // Quirk for devices without valid reception data
-                  if (currentServerM && currentServerM->Quirk(cSatipServer::eSatipQuirkForceLock)) {
-                     hasLockM = true;
-                     signalStrengthM = eDefaultSignalStrength;
-                     signalQualityM = eDefaultSignalQuality;
-                     }
-                  }
-               // Reconnect if necessary
-               if (openedM && timeout.TimedOut()) {
-                  Disconnect();
-                  Connect();
-                  timeout.Set(eReConnectTimeoutMs);
-                  }
-               break;
-          case -1:
-               error("epoll_wait() failed");
-               break;
+  while (Running()) {
+        // Update pids
+        UpdatePids();
+        // Remember the heart beat
+        KeepAlive();
+        // Read reception statistics via DESCRIBE and RTCP
+        if (ReadReceptionStatus()) {
+           // Quirk for devices without valid reception data
+           if (currentServerM && currentServerM->Quirk(cSatipServer::eSatipQuirkForceLock)) {
+              hasLockM = true;
+              signalStrengthM = eDefaultSignalStrength;
+              signalQualityM = eDefaultSignalQuality;
+              }
            }
+        // Reconnect if necessary
+        if (openedM && timeout.TimedOut()) {
+           Disconnect();
+           Connect();
+           timeout.Set(eReConnectTimeoutMs);
+           }
+        sleepM.Wait(100); // to avoid busy loop and reduce cpu load
         }
   debug("cSatipTuner::%s(): exiting [device %d]", __FUNCTION__, deviceIdM);
 }
@@ -343,6 +284,7 @@ bool cSatipTuner::SetSource(cSatipServer *serverP, const char *parameterP, const
      }
   else
      Disconnect();
+  sleepM.Signal();
   return true;
 }
 
@@ -361,6 +303,7 @@ bool cSatipTuner::SetPid(int pidP, int typeP, bool onP)
      addPidsM.RemovePid(pidP);
      }
   pidUpdateCacheM.Set(ePidUpdateIntervalMs);
+  sleepM.Signal();
   return true;
 }
 
@@ -460,4 +403,29 @@ cString cSatipTuner::GetInformation(void)
 {
   //debug("cSatipTuner::%s() [device %d]", __FUNCTION__, deviceIdM);
   return tunedM ? cString::sprintf("rtsp://%s/?%s [stream=%d]", *streamAddrM, *streamParamM, streamIdM) : "connection failed";
+}
+
+void cSatipTuner::ReadVideo(void)
+{
+  //debug("cSatipTuner::%s() [device %d]", __FUNCTION__, deviceIdM);
+  //cMutexLock MutexLock(&mutexM);
+  if (deviceM && packetBufferM && rtpSocketM) {
+     int length = rtpSocketM->ReadVideo(packetBufferM, min(deviceM->CheckData(), packetBufferLenM));
+     if (length > 0) {
+        AddTunerStatistic(length);
+        deviceM->WriteData(packetBufferM, length);
+        }
+     }
+}
+
+void cSatipTuner::ReadApplication(void)
+{
+  //debug("cSatipTuner::%s() [device %d]", __FUNCTION__, deviceIdM);
+  //cMutexLock MutexLock(&mutexM);
+  if (deviceM && packetBufferM && rtcpSocketM) {
+     unsigned char buf[1450];
+     memset(buf, 0, sizeof(buf));
+     if (rtcpSocketM->ReadApplication(buf, sizeof(buf)) > 0)
+        ParseReceptionParameters((const char *)buf);
+     }
 }

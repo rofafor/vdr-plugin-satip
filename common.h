@@ -8,6 +8,7 @@
 #ifndef __SATIP_COMMON_H
 #define __SATIP_COMMON_H
 
+#include <vdr/device.h>
 #include <vdr/tools.h>
 #include <vdr/config.h>
 #include <vdr/i18n.h>
@@ -23,6 +24,8 @@
 #endif
 
 #define ELEMENTS(x)                      (sizeof(x) / sizeof(x[0]))
+
+#define SATIP_MAX_DEVICES                MAXDEVICES
 
 #define SATIP_BUFFER_SIZE                KILOBYTE(512)
 
