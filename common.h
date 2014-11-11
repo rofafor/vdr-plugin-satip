@@ -109,24 +109,5 @@ extern const section_filter_table_type section_filter_table[SECTION_FILTER_TABLE
 
 extern const char VERSION[];
 
-template <class T> class cSatipVector : public cVector<T> {
-public:
-  int IndexOf(const T &Data)
-  {
-    for (int i = 0; i < this->Size(); ++i)
-        if (Data == this->At(i))
-           return i;
-    return -1;
-  }
-
-  void RemoveElement(const T &Data)
-  {
-    int i = IndexOf(Data);
-    if (i >= 0)
-       this->Remove(i);
-  }
-
-};
-
 #endif // __SATIP_COMMON_H
 
