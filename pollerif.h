@@ -12,11 +12,8 @@ class cSatipPollerIf {
 public:
   cSatipPollerIf() {}
   virtual ~cSatipPollerIf() {}
-  virtual void ReadVideo(void) = 0;
-  virtual void ReadApplication(void) = 0;
-  virtual int GetPollerId(void) = 0;
-  virtual int GetVideoFd(void) = 0;
-  virtual int GetApplicationFd(void) = 0;
+  virtual int GetFd(void) = 0;
+  virtual void Action(int fd) = 0;
 
 private:
   cSatipPollerIf(const cSatipPollerIf&);

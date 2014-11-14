@@ -12,7 +12,8 @@
 #include <vdr/tools.h>
 
 #include "deviceif.h"
-#include "pollerif.h"
+#include "rtp.h"
+#include "rtcp.h"
 #include "rtsp.h"
 #include "server.h"
 #include "statistics.h"
@@ -44,7 +45,8 @@ public:
   }
 };
 
-class cSatipTuner : public cThread, public cSatipTunerStatistics, public cSatipTunerIf, public cSatipPollerIf {
+class cSatipTuner : public cThread, public cSatipTunerStatistics, public cSatipTunerIf
+{
 private:
   enum {
     eDummyPid               = 100,
@@ -60,11 +62,9 @@ private:
   cCondWait sleepM;
   cSatipDeviceIf* deviceM;
   int deviceIdM;
-  unsigned char* packetBufferM;
-  unsigned int packetBufferLenM;
   cSatipRtsp *rtspM;
-  cSatipSocket *rtpSocketM;
-  cSatipSocket *rtcpSocketM;
+  cSatipRtp *rtpM;
+  cSatipRtcp *rtcpM;
   cString streamAddrM;
   cString streamParamM;
   cSatipServer *currentServerM;
@@ -112,17 +112,10 @@ public:
 
   // for internal tuner interface
 public:
-  virtual void ParseReceptionParameters(const char *paramP);
+  virtual void ParseReceptionParameters(u_char *bufferP, int lengthP);
   virtual void SetStreamId(int streamIdP);
   virtual void SetSessionTimeout(const char *sessionP, int timeoutP);
   virtual int GetId(void);
-
-  // for internal poller interface
-  virtual void ReadVideo(void);
-  virtual void ReadApplication(void);
-  virtual int GetPollerId(void) { return GetId(); }
-  virtual int GetVideoFd(void) { return rtpSocketM ? rtpSocketM->Fd() : -1; };
-  virtual int GetApplicationFd(void) { return rtcpSocketM ? rtcpSocketM->Fd() : -1; }
 };
 
 #endif // __SATIP_TUNER_H

@@ -16,10 +16,9 @@ cSatipTuner::cSatipTuner(cSatipDeviceIf &deviceP, unsigned int packetLenP)
   sleepM(),
   deviceM(&deviceP),
   deviceIdM(deviceP.GetId()),
-  packetBufferLenM(packetLenP),
   rtspM(new cSatipRtsp(*this)),
-  rtpSocketM(new cSatipSocket()),
-  rtcpSocketM(new cSatipSocket()),
+  rtpM(new cSatipRtp(deviceP, packetLenP)),
+  rtcpM(new cSatipRtcp(*this, 1500)),
   streamAddrM(""),
   streamParamM(""),
   currentServerM(NULL),
@@ -40,27 +39,22 @@ cSatipTuner::cSatipTuner(cSatipDeviceIf &deviceP, unsigned int packetLenP)
   delPidsM(),
   pidsM()
 {
-  debug("cSatipTuner::%s(%d) [device %d]", __FUNCTION__, packetBufferLenM, deviceIdM);
-  // Allocate packet buffer
-  packetBufferM = MALLOC(unsigned char, packetBufferLenM);
-  if (packetBufferM)
-     memset(packetBufferM, 0, packetBufferLenM);
-  else
-     error("MALLOC() failed for packet buffer [device %d]", deviceIdM);
+  debug("cSatipTuner::%s(%d) [device %d]", __FUNCTION__, packetLenP, deviceIdM);
 
   // Open sockets
   int i = 100;
   while (i-- > 0) {
-        if (rtpSocketM->Open(0) && rtcpSocketM->Open(rtpSocketM->Port() + 1))
+        if (rtpM->Open(0) && rtcpM->Open(rtpM->Port() + 1))
            break;
-        rtpSocketM->Close();
-        rtcpSocketM->Close();
+        rtpM->Close();
+        rtcpM->Close();
         }
-  if ((rtpSocketM->Port() <= 0) || (rtcpSocketM->Port() <= 0)) {
+  if ((rtpM->Port() <= 0) || (rtcpM->Port() <= 0)) {
      error("Cannot open required RTP/RTCP ports [device %d]", deviceIdM);
      }
   // Must be done after socket initialization!
-  cSatipPoller::GetInstance()->Register(*this);
+  cSatipPoller::GetInstance()->Register(*rtpM);
+  cSatipPoller::GetInstance()->Register(*rtcpM);
 
   // Start thread
   Start();
@@ -69,6 +63,7 @@ cSatipTuner::cSatipTuner(cSatipDeviceIf &deviceP, unsigned int packetLenP)
 cSatipTuner::~cSatipTuner()
 {
   debug("cSatipTuner::%s() [device %d]", __FUNCTION__, deviceIdM);
+
   // Stop thread
   sleepM.Signal();
   if (Running())
@@ -76,14 +71,14 @@ cSatipTuner::~cSatipTuner()
   Close();
 
   // Close the listening sockets
-  cSatipPoller::GetInstance()->Unregister(*this);
-  rtpSocketM->Close();
-  rtcpSocketM->Close();
+  cSatipPoller::GetInstance()->Unregister(*rtcpM);
+  cSatipPoller::GetInstance()->Unregister(*rtpM);
+  rtcpM->Close();
+  rtpM->Close();
 
   // Free allocated memory
-  free(packetBufferM);
-  DELETENULL(rtcpSocketM);
-  DELETENULL(rtpSocketM);
+  DELETENULL(rtpM);
+  DELETENULL(rtcpM);
   DELETENULL(rtspM);
 }
 
@@ -143,9 +138,8 @@ bool cSatipTuner::Connect(void)
         keepAliveM.Set(0);
         KeepAlive();
         // Flush any old content
-        if (rtpSocketM)
-           rtpSocketM->Flush();
-        openedM = rtspM->Setup(*uri, rtpSocketM->Port(), rtcpSocketM->Port());
+        rtpM->Flush();
+        openedM = rtspM->Setup(*uri, rtpM->Port(), rtcpM->Port());
         return openedM;
         }
      keepAliveM.Set(timeoutM);
@@ -153,7 +147,7 @@ bool cSatipTuner::Connect(void)
      if (openedM) {
         if (nextServerM && nextServerM->Quirk(cSatipServer::eSatipQuirkSessionId))
            rtspM->SetSession(SkipZeroes(*sessionM));
-        if (rtspM->Setup(*uri, rtpSocketM->Port(), rtcpSocketM->Port())) {
+        if (rtspM->Setup(*uri, rtpM->Port(), rtcpM->Port())) {
            tunedM = true;
            UpdatePids(true);
            if (nextServerM) {
@@ -201,15 +195,15 @@ bool cSatipTuner::Disconnect(void)
   return true;
 }
 
-void cSatipTuner::ParseReceptionParameters(const char *paramP)
+void cSatipTuner::ParseReceptionParameters(u_char *bufferP, int lengthP)
 {
-  //debug("cSatipTuner::%s(%s) [device %d]", __FUNCTION__, paramP, deviceIdM);
+  //debug("cSatipTuner::%s(%s, %d) [device %d]", __FUNCTION__, bufferP, lengthP, deviceIdM);
   // DVB-S2:
   // ver=<major>.<minor>;src=<srcID>;tuner=<feID>,<level>,<lock>,<quality>,<frequency>,<polarisation>,<system>,<type>,<pilots>,<roll_off>,<symbol_rate>,<fec_inner>;pids=<pid0>,...,<pidn>
   // DVB-T2:
   // ver=1.1;tuner=<feID>,<level>,<lock>,<quality>,<freq>,<bw>,<msys>,<tmode>,<mtype>,<gi>,<fec>,<plp>,<t2id>,<sm>;pids=<pid0>,...,<pidn>
-  if (!isempty(paramP)) {
-     char *s = strdup(paramP);
+  if (lengthP > 0) {
+     char *s = strdup((char *)bufferP);
      char *c = strstr(s, ";tuner=");
      if (c)  {
         int value;
@@ -403,29 +397,4 @@ cString cSatipTuner::GetInformation(void)
 {
   //debug("cSatipTuner::%s() [device %d]", __FUNCTION__, deviceIdM);
   return tunedM ? cString::sprintf("rtsp://%s/?%s [stream=%d]", *streamAddrM, *streamParamM, streamIdM) : "connection failed";
-}
-
-void cSatipTuner::ReadVideo(void)
-{
-  //debug("cSatipTuner::%s() [device %d]", __FUNCTION__, deviceIdM);
-  //cMutexLock MutexLock(&mutexM);
-  if (deviceM && packetBufferM && rtpSocketM) {
-     int length = rtpSocketM->ReadVideo(packetBufferM, min(deviceM->CheckData(), packetBufferLenM));
-     if (length > 0) {
-        AddTunerStatistic(length);
-        deviceM->WriteData(packetBufferM, length);
-        }
-     }
-}
-
-void cSatipTuner::ReadApplication(void)
-{
-  //debug("cSatipTuner::%s() [device %d]", __FUNCTION__, deviceIdM);
-  //cMutexLock MutexLock(&mutexM);
-  if (deviceM && packetBufferM && rtcpSocketM) {
-     unsigned char buf[1450];
-     memset(buf, 0, sizeof(buf));
-     if (rtcpSocketM->ReadApplication(buf, sizeof(buf)) > 0)
-        ParseReceptionParameters((const char *)buf);
-     }
 }

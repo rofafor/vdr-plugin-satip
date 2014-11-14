@@ -13,25 +13,6 @@
 
 #include "pollerif.h"
 
-class cSatipPollerTuner : public cListObject {
-private:
-  cSatipPollerIf* pollerM;
-  int videoFdM;
-  int applicationFdM;
-
-public:
-  cSatipPollerTuner(cSatipPollerIf &pollerP, int videoFdP, int applicationFdP)
-  {
-    pollerM = &pollerP; videoFdM = videoFdP; applicationFdM = applicationFdP;
-  }
-  cSatipPollerIf* Poller(void) { return pollerM; }
-  int VideoFd(void)            { return videoFdM; }
-  int ApplicationFd(void)      { return applicationFdM; }
-};
-
-class cSatipPollerTuners : public cList<cSatipPollerTuner> {
-};
-
 class cSatipPoller : public cThread {
 private:
   enum {
@@ -39,7 +20,6 @@ private:
   };
   static cSatipPoller *instanceS;
   cMutex mutexM;
-  cSatipPollerTuners *tunersM;
   int fdM;
   void Activate(void);
   void Deactivate(void);

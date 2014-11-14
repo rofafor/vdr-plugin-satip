@@ -407,6 +407,7 @@ bool cSatipDevice::HasInternalCam(void)
 void cSatipDevice::WriteData(uchar *bufferP, int lengthP)
 {
   //debug("cSatipDevice::%s(%u)", __FUNCTION__, deviceIndexM);
+  AddTunerStatistic(lengthP);
   // Fill up TS buffer
   if (tsBufferM) {
      int len = tsBufferM->Put(bufferP, lengthP);

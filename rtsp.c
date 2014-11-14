@@ -88,11 +88,8 @@ size_t cSatipRtsp::WriteCallback(void *ptrP, size_t sizeP, size_t nmembP, void *
   size_t len = sizeP * nmembP;
   //debug("cSatipRtsp::%s(%zu)", __FUNCTION__, len);
 
-  if (obj && obj->tunerM && (len > 0)) {
-     char *data = strndup((char*)ptrP, len);
-     obj->tunerM->ParseReceptionParameters(data);
-     FREE_POINTER(data);
-     }
+  if (obj && obj->tunerM && (len > 0))
+     obj->tunerM->ParseReceptionParameters((u_char*)ptrP, len);
 
   return len;
 }

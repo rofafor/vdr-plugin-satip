@@ -12,7 +12,7 @@ class cSatipTunerIf {
 public:
   cSatipTunerIf() {}
   virtual ~cSatipTunerIf() {}
-  virtual void ParseReceptionParameters(const char *paramP) = 0;
+  virtual void ParseReceptionParameters(u_char *bufferP, int lenghtP) = 0;
   virtual void SetStreamId(int streamIdP) = 0;
   virtual void SetSessionTimeout(const char *sessionP, int timeoutP) = 0;
   virtual int GetId(void) = 0;
