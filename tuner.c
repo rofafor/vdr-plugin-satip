@@ -275,7 +275,7 @@ bool cSatipTuner::Disconnect(void)
   cMutexLock MutexLock(&mutexM);
   debug("cSatipTuner::%s() [device %d]", __FUNCTION__, deviceIdM);
 
-  if ((tunerStatusM != tsIdle) && !isempty(*streamAddrM) && (streamIdM >= 0)) {
+  if ((tunerStatusM >= tsTuned) && !isempty(*streamAddrM) && (streamIdM >= 0)) {
      cString uri = cString::sprintf("rtsp://%s/stream=%d", *streamAddrM, streamIdM);
      rtspM->Teardown(*uri);
      }
