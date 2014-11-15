@@ -82,3 +82,4 @@ VDR Plugin 'satip' Revision History
 - Fixed EIT scan (Thanks to Stefan Schallenberg).
 - Refactored input thread to increase performance.
 - Added new STAT command into the SVDRP interface.
+- Refactored tuner implementation.

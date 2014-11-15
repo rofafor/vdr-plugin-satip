@@ -253,16 +253,17 @@ bool cSatipRtsp::Teardown(const char *uriP)
 
 bool cSatipRtsp::ValidateLatestResponse(void)
 {
-  debug("cSatipRtsp::%s(%d)", __FUNCTION__, tunerIdM);
+  bool result = false;
   if (handleM) {
      long rc = 0;
      CURLcode res = CURLE_OK;
      SATIP_CURL_EASY_GETINFO(handleM, CURLINFO_RESPONSE_CODE, &rc);
      if (rc == 200)
-        return true;
+        result = true;
      else if (rc != 0)
         error("Tuner detected invalid status code %ld [device %d]", rc, tunerIdM);
      }
+  debug("cSatipRtsp::%s(%d): %s", __FUNCTION__, tunerIdM, result ? "ok" : "failed");
 
-  return false;
+  return result;
 }
