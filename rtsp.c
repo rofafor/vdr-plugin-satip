@@ -257,8 +257,11 @@ bool cSatipRtsp::ValidateLatestResponse(void)
      SATIP_CURL_EASY_GETINFO(handleM, CURLINFO_RESPONSE_CODE, &rc);
      if (rc == 200)
         result = true;
-     else if (rc != 0)
-        error("Tuner detected invalid status code %ld [device %d]", rc, tunerIdM);
+     else if (rc != 0) {
+        char *url = NULL;
+        SATIP_CURL_EASY_GETINFO(handleM, CURLINFO_EFFECTIVE_URL, &url);
+        error("Detected invalid status code %ld: %s [device %d]", rc, url, tunerIdM);
+        }
      }
   debug("cSatipRtsp::%s(%d): %s", __FUNCTION__, tunerIdM, result ? "ok" : "failed");
 

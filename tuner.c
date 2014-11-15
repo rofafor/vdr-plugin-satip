@@ -106,8 +106,10 @@ void cSatipTuner::Action(void)
                   tunerStatusM = tsTuned;
                   UpdatePids(true);
                   }
-               else
+               else {
+                  error("Tuning failed - re-tuning [device %d]", deviceIdM);
                   tunerStatusM = tsIdle;
+                  }
                break;
           case tsTuned:
                //debug("cSatipTuner::%s(): tsTuned [device %d]", __FUNCTION__, deviceIdM);
@@ -128,23 +130,23 @@ void cSatipTuner::Action(void)
                //debug("cSatipTuner::%s(): tsLocked [device %d]", __FUNCTION__, deviceIdM);
                tunerStatusM = tsLocked;
                if (!UpdatePids()) {
-                  debug("cSatipTuner::%s(): pid update failed - re-tuning [device %d]", __FUNCTION__, deviceIdM);
+                  error("Pid update failed - re-tuning [device %d]", deviceIdM);
                   tunerStatusM = tsSet;
                   break;
                   }
                if (!KeepAlive()) {
-                  debug("cSatipTuner::%s(): keep-alive failed - re-tuning [device %d]", __FUNCTION__, deviceIdM);
+                  error("Keep-alive failed - re-tuning [device %d]", deviceIdM);
                   tunerStatusM = tsSet;
                   break;
                   }
                if (reconnection.TimedOut()) {
-                  debug("cSatipTuner::%s(): connection timeout - re-tuning [device %d]", __FUNCTION__, deviceIdM);
+                  error("Connection timeout - re-tuning [device %d]", deviceIdM);
                   tunerStatusM = tsSet;
                   break;
                   }
                break;
           default:
-               error("Unknown tuner status %d", tunerStatusM);
+               error("Unknown tuner status %d [device %d]", tunerStatusM, deviceIdM);
                break;
           }
         sleepM.Wait(100); // to avoid busy loop and reduce cpu load
