@@ -261,9 +261,10 @@ bool cSatipTuner::Connect(void)
               currentServerM = nextServerM;
               nextServerM = NULL;
               }
-           }
            return true;
+           }
         }
+     error("Connect failed [device %d]", deviceIdM);
      }
 
   return false;
