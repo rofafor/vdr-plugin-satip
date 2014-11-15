@@ -28,9 +28,8 @@ cSatipTuner::cSatipTuner(cSatipDeviceIf &deviceP, unsigned int packetLenP)
   statusUpdateM(),
   pidUpdateCacheM(),
   sessionM(""),
+  tunerStatusM(tsIdle),
   timeoutM(eMinKeepAliveIntervalMs),
-  openedM(false),
-  tunedM(false),
   hasLockM(false),
   signalStrengthM(-1),
   signalQualityM(-1),
@@ -64,6 +63,8 @@ cSatipTuner::~cSatipTuner()
 {
   debug("cSatipTuner::%s() [device %d]", __FUNCTION__, deviceIdM);
 
+  tunerStatusM = tsIdle;
+
   // Stop thread
   sleepM.Signal();
   if (Running())
@@ -85,28 +86,67 @@ cSatipTuner::~cSatipTuner()
 void cSatipTuner::Action(void)
 {
   debug("cSatipTuner::%s(): entering [device %d]", __FUNCTION__, deviceIdM);
-  cTimeMs timeout(eReConnectTimeoutMs);
+  cTimeMs reconnection(eConnectTimeoutMs);
   // Do the thread loop
   while (Running()) {
-        // Update pids
-        UpdatePids();
-        // Remember the heart beat
-        KeepAlive();
-        // Read reception statistics via DESCRIBE and RTCP
-        if (ReadReceptionStatus()) {
-           // Quirk for devices without valid reception data
-           if (currentServerM && currentServerM->Quirk(cSatipServer::eSatipQuirkForceLock)) {
-              hasLockM = true;
-              signalStrengthM = eDefaultSignalStrength;
-              signalQualityM = eDefaultSignalQuality;
-              }
-           }
-        // Reconnect if necessary
-        if (openedM && timeout.TimedOut()) {
-           Disconnect();
-           Connect();
-           timeout.Set(eReConnectTimeoutMs);
-           }
+        switch (tunerStatusM) {
+          case tsIdle:
+               //debug("cSatipTuner::%s(): tsIdle [device %d]", __FUNCTION__, deviceIdM);
+               break;
+          case tsRelease:
+               //debug("cSatipTuner::%s(): tsRelease [device %d]", __FUNCTION__, deviceIdM);
+               Disconnect();
+               tunerStatusM = tsIdle;
+               break;
+          case tsSet:
+               //debug("cSatipTuner::%s(): tsSet [device %d]", __FUNCTION__, deviceIdM);
+               reconnection.Set(eConnectTimeoutMs);
+               Disconnect();
+               if (Connect()) {
+                  tunerStatusM = tsTuned;
+                  UpdatePids(true);
+                  }
+               else
+                  tunerStatusM = tsIdle;
+               break;
+          case tsTuned:
+               //debug("cSatipTuner::%s(): tsTuned [device %d]", __FUNCTION__, deviceIdM);
+               reconnection.Set(eConnectTimeoutMs);
+               // Read reception statistics via DESCRIBE and RTCP
+               if (hasLockM || ReadReceptionStatus()) {
+                  // Quirk for devices without valid reception data
+                  if (currentServerM && currentServerM->Quirk(cSatipServer::eSatipQuirkForceLock)) {
+                     hasLockM = true;
+                     signalStrengthM = eDefaultSignalStrength;
+                     signalQualityM = eDefaultSignalQuality;
+                     }
+                  if (hasLockM)
+                     tunerStatusM = tsLocked;
+                  }
+               break;
+          case tsLocked:
+               //debug("cSatipTuner::%s(): tsLocked [device %d]", __FUNCTION__, deviceIdM);
+               tunerStatusM = tsLocked;
+               if (!UpdatePids()) {
+                  debug("cSatipTuner::%s(): pid update failed - re-tuning [device %d]", __FUNCTION__, deviceIdM);
+                  tunerStatusM = tsSet;
+                  break;
+                  }
+               if (!KeepAlive()) {
+                  debug("cSatipTuner::%s(): keep-alive failed - re-tuning [device %d]", __FUNCTION__, deviceIdM);
+                  tunerStatusM = tsSet;
+                  break;
+                  }
+               if (reconnection.TimedOut()) {
+                  debug("cSatipTuner::%s(): connection timeout - re-tuning [device %d]", __FUNCTION__, deviceIdM);
+                  tunerStatusM = tsSet;
+                  break;
+                  }
+               break;
+          default:
+               error("Unknown tuner status %d", tunerStatusM);
+               break;
+          }
         sleepM.Wait(100); // to avoid busy loop and reduce cpu load
         }
   debug("cSatipTuner::%s(): exiting [device %d]", __FUNCTION__, deviceIdM);
@@ -114,14 +154,18 @@ void cSatipTuner::Action(void)
 
 bool cSatipTuner::Open(void)
 {
+  cMutexLock MutexLock(&mutexM);
   debug("cSatipTuner::%s() [device %d]", __FUNCTION__, deviceIdM);
-  return Connect();
+  tunerStatusM = tsSet;
+  return true;
 }
 
 bool cSatipTuner::Close(void)
 {
+  cMutexLock MutexLock(&mutexM);
   debug("cSatipTuner::%s() [device %d]", __FUNCTION__, deviceIdM);
-  return Disconnect();
+  tunerStatusM = tsRelease;
+  return true;
 }
 
 bool cSatipTuner::Connect(void)
@@ -133,38 +177,29 @@ bool cSatipTuner::Connect(void)
      cString connectionUri = cString::sprintf("rtsp://%s", *streamAddrM);
      cString uri = cString::sprintf("%s/?%s", *connectionUri, *streamParamM);
      // Just retune
-     if (tunedM && (streamIdM >= 0)) {
+     if ((tunerStatusM >= tsTuned) && (streamIdM >= 0) && rtpM && rtcpM) {
         debug("cSatipTuner::%s(): retune [device %d]", __FUNCTION__, deviceIdM);
-        keepAliveM.Set(0);
-        KeepAlive();
+        KeepAlive(true);
         // Flush any old content
         rtpM->Flush();
-        openedM = rtspM->Setup(*uri, rtpM->Port(), rtcpM->Port());
-        return openedM;
+        return rtspM->Setup(*uri, rtpM->Port(), rtcpM->Port());
         }
      keepAliveM.Set(timeoutM);
-     openedM = rtspM->Options(*connectionUri);
-     if (openedM) {
+     if (rtspM->Options(*connectionUri)) {
         if (nextServerM && nextServerM->Quirk(cSatipServer::eSatipQuirkSessionId))
            rtspM->SetSession(SkipZeroes(*sessionM));
         if (rtspM->Setup(*uri, rtpM->Port(), rtcpM->Port())) {
-           tunedM = true;
-           UpdatePids(true);
            if (nextServerM) {
               cSatipDiscover::GetInstance()->UseServer(nextServerM, true);
               currentServerM = nextServerM;
               nextServerM = NULL;
               }
            }
-        else
-           openedM = false;
+           return true;
         }
-
-     return openedM;
      }
 
-  openedM = false;
-  return openedM;
+  return false;
 }
 
 bool cSatipTuner::Disconnect(void)
@@ -172,10 +207,11 @@ bool cSatipTuner::Disconnect(void)
   cMutexLock MutexLock(&mutexM);
   debug("cSatipTuner::%s() [device %d]", __FUNCTION__, deviceIdM);
 
-  if (openedM && !isempty(*streamAddrM)) {
+  if ((tunerStatusM != tsIdle) && !isempty(*streamAddrM) && (streamIdM >= 0)) {
      cString uri = cString::sprintf("rtsp://%s/stream=%d", *streamAddrM, streamIdM);
      rtspM->Teardown(*uri);
      }
+  tunerStatusM = tsIdle;
 
   // Reset signal parameters
   hasLockM = false;
@@ -184,8 +220,6 @@ bool cSatipTuner::Disconnect(void)
 
   if (currentServerM)
      cSatipDiscover::GetInstance()->UseServer(currentServerM, false);
-  openedM = false;
-  tunedM = false;
   statusUpdateM.Set(0);
   timeoutM = eMinKeepAliveIntervalMs;
   addPidsM.Clear();
@@ -272,12 +306,11 @@ bool cSatipTuner::SetSource(cSatipServer *serverP, const char *parameterP, const
         // Update stream address and parameter
         streamAddrM = rtspM->RtspUnescapeString(nextServerM->Address());
         streamParamM = rtspM->RtspUnescapeString(parameterP);
-        // Reconnect
-        Connect();
+        tunerStatusM = tsSet;
         }
      }
   else
-     Disconnect();
+     tunerStatusM = tsRelease;
   sleepM.Signal();
   return true;
 }
@@ -303,9 +336,9 @@ bool cSatipTuner::SetPid(int pidP, int typeP, bool onP)
 
 bool cSatipTuner::UpdatePids(bool forceP)
 {
-  cMutexLock MutexLock(&mutexM);
+  //debug("cSatipTuner::%s(%d) tunerStatus=%s [device %d]", __FUNCTION__, forceP, TunerStatusString(tunerStatusM), deviceIdM);
   if (((forceP && pidsM.Size()) || (pidUpdateCacheM.TimedOut() && (addPidsM.Size() || delPidsM.Size()))) &&
-      tunedM && !isempty(*streamAddrM) && (streamIdM > 0)) {
+      (tunerStatusM >= tsTuned) && !isempty(*streamAddrM) && (streamIdM > 0)) {
      cString uri = cString::sprintf("rtsp://%s/stream=%d", *streamAddrM, streamIdM);
      bool usedummy = !!(currentServerM && currentServerM->Quirk(cSatipServer::eSatipQuirkPlayPids));
      if (forceP || usedummy) {
@@ -329,44 +362,66 @@ bool cSatipTuner::UpdatePids(bool forceP)
                uri = cString::sprintf("%s%d%s", *uri, delPidsM[i], (i == (delPidsM.Size() - 1)) ? "" : ",");
            }
         }
-     if (rtspM->Play(*uri)) {
-        addPidsM.Clear();
-        delPidsM.Clear();
-        return true;
-        }
-     Disconnect();
+     if (!rtspM->Play(*uri))
+        return false;
+     addPidsM.Clear();
+     delPidsM.Clear();
      }
 
-  return false;
+  return true;
 }
 
-bool cSatipTuner::KeepAlive(void)
+bool cSatipTuner::KeepAlive(bool forceP)
 {
+  //debug("cSatipTuner::%s(%d) tunerStatus=%s [device %d]", __FUNCTION__, forceP, TunerStatusString(tunerStatusM), deviceIdM);
   cMutexLock MutexLock(&mutexM);
-  if (tunedM && keepAliveM.TimedOut()) {
-     cString uri = cString::sprintf("rtsp://%s/stream=%d", *streamAddrM, streamIdM);
+  if (keepAliveM.TimedOut()) {
      keepAliveM.Set(timeoutM);
-     if (rtspM->Options(*uri))
+     forceP = true;
+     }
+  if (forceP && !isempty(*streamAddrM) && (streamIdM > 0)) {
+     cString uri = cString::sprintf("rtsp://%s/stream=%d", *streamAddrM, streamIdM);
+     if (!rtspM->Options(*uri))
+        return false;
+     }
+
+  return true;
+}
+
+bool cSatipTuner::ReadReceptionStatus(bool forceP)
+{
+  //debug("cSatipTuner::%s(%d) tunerStatus=%s [device %d]", __FUNCTION__, forceP, TunerStatusString(tunerStatusM), deviceIdM);
+  cMutexLock MutexLock(&mutexM);
+  if (statusUpdateM.TimedOut()) {
+     statusUpdateM.Set(eStatusUpdateTimeoutMs);
+     forceP = true;
+     }
+  if (forceP && !isempty(*streamAddrM) && (streamIdM > 0)) {
+     cString uri = cString::sprintf("rtsp://%s/stream=%d", *streamAddrM, streamIdM);
+     if (rtspM->Describe(*uri))
         return true;
-     Disconnect();
      }
 
   return false;
 }
 
-bool cSatipTuner::ReadReceptionStatus(void)
+const char *cSatipTuner::TunerStatusString(eTunerStatus statusP)
 {
-  cMutexLock MutexLock(&mutexM);
-  if (tunedM && !pidsM.Size() && statusUpdateM.TimedOut() ) {
-     cString uri = cString::sprintf("rtsp://%s/stream=%d", *streamAddrM, streamIdM);
-     if (rtspM->Describe(*uri)) {
-        statusUpdateM.Set(eStatusUpdateTimeoutMs);
-        return true;
-        }
-     Disconnect();
-     }
-
-  return false;
+  switch (statusP) {
+    case tsIdle:
+         return "tsIdle";
+    case tsRelease:
+         return "tsRelease";
+    case tsSet:
+         return "tsSet";
+    case tsLocked:
+         return "tsLocked";
+    case tsTuned:
+         return "tsTuned";
+    default:
+         break;
+    }
+  return "---";
 }
 
 int cSatipTuner::SignalStrength(void)
@@ -384,7 +439,7 @@ int cSatipTuner::SignalQuality(void)
 bool cSatipTuner::HasLock(void)
 {
   //debug("cSatipTuner::%s() [device %d]", __FUNCTION__, deviceIdM);
-  return tunedM && hasLockM;
+  return (tunerStatusM >= tsTuned) && hasLockM;
 }
 
 cString cSatipTuner::GetSignalStatus(void)
@@ -396,5 +451,5 @@ cString cSatipTuner::GetSignalStatus(void)
 cString cSatipTuner::GetInformation(void)
 {
   //debug("cSatipTuner::%s() [device %d]", __FUNCTION__, deviceIdM);
-  return tunedM ? cString::sprintf("rtsp://%s/?%s [stream=%d]", *streamAddrM, *streamParamM, streamIdM) : "connection failed";
+  return (tunerStatusM >= tsTuned) ? cString::sprintf("rtsp://%s/?%s [stream=%d]", *streamAddrM, *streamParamM, streamIdM) : "connection failed";
 }
