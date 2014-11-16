@@ -19,13 +19,14 @@ private:
   unsigned char *bufferM;
   int GetApplicationOffset(int *lenghtP);
 
-protected:
-  virtual int GetFd(void);
-  virtual void Action(int fdP);
-
 public:
   cSatipRtcp(cSatipTunerIf &tunerP, unsigned int bufferLenP);
   virtual ~cSatipRtcp();
+
+  // for internal poller interface
+public:
+  virtual int GetFd(void);
+  virtual void Process(int fdP);
 };
 
 #endif /* __SATIP_RTCP_H_ */

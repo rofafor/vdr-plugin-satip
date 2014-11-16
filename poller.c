@@ -78,7 +78,7 @@ void cSatipPoller::Action(void)
         for (int i = 0; i < nfds; ++i) {
             cSatipPollerIf* poll = reinterpret_cast<cSatipPollerIf *>(events[i].data.ptr);
             if (poll)
-               poll->Action(events[i].events);
+               poll->Process(events[i].events);
            }
         }
   debug("cSatipPoller::%s(): exiting", __FUNCTION__);

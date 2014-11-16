@@ -25,14 +25,15 @@ private:
   int sequenceNumberM;
   int GetHeaderLenght(int lengthP);
 
-protected:
-  virtual int GetFd(void);
-  virtual void Action(int fdP);
-
 public:
   cSatipRtp(cSatipTunerIf &tunerP, unsigned int bufferLenP);
   virtual ~cSatipRtp();
   virtual void Close(void);
+
+  // for internal poller interface
+public:
+  virtual int GetFd(void);
+  virtual void Process(int fdP);
 };
 
 #endif /* __SATIP_RTP_H_ */

@@ -100,7 +100,7 @@ int cSatipRtp::GetHeaderLenght(int lengthP)
   return headerlen;
 }
 
-void cSatipRtp::Action(int fdP)
+void cSatipRtp::Process(int fdP)
 {
   //debug("cSatipRtp::%s(%d)", __FUNCTION__, fdP);
   if (bufferM) {

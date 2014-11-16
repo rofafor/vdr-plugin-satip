@@ -74,7 +74,7 @@ int cSatipRtcp::GetApplicationOffset(int *lengthP)
   return -1;
 }
 
-void cSatipRtcp::Action(int fdP)
+void cSatipRtcp::Process(int fdP)
 {
   //debug("cSatipRtcp::%s(%d)", __FUNCTION__, fdP);
   if (bufferM) {
