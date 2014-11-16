@@ -17,7 +17,6 @@
 #include "rtsp.h"
 #include "server.h"
 #include "statistics.h"
-#include "socket.h"
 
 class cSatipPid : public cVector<int> {
 private:

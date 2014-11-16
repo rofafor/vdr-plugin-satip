@@ -242,8 +242,10 @@ unsigned int cSatipTuner::GetVideoDataSize(void)
 void cSatipTuner::ProcessVideoData(u_char *bufferP, int lengthP)
 {
   //debug("cSatipTuner::%s(%d) [device %d]", __FUNCTION__, lengthP, deviceIdM);
-  if (lengthP > 0)
+  if (lengthP > 0) {
+     AddTunerStatistic(lengthP);
      deviceM->WriteData(bufferP, lengthP);
+     }
   cMutexLock MutexLock(&mutexM);
   reConnectM.Set(eConnectTimeoutMs);
 }

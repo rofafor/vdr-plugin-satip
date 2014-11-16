@@ -15,7 +15,7 @@
 #include "sectionfilter.h"
 #include "statistics.h"
 
-class cSatipDevice : public cDevice, public cSatipPidStatistics, public cSatipBufferStatistics, public cSatipTunerStatistics, public cSatipDeviceIf {
+class cSatipDevice : public cDevice, public cSatipPidStatistics, public cSatipBufferStatistics, public cSatipDeviceIf {
   // static ones
 public:
   static unsigned int deviceCount;
