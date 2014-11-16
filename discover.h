@@ -13,6 +13,7 @@
 #include <vdr/thread.h>
 #include <vdr/tools.h>
 
+#include "msearch.h"
 #include "server.h"
 #include "socket.h"
 
@@ -37,29 +38,25 @@ class cSatipDiscoverServers : public cList<cSatipDiscoverServer> {
 class cSatipDiscover : public cThread {
 private:
   enum {
+    eSleepTimeoutMs   = 500,  // in milliseconds
     eConnectTimeoutMs = 1500, // in milliseconds
-    eDiscoveryPort    = 1900,
-    eProbeBufferSize  = 1024, // in bytes
     eProbeTimeoutMs   = 2000, // in milliseconds
     eProbeIntervalMs  = 60000 // in milliseconds
   };
   static cSatipDiscover *instanceS;
-  static const char *bcastAddressS;
-  static const char *bcastMessageS;
   static size_t WriteCallback(char *ptrP, size_t sizeP, size_t nmembP, void *dataP);
   static int    DebugCallback(CURL *handleP, curl_infotype typeP, char *dataP, size_t sizeP, void *userPtrP);
   cMutex mutexM;
+  cSatipMsearch msearchM;
+  cStringList probeUrlListM;
   CURL *handleM;
-  cSatipSocket *socketM;
   cCondWait sleepM;
   cTimeMs probeIntervalM;
   cSatipServers *serversM;
   void Activate(void);
   void Deactivate(void);
-  void Janitor(void);
-  void Probe(void);
-  void Read(void);
   void AddServer(const char *addrP, const char *modelP, const char *descP);
+  void Fetch(const char *urlP);
   // constructor
   cSatipDiscover();
   // to prevent copy constructor and assignment
@@ -74,6 +71,7 @@ public:
   static bool Initialize(cSatipDiscoverServers *serversP);
   static void Destroy(void);
   virtual ~cSatipDiscover();
+  void Probe(const char *urlP);
   void TriggerScan(void) { probeIntervalM.Set(0); }
   int GetServerCount(void);
   cSatipServer *GetServer(int sourceP, int transponderP = 0, int systemP = -1);
