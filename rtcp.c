@@ -82,7 +82,7 @@ void cSatipRtcp::Action(int fdP)
      if (length > 0) {
         int offset = GetApplicationOffset(&length);
         if (offset >= 0)
-           tunerM->ParseReceptionParameters(bufferM + offset, length);
+           tunerM->ProcessApplicationData(bufferM + offset, length);
         }
      }
 }

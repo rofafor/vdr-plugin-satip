@@ -8,13 +8,11 @@
 #ifndef __SATIP_RTCP_H_
 #define __SATIP_RTCP_H_
 
-#include "common.h"
 #include "socket.h"
 #include "tunerif.h"
 #include "pollerif.h"
 
-class cSatipRtcp : public cSatipSocket, public cSatipPollerIf
-{
+class cSatipRtcp : public cSatipSocket, public cSatipPollerIf {
 private:
   cSatipTunerIf *tunerM;
   unsigned int bufferLenM;

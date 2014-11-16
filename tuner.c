@@ -17,13 +17,14 @@ cSatipTuner::cSatipTuner(cSatipDeviceIf &deviceP, unsigned int packetLenP)
   deviceM(&deviceP),
   deviceIdM(deviceP.GetId()),
   rtspM(new cSatipRtsp(*this)),
-  rtpM(new cSatipRtp(deviceP, packetLenP)),
+  rtpM(new cSatipRtp(*this, packetLenP)),
   rtcpM(new cSatipRtcp(*this, 1500)),
   streamAddrM(""),
   streamParamM(""),
   currentServerM(NULL),
   nextServerM(NULL),
   mutexM(),
+  reConnectM(),
   keepAliveM(),
   statusUpdateM(),
   pidUpdateCacheM(),
@@ -86,7 +87,7 @@ cSatipTuner::~cSatipTuner()
 void cSatipTuner::Action(void)
 {
   debug("cSatipTuner::%s(): entering [device %d]", __FUNCTION__, deviceIdM);
-  cTimeMs reconnection(eConnectTimeoutMs);
+  reConnectM.Set(eConnectTimeoutMs);
   // Do the thread loop
   while (Running()) {
         switch (tunerStatusM) {
@@ -100,7 +101,7 @@ void cSatipTuner::Action(void)
                break;
           case tsSet:
                //debug("cSatipTuner::%s(): tsSet [device %d]", __FUNCTION__, deviceIdM);
-               reconnection.Set(eConnectTimeoutMs);
+               reConnectM.Set(eConnectTimeoutMs);
                Disconnect();
                if (Connect()) {
                   tunerStatusM = tsTuned;
@@ -113,7 +114,7 @@ void cSatipTuner::Action(void)
                break;
           case tsTuned:
                //debug("cSatipTuner::%s(): tsTuned [device %d]", __FUNCTION__, deviceIdM);
-               reconnection.Set(eConnectTimeoutMs);
+               reConnectM.Set(eConnectTimeoutMs);
                // Read reception statistics via DESCRIBE and RTCP
                if (hasLockM || ReadReceptionStatus()) {
                   // Quirk for devices without valid reception data
@@ -139,7 +140,7 @@ void cSatipTuner::Action(void)
                   tunerStatusM = tsSet;
                   break;
                   }
-               if (reconnection.TimedOut()) {
+               if (reConnectM.TimedOut()) {
                   error("Connection timeout - re-tuning [device %d]", deviceIdM);
                   tunerStatusM = tsSet;
                   break;
@@ -232,7 +233,22 @@ bool cSatipTuner::Disconnect(void)
   return true;
 }
 
-void cSatipTuner::ParseReceptionParameters(u_char *bufferP, int lengthP)
+unsigned int cSatipTuner::GetVideoDataSize(void)
+{
+  //debug("cSatipTuner::%s() [device %d]", __FUNCTION__, deviceIdM);
+  return deviceM->CheckData();
+}
+
+void cSatipTuner::ProcessVideoData(u_char *bufferP, int lengthP)
+{
+  //debug("cSatipTuner::%s(%d) [device %d]", __FUNCTION__, lengthP, deviceIdM);
+  if (lengthP > 0)
+     deviceM->WriteData(bufferP, lengthP);
+  cMutexLock MutexLock(&mutexM);
+  reConnectM.Set(eConnectTimeoutMs);
+}
+
+void cSatipTuner::ProcessApplicationData(u_char *bufferP, int lengthP)
 {
   //debug("cSatipTuner::%s(%d) [device %d]", __FUNCTION__, lengthP, deviceIdM);
   // DVB-S2:

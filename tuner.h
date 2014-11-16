@@ -70,6 +70,7 @@ private:
   cSatipServer *currentServerM;
   cSatipServer *nextServerM;
   cMutex mutexM;
+  cTimeMs reConnectM;
   cTimeMs keepAliveM;
   cTimeMs statusUpdateM;
   cTimeMs pidUpdateCacheM;
@@ -110,7 +111,9 @@ public:
 
   // for internal tuner interface
 public:
-  virtual void ParseReceptionParameters(u_char *bufferP, int lengthP);
+  virtual unsigned int GetVideoDataSize(void);
+  virtual void ProcessVideoData(u_char *bufferP, int lengthP);
+  virtual void ProcessApplicationData(u_char *bufferP, int lengthP);
   virtual void SetStreamId(int streamIdP);
   virtual void SetSessionTimeout(const char *sessionP, int timeoutP);
   virtual int GetId(void);

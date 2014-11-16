@@ -9,16 +9,15 @@
 #define __SATIP_RTP_H_
 
 #include "socket.h"
-#include "deviceif.h"
+#include "tunerif.h"
 #include "pollerif.h"
-#include "statistics.h"
 
 class cSatipRtp : public cSatipSocket, public cSatipPollerIf {
 private:
   enum {
     eReportIntervalS = 300 // in seconds
   };
-  cSatipDeviceIf *deviceM;
+  cSatipTunerIf *tunerM;
   unsigned int bufferLenM;
   unsigned char *bufferM;
   time_t lastErrorReportM;
@@ -31,7 +30,7 @@ protected:
   virtual void Action(int fdP);
 
 public:
-  cSatipRtp(cSatipDeviceIf &deviceP, unsigned int bufferLenP);
+  cSatipRtp(cSatipTunerIf &tunerP, unsigned int bufferLenP);
   virtual ~cSatipRtp();
   virtual void Close(void);
 };

@@ -8,8 +8,8 @@
 #include "common.h"
 #include "rtp.h"
 
-cSatipRtp::cSatipRtp(cSatipDeviceIf &deviceP, unsigned int bufferLenP)
-: deviceM(&deviceP),
+cSatipRtp::cSatipRtp(cSatipTunerIf &tunerP, unsigned int bufferLenP)
+: tunerM(&tunerP),
   bufferLenM(bufferLenP),
   bufferM(MALLOC(unsigned char, bufferLenM)),
   lastErrorReportM(0),
@@ -104,11 +104,11 @@ void cSatipRtp::Action(int fdP)
 {
   //debug("cSatipRtp::%s(%d)", __FUNCTION__, fdP);
   if (bufferM) {
-     int length = Read(bufferM, min(deviceM->CheckData(), bufferLenM));
+     int length = Read(bufferM, min(tunerM->GetVideoDataSize(), bufferLenM));
      if (length > 0) {
         int headerlen = GetHeaderLenght(length);
         if ((headerlen >= 0) && (headerlen < length))
-           deviceM->WriteData(bufferM + headerlen, length - headerlen);
+           tunerM->ProcessVideoData(bufferM + headerlen, length - headerlen);
         }
      }
 }

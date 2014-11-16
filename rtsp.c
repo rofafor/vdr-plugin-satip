@@ -89,7 +89,7 @@ size_t cSatipRtsp::WriteCallback(void *ptrP, size_t sizeP, size_t nmembP, void *
   //debug("cSatipRtsp::%s(%zu)", __FUNCTION__, len);
 
   if (obj && obj->tunerM && (len > 0))
-     obj->tunerM->ParseReceptionParameters((u_char*)ptrP, len);
+     obj->tunerM->ProcessApplicationData((u_char*)ptrP, len);
 
   return len;
 }
