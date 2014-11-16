@@ -16,9 +16,9 @@ cSatipTuner::cSatipTuner(cSatipDeviceIf &deviceP, unsigned int packetLenP)
   sleepM(),
   deviceM(&deviceP),
   deviceIdM(deviceP.GetId()),
-  rtspM(new cSatipRtsp(*this)),
-  rtpM(new cSatipRtp(*this, packetLenP)),
-  rtcpM(new cSatipRtcp(*this, 1500)),
+  rtspM(*this),
+  rtpM(*this, packetLenP),
+  rtcpM(*this, 1500),
   streamAddrM(""),
   streamParamM(""),
   currentServerM(NULL),
@@ -44,17 +44,17 @@ cSatipTuner::cSatipTuner(cSatipDeviceIf &deviceP, unsigned int packetLenP)
   // Open sockets
   int i = 100;
   while (i-- > 0) {
-        if (rtpM->Open(0) && rtcpM->Open(rtpM->Port() + 1))
+        if (rtpM.Open(0) && rtcpM.Open(rtpM.Port() + 1))
            break;
-        rtpM->Close();
-        rtcpM->Close();
+        rtpM.Close();
+        rtcpM.Close();
         }
-  if ((rtpM->Port() <= 0) || (rtcpM->Port() <= 0)) {
+  if ((rtpM.Port() <= 0) || (rtcpM.Port() <= 0)) {
      error("Cannot open required RTP/RTCP ports [device %d]", deviceIdM);
      }
   // Must be done after socket initialization!
-  cSatipPoller::GetInstance()->Register(*rtpM);
-  cSatipPoller::GetInstance()->Register(*rtcpM);
+  cSatipPoller::GetInstance()->Register(rtpM);
+  cSatipPoller::GetInstance()->Register(rtcpM);
 
   // Start thread
   Start();
@@ -73,15 +73,10 @@ cSatipTuner::~cSatipTuner()
   Close();
 
   // Close the listening sockets
-  cSatipPoller::GetInstance()->Unregister(*rtcpM);
-  cSatipPoller::GetInstance()->Unregister(*rtpM);
-  rtcpM->Close();
-  rtpM->Close();
-
-  // Free allocated memory
-  DELETENULL(rtpM);
-  DELETENULL(rtcpM);
-  DELETENULL(rtspM);
+  cSatipPoller::GetInstance()->Unregister(rtcpM);
+  cSatipPoller::GetInstance()->Unregister(rtpM);
+  rtcpM.Close();
+  rtpM.Close();
 }
 
 void cSatipTuner::Action(void)
@@ -180,18 +175,18 @@ bool cSatipTuner::Connect(void)
      cString connectionUri = cString::sprintf("rtsp://%s", *streamAddrM);
      cString uri = cString::sprintf("%s/?%s", *connectionUri, *streamParamM);
      // Just retune
-     if ((tunerStatusM >= tsTuned) && (streamIdM >= 0) && rtpM && rtcpM) {
+     if ((tunerStatusM >= tsTuned) && (streamIdM >= 0)) {
         debug("cSatipTuner::%s(): retune [device %d]", __FUNCTION__, deviceIdM);
         KeepAlive(true);
         // Flush any old content
-        rtpM->Flush();
-        return rtspM->Setup(*uri, rtpM->Port(), rtcpM->Port());
+        rtpM.Flush();
+        return rtspM.Setup(*uri, rtpM.Port(), rtcpM.Port());
         }
      keepAliveM.Set(timeoutM);
-     if (rtspM->Options(*connectionUri)) {
+     if (rtspM.Options(*connectionUri)) {
         if (nextServerM && nextServerM->Quirk(cSatipServer::eSatipQuirkSessionId))
-           rtspM->SetSession(SkipZeroes(*sessionM));
-        if (rtspM->Setup(*uri, rtpM->Port(), rtcpM->Port())) {
+           rtspM.SetSession(SkipZeroes(*sessionM));
+        if (rtspM.Setup(*uri, rtpM.Port(), rtcpM.Port())) {
            if (nextServerM) {
               cSatipDiscover::GetInstance()->UseServer(nextServerM, true);
               currentServerM = nextServerM;
@@ -213,7 +208,7 @@ bool cSatipTuner::Disconnect(void)
 
   if ((tunerStatusM >= tsTuned) && !isempty(*streamAddrM) && (streamIdM >= 0)) {
      cString uri = cString::sprintf("rtsp://%s/stream=%d", *streamAddrM, streamIdM);
-     rtspM->Teardown(*uri);
+     rtspM.Teardown(*uri);
      }
   tunerStatusM = tsIdle;
 
@@ -324,10 +319,10 @@ bool cSatipTuner::SetSource(cSatipServer *serverP, const char *parameterP, const
   cMutexLock MutexLock(&mutexM);
   if (serverP) {
      nextServerM = cSatipDiscover::GetInstance()->GetServer(serverP);
-     if (rtspM && nextServerM && !isempty(nextServerM->Address()) && !isempty(parameterP)) {
+     if (nextServerM && !isempty(nextServerM->Address()) && !isempty(parameterP)) {
         // Update stream address and parameter
-        streamAddrM = rtspM->RtspUnescapeString(nextServerM->Address());
-        streamParamM = rtspM->RtspUnescapeString(parameterP);
+        streamAddrM = rtspM.RtspUnescapeString(nextServerM->Address());
+        streamParamM = rtspM.RtspUnescapeString(parameterP);
         tunerStatusM = tsSet;
         }
      }
@@ -384,7 +379,7 @@ bool cSatipTuner::UpdatePids(bool forceP)
                uri = cString::sprintf("%s%d%s", *uri, delPidsM[i], (i == (delPidsM.Size() - 1)) ? "" : ",");
            }
         }
-     if (!rtspM->Play(*uri))
+     if (!rtspM.Play(*uri))
         return false;
      addPidsM.Clear();
      delPidsM.Clear();
@@ -403,7 +398,7 @@ bool cSatipTuner::KeepAlive(bool forceP)
      }
   if (forceP && !isempty(*streamAddrM) && (streamIdM > 0)) {
      cString uri = cString::sprintf("rtsp://%s/stream=%d", *streamAddrM, streamIdM);
-     if (!rtspM->Options(*uri))
+     if (!rtspM.Options(*uri))
         return false;
      }
 
@@ -420,7 +415,7 @@ bool cSatipTuner::ReadReceptionStatus(bool forceP)
      }
   if (forceP && !isempty(*streamAddrM) && (streamIdM > 0)) {
      cString uri = cString::sprintf("rtsp://%s/stream=%d", *streamAddrM, streamIdM);
-     if (rtspM->Describe(*uri))
+     if (rtspM.Describe(*uri))
         return true;
      }
 

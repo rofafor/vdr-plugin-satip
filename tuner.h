@@ -61,9 +61,9 @@ private:
   cCondWait sleepM;
   cSatipDeviceIf* deviceM;
   int deviceIdM;
-  cSatipRtsp *rtspM;
-  cSatipRtp *rtpM;
-  cSatipRtcp *rtcpM;
+  cSatipRtsp rtspM;
+  cSatipRtp rtpM;
+  cSatipRtcp rtcpM;
   cString streamAddrM;
   cString streamParamM;
   cSatipServer *currentServerM;
