@@ -19,6 +19,7 @@ private:
   cSatipTunerIf *tunerM;
   unsigned int bufferLenM;
   unsigned char *bufferM;
+  int GetApplicationOffset(int *lenghtP);
 
 protected:
   virtual int GetFd(void);

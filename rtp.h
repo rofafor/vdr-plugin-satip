@@ -15,9 +15,16 @@
 
 class cSatipRtp : public cSatipSocket, public cSatipPollerIf {
 private:
+  enum {
+    eReportIntervalS = 300 // in seconds
+  };
   cSatipDeviceIf *deviceM;
   unsigned int bufferLenM;
   unsigned char *bufferM;
+  time_t lastErrorReportM;
+  int packetErrorsM;
+  int sequenceNumberM;
+  int GetHeaderLenght(int lengthP);
 
 protected:
   virtual int GetFd(void);
@@ -26,6 +33,7 @@ protected:
 public:
   cSatipRtp(cSatipDeviceIf &deviceP, unsigned int bufferLenP);
   virtual ~cSatipRtp();
+  virtual void Close(void);
 };
 
 #endif /* __SATIP_RTP_H_ */
