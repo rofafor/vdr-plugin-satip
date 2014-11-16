@@ -234,13 +234,14 @@ bool cSatipTuner::Disconnect(void)
 
 void cSatipTuner::ParseReceptionParameters(u_char *bufferP, int lengthP)
 {
-  //debug("cSatipTuner::%s(%s, %d) [device %d]", __FUNCTION__, bufferP, lengthP, deviceIdM);
+  //debug("cSatipTuner::%s(%d) [device %d]", __FUNCTION__, lengthP, deviceIdM);
   // DVB-S2:
   // ver=<major>.<minor>;src=<srcID>;tuner=<feID>,<level>,<lock>,<quality>,<frequency>,<polarisation>,<system>,<type>,<pilots>,<roll_off>,<symbol_rate>,<fec_inner>;pids=<pid0>,...,<pidn>
   // DVB-T2:
   // ver=1.1;tuner=<feID>,<level>,<lock>,<quality>,<freq>,<bw>,<msys>,<tmode>,<mtype>,<gi>,<fec>,<plp>,<t2id>,<sm>;pids=<pid0>,...,<pidn>
   if (lengthP > 0) {
-     char *s = strdup((char *)bufferP);
+     char *s = strndup((char *)bufferP, lengthP);
+     //debug("cSatipTuner::%s(%s) [device %d]", __FUNCTION__, s, deviceIdM);
      char *c = strstr(s, ";tuner=");
      if (c)  {
         int value;
