@@ -18,7 +18,7 @@ cSatipTuner::cSatipTuner(cSatipDeviceIf &deviceP, unsigned int packetLenP)
   deviceIdM(deviceP.GetId()),
   rtspM(*this),
   rtpM(*this, packetLenP),
-  rtcpM(*this, 1500),
+  rtcpM(*this, eApplicationMaxSizeB),
   streamAddrM(""),
   streamParamM(""),
   currentServerM(NULL),

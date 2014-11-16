@@ -51,6 +51,7 @@ private:
     eDummyPid               = 100,
     eDefaultSignalStrength  = 15,
     eDefaultSignalQuality   = 224,
+    eApplicationMaxSizeB    = 1500,
     eStatusUpdateTimeoutMs  = 1000,  // in milliseconds
     ePidUpdateIntervalMs    = 250,   // in milliseconds
     eConnectTimeoutMs       = 5000,  // in milliseconds
