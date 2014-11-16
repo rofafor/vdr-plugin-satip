@@ -9,7 +9,7 @@
 #include "rtsp.h"
 
 cSatipRtsp::cSatipRtsp(cSatipTunerIf &tunerP)
-: tunerM(&tunerP),
+: tunerM(tunerP),
   tunerIdM(tunerP.GetId()),
   handleM(curl_easy_init()),
   headerListM(NULL)
@@ -59,21 +59,21 @@ size_t cSatipRtsp::HeaderCallback(void *ptrP, size_t sizeP, size_t nmembP, void 
   char *s, *p = (char *)ptrP;
   char *r = strtok_r(p, "\r\n", &s);
 
-  while (obj && obj->tunerM && r) {
+  while (obj && r) {
         //debug("cSatipRtsp::%s(%zu): %s", __FUNCTION__, len, r);
         r = skipspace(r);
         if (strstr(r, "com.ses.streamID")) {
            int streamid = -1;
            if (sscanf(r, "com.ses.streamID:%11d", &streamid) == 1)
-              obj->tunerM->SetStreamId(streamid);
+              obj->tunerM.SetStreamId(streamid);
            }
         else if (strstr(r, "Session:")) {
            int timeout = -1;
            char *session = NULL;
            if (sscanf(r, "Session:%m[^;];timeout=%11d", &session, &timeout) == 2)
-              obj->tunerM->SetSessionTimeout(skipspace(session), timeout * 1000);
+              obj->tunerM.SetSessionTimeout(skipspace(session), timeout * 1000);
            else if (sscanf(r, "Session:%m[^;]", &session) == 1)
-              obj->tunerM->SetSessionTimeout(skipspace(session), -1);
+              obj->tunerM.SetSessionTimeout(skipspace(session), -1);
            FREE_POINTER(session);
            }
         r = strtok_r(NULL, "\r\n", &s);
@@ -88,8 +88,8 @@ size_t cSatipRtsp::WriteCallback(void *ptrP, size_t sizeP, size_t nmembP, void *
   size_t len = sizeP * nmembP;
   //debug("cSatipRtsp::%s(%zu)", __FUNCTION__, len);
 
-  if (obj && obj->tunerM && (len > 0))
-     obj->tunerM->ProcessApplicationData((u_char*)ptrP, len);
+  if (obj && (len > 0))
+     obj->tunerM.ProcessApplicationData((u_char*)ptrP, len);
 
   return len;
 }
@@ -98,22 +98,22 @@ int cSatipRtsp::DebugCallback(CURL *handleP, curl_infotype typeP, char *dataP, s
 {
   cSatipRtsp *obj = reinterpret_cast<cSatipRtsp *>(userPtrP);
 
-  if (obj && obj->tunerM) {
+  if (obj) {
      switch (typeP) {
        case CURLINFO_TEXT:
-            debug("cSatipTuner::%s(%d): RTSP INFO %.*s", __FUNCTION__, obj->tunerM->GetId(), (int)sizeP, dataP);
+            debug("cSatipTuner::%s(%d): RTSP INFO %.*s", __FUNCTION__, obj->tunerM.GetId(), (int)sizeP, dataP);
             break;
        case CURLINFO_HEADER_IN:
-            debug("cSatipTuner::%s(%d): RTSP HEAD <<< %.*s", __FUNCTION__, obj->tunerM->GetId(), (int)sizeP, dataP);
+            debug("cSatipTuner::%s(%d): RTSP HEAD <<< %.*s", __FUNCTION__, obj->tunerM.GetId(), (int)sizeP, dataP);
             break;
        case CURLINFO_HEADER_OUT:
-            debug("cSatipTuner::%s(%d): RTSP HEAD >>>\n%.*s", __FUNCTION__, obj->tunerM->GetId(), (int)sizeP, dataP);
+            debug("cSatipTuner::%s(%d): RTSP HEAD >>>\n%.*s", __FUNCTION__, obj->tunerM.GetId(), (int)sizeP, dataP);
             break;
        case CURLINFO_DATA_IN:
-            debug("cSatipTuner::%s(%d): RTSP DATA <<< %.*s", __FUNCTION__, obj->tunerM->GetId(), (int)sizeP, dataP);
+            debug("cSatipTuner::%s(%d): RTSP DATA <<< %.*s", __FUNCTION__, obj->tunerM.GetId(), (int)sizeP, dataP);
             break;
        case CURLINFO_DATA_OUT:
-            debug("cSatipTuner::%s(%d): RTSP DATA >>>\n%.*s", __FUNCTION__, obj->tunerM->GetId(), (int)sizeP, dataP);
+            debug("cSatipTuner::%s(%d): RTSP DATA >>>\n%.*s", __FUNCTION__, obj->tunerM.GetId(), (int)sizeP, dataP);
             break;
        default:
             break;

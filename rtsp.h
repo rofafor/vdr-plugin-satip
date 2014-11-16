@@ -27,7 +27,7 @@ private:
     eConnectTimeoutMs = 1500,  // in milliseconds
   };
 
-  cSatipTunerIf* tunerM;
+  cSatipTunerIf &tunerM;
   int tunerIdM;
   CURL *handleM;
   struct curl_slist *headerListM;

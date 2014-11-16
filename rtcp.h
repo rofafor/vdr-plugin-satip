@@ -14,7 +14,7 @@
 
 class cSatipRtcp : public cSatipSocket, public cSatipPollerIf {
 private:
-  cSatipTunerIf *tunerM;
+  cSatipTunerIf &tunerM;
   unsigned int bufferLenM;
   unsigned char *bufferM;
   int GetApplicationOffset(int *lenghtP);

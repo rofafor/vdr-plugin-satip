@@ -17,7 +17,7 @@ private:
   enum {
     eReportIntervalS = 300 // in seconds
   };
-  cSatipTunerIf *tunerM;
+  cSatipTunerIf &tunerM;
   unsigned int bufferLenM;
   unsigned char *bufferM;
   time_t lastErrorReportM;

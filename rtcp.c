@@ -9,7 +9,7 @@
 #include "rtcp.h"
 
 cSatipRtcp::cSatipRtcp(cSatipTunerIf &tunerP, unsigned int bufferLenP)
-: tunerM(&tunerP),
+: tunerM(tunerP),
   bufferLenM(bufferLenP),
   bufferM(MALLOC(unsigned char, bufferLenM))
 {
@@ -82,7 +82,7 @@ void cSatipRtcp::Process(int fdP)
      if (length > 0) {
         int offset = GetApplicationOffset(&length);
         if (offset >= 0)
-           tunerM->ProcessApplicationData(bufferM + offset, length);
+           tunerM.ProcessApplicationData(bufferM + offset, length);
         }
      }
 }
