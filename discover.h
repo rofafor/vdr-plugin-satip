@@ -52,7 +52,7 @@ private:
   CURL *handleM;
   cCondWait sleepM;
   cTimeMs probeIntervalM;
-  cSatipServers *serversM;
+  cSatipServers serversM;
   void Activate(void);
   void Deactivate(void);
   void AddServer(const char *addrP, const char *modelP, const char *descP);

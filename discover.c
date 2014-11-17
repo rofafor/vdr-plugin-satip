@@ -124,7 +124,7 @@ cSatipDiscover::cSatipDiscover()
   handleM(curl_easy_init()),
   sleepM(),
   probeIntervalM(0),
-  serversM(new cSatipServers())
+  serversM()
 {
   debug("cSatipDiscover::%s()", __FUNCTION__);
 }
@@ -135,7 +135,6 @@ cSatipDiscover::~cSatipDiscover()
   Deactivate();
   cMutexLock MutexLock(&mutexM);
   // Free allocated memory
-  DELETENULL(serversM);
   if (handleM)
      curl_easy_cleanup(handleM);
   handleM = NULL;
@@ -170,8 +169,7 @@ void cSatipDiscover::Action(void)
            probeIntervalM.Set(eProbeIntervalMs);
            msearchM.Probe();
            mutexM.Lock();
-           if (serversM)
-              serversM->Cleanup(eProbeIntervalMs * 2);
+           serversM.Cleanup(eProbeIntervalMs * 2);
            mutexM.Unlock();
            }
         mutexM.Lock();
@@ -242,79 +240,75 @@ void cSatipDiscover::AddServer(const char *addrP, const char *modelP, const char
 {
   debug("cSatipDiscover::%s(%s, %s, %s)", __FUNCTION__, addrP, modelP, descP);
   cMutexLock MutexLock(&mutexM);
-  if (serversM) {
-     cSatipServer *tmp = new cSatipServer(addrP, modelP, descP);
-     // Validate against existing servers
-     if (!serversM->Update(tmp)) {
-        info("Adding device '%s|%s|%s'",  tmp->Address(), tmp->Model(), tmp->Description());
-        serversM->Add(tmp);
-        }
-     else
-        DELETENULL(tmp);
+  cSatipServer *tmp = new cSatipServer(addrP, modelP, descP);
+  // Validate against existing servers
+  if (!serversM.Update(tmp)) {
+     info("Adding device '%s|%s|%s'",  tmp->Address(), tmp->Model(), tmp->Description());
+     serversM.Add(tmp);
      }
+  else
+     DELETENULL(tmp);
 }
 
 int cSatipDiscover::GetServerCount(void)
 {
   //debug("cSatipDiscover::%s()", __FUNCTION__);
   cMutexLock MutexLock(&mutexM);
-  return serversM ? serversM->Count() : -1;
+  return serversM.Count();
 }
 
 cSatipServer *cSatipDiscover::GetServer(int sourceP, int transponderP, int systemP)
 {
   //debug("cSatipDiscover::%s(%d, %d, %d)", __FUNCTION__, sourceP, transponderP, systemP);
   cMutexLock MutexLock(&mutexM);
-  return serversM ? serversM->Find(sourceP, transponderP, systemP) : NULL;
+  return serversM.Find(sourceP, transponderP, systemP);
 }
 
 cSatipServer *cSatipDiscover::GetServer(cSatipServer *serverP)
 {
   //debug("cSatipDiscover::%s()", __FUNCTION__);
   cMutexLock MutexLock(&mutexM);
-  return serversM ? serversM->Find(serverP) : NULL;
+  return serversM.Find(serverP);
 }
 
 cSatipServers *cSatipDiscover::GetServers(void)
 {
   //debug("cSatipDiscover::%s()", __FUNCTION__);
   cMutexLock MutexLock(&mutexM);
-  return serversM;
+  return &serversM;
 }
 
 cString cSatipDiscover::GetServerString(cSatipServer *serverP)
 {
   //debug("cSatipDiscover::%s()", __FUNCTION__);
   cMutexLock MutexLock(&mutexM);
-  return serversM ? serversM->GetString(serverP) : "";
+  return serversM.GetString(serverP);
 }
 
 cString cSatipDiscover::GetServerList(void)
 {
   //debug("cSatipDiscover::%s()", __FUNCTION__);
   cMutexLock MutexLock(&mutexM);
-  return serversM ? serversM->List() : "";
+  return serversM.List();
 }
 
 void cSatipDiscover::SetTransponder(cSatipServer *serverP, int transponderP)
 {
   //debug("cSatipDiscover::%s(%d)", __FUNCTION__, transponderP);
   cMutexLock MutexLock(&mutexM);
-  if (serversM)
-     serversM->SetTransponder(serverP, transponderP);
+  serversM.SetTransponder(serverP, transponderP);
 }
 
 void cSatipDiscover::UseServer(cSatipServer *serverP, bool onOffP)
 {
   //debug("cSatipDiscover::%s(%d)", __FUNCTION__, onOffP);
   cMutexLock MutexLock(&mutexM);
-  if (serversM)
-     serversM->Use(serverP, onOffP);
+  serversM.Use(serverP, onOffP);
 }
 
 int cSatipDiscover::NumProvidedSystems(void)
 {
   //debug("cSatipDiscover::%s()", __FUNCTION__);
   cMutexLock MutexLock(&mutexM);
-  return serversM ? serversM->NumProvidedSystems() : 0;
+  return serversM.NumProvidedSystems();
 }
