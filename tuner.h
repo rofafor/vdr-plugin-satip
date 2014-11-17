@@ -52,12 +52,13 @@ private:
     eDefaultSignalStrength  = 15,
     eDefaultSignalQuality   = 224,
     eApplicationMaxSizeB    = 1500,
+    eSleepTimeoutMs         = 500,  // in milliseconds
     eStatusUpdateTimeoutMs  = 1000,  // in milliseconds
     ePidUpdateIntervalMs    = 250,   // in milliseconds
     eConnectTimeoutMs       = 5000,  // in milliseconds
     eMinKeepAliveIntervalMs = 30000  // in milliseconds
   };
-  enum eTunerStatus { tsIdle, tsRelease, tsSet, tsTuned, tsLocked };
+  enum eTunerState { tsIdle, tsRelease, tsSet, tsTuned, tsLocked };
 
   cCondWait sleepM;
   cSatipDeviceIf* deviceM;
@@ -75,7 +76,8 @@ private:
   cTimeMs statusUpdateM;
   cTimeMs pidUpdateCacheM;
   cString sessionM;
-  eTunerStatus tunerStatusM;
+  eTunerState currentStateM;
+  eTunerState nextStateM;
   int timeoutM;
   bool hasLockM;
   int signalStrengthM;
@@ -90,7 +92,8 @@ private:
   bool KeepAlive(bool forceP = false);
   bool ReadReceptionStatus(bool forceP = false);
   bool UpdatePids(bool forceP = false);
-  const char *TunerStatusString(eTunerStatus statusP);
+  bool RequestState(eTunerState stateP);
+  const char *TunerStateString(eTunerState stateP);
 
 protected:
   virtual void Action(void);
@@ -98,7 +101,7 @@ protected:
 public:
   cSatipTuner(cSatipDeviceIf &deviceP, unsigned int packetLenP);
   virtual ~cSatipTuner();
-  bool IsTuned(void) const { return tunerStatusM > tsIdle; }
+  bool IsTuned(void) const { return currentStateM > tsIdle; }
   bool SetSource(cSatipServer *serverP, const char *parameterP, const int indexP);
   bool SetPid(int pidP, int typeP, bool onP);
   bool Open(void);
