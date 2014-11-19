@@ -92,6 +92,7 @@ private:
   bool KeepAlive(bool forceP = false);
   bool ReadReceptionStatus(bool forceP = false);
   bool UpdatePids(bool forceP = false);
+  bool StateRequested(void);
   bool RequestState(eTunerState stateP);
   const char *TunerStateString(eTunerState stateP);
 
