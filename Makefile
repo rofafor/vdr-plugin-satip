@@ -88,8 +88,9 @@ all-redirect: all
 
 ### The object files (add further files here):
 
-OBJS = $(PLUGIN).o common.o config.o device.o discover.o param.o rtsp.o \
-	sectionfilter.o server.o setup.o socket.o statistics.o tuner.o
+OBJS = $(PLUGIN).o common.o config.o device.o discover.o msearch.o param.o \
+	poller.o rtp.o rtcp.o rtsp.o sectionfilter.o server.o setup.o socket.o \
+	statistics.o tuner.o
 
 ### The main target:
 

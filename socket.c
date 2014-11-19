@@ -20,10 +20,7 @@
 
 cSatipSocket::cSatipSocket()
 : socketPortM(0),
-  socketDescM(-1),
-  lastErrorReportM(0),
-  packetErrorsM(0),
-  sequenceNumberM(-1)
+  socketDescM(-1)
 {
   debug("cSatipSocket::%s()", __FUNCTION__);
   memset(&sockAddrM, 0, sizeof(sockAddrM));
@@ -75,13 +72,7 @@ void cSatipSocket::Close(void)
      close(socketDescM);
      socketDescM = -1;
      socketPortM = 0;
-     sequenceNumberM = -1;
      memset(&sockAddrM, 0, sizeof(sockAddrM));
-     }
-  if (packetErrorsM) {
-     info("detected %d RTP packet errors", packetErrorsM);
-     packetErrorsM = 0;
-     lastErrorReportM = time(NULL);
      }
 }
 
@@ -141,104 +132,6 @@ int cSatipSocket::Read(unsigned char *bufferAddrP, unsigned int bufferLenP)
   return 0;
 }
 
-int cSatipSocket::ReadVideo(unsigned char *bufferAddrP, unsigned int bufferLenP)
-{
-  //debug("cSatipSocket::%s()", __FUNCTION__);
-  int len = Read(bufferAddrP, bufferLenP);
-  if (len > 0) {
-     if (bufferAddrP[0] == TS_SYNC_BYTE)
-        return len;
-     else if (len > 3) {
-        // http://tools.ietf.org/html/rfc3550
-        // http://tools.ietf.org/html/rfc2250
-        // Version
-        unsigned int v = (bufferAddrP[0] >> 6) & 0x03;
-        // Extension bit
-        unsigned int x = (bufferAddrP[0] >> 4) & 0x01;
-        // CSCR count
-        unsigned int cc = bufferAddrP[0] & 0x0F;
-        // Payload type: MPEG2 TS = 33
-        //unsigned int pt = bufferAddrP[1] & 0x7F;
-        // Sequence number
-        int seq = ((bufferAddrP[2] & 0xFF) << 8) | (bufferAddrP[3] & 0xFF);
-        if ((((sequenceNumberM + 1) % 0xFFFF) == 0) && (seq == 0xFFFF))
-           sequenceNumberM = -1;
-        else if ((sequenceNumberM >= 0) && (((sequenceNumberM + 1) % 0xFFFF) != seq)) {
-           packetErrorsM++;
-           if (time(NULL) - lastErrorReportM > eReportIntervalS) {
-              info("detected %d RTP packet errors", packetErrorsM);
-              packetErrorsM = 0;
-              lastErrorReportM = time(NULL);
-              }
-           sequenceNumberM = seq;
-           }
-        else
-           sequenceNumberM = seq;
-        // Header lenght
-        unsigned int headerlen = (3 + cc) * (unsigned int)sizeof(uint32_t);
-        // Check if extension
-        if (x) {
-           // Extension header length
-           unsigned int ehl = (((bufferAddrP[headerlen + 2] & 0xFF) << 8) |
-                               (bufferAddrP[headerlen + 3] & 0xFF));
-           // Update header length
-           headerlen += (ehl + 1) * (unsigned int)sizeof(uint32_t);
-           }
-        // Check that rtp is version 2 and payload contains multiple of TS packet data
-        if ((v == 2) && (((len - headerlen) % TS_SIZE) == 0) &&
-            (bufferAddrP[headerlen] == TS_SYNC_BYTE)) {
-           // Set argument point to payload in read buffer
-           memmove(bufferAddrP, &bufferAddrP[headerlen], (len - headerlen));
-           return (len - headerlen);
-           }
-        }
-     }
-  return 0;
-}
-
-int cSatipSocket::ReadApplication(unsigned char *bufferAddrP, unsigned int bufferLenP)
-{
-  //debug("cSatipSocket::%s()", __FUNCTION__);
-  int len = Read(bufferAddrP, bufferLenP);
-  int offset = 0;
-  while (len > 0) {
-        // Version
-        unsigned int v = (bufferAddrP[offset] >> 6) & 0x03;
-         // Padding
-        //unsigned int p = (bufferAddrP[offset] >> 5) & 0x01;
-        // Subtype
-        //unsigned int st = bufferAddrP[offset] & 0x1F;
-        // Payload type
-        unsigned int pt = bufferAddrP[offset + 1] & 0xFF;
-        // Lenght
-        unsigned int length = ((bufferAddrP[offset + 2] & 0xFF) << 8) | (bufferAddrP[offset + 3] & 0xFF);
-        // Convert it to bytes
-        length = (length + 1) * 4;
-        // V=2, APP = 204
-        if ((v == 2) && (pt == 204)) {
-           // SSCR/CSCR
-           //unsigned int ssrc = ((bufferAddrP[offset + 4] & 0xFF) << 24) | ((bufferAddrP[offset + 5] & 0xFF) << 16) |
-           //                     ((bufferAddrP[offset + 6] & 0xFF) << 8) | (bufferAddrP[offset + 7] & 0xFF);
-           // Name
-           if ((bufferAddrP[offset +  8] == 'S') && (bufferAddrP[offset +  9] == 'E') &&
-               (bufferAddrP[offset + 10] == 'S') && (bufferAddrP[offset + 11] == '1')) {
-              // Identifier
-              //unsigned int id = ((bufferAddrP[offset + 12] & 0xFF) << 8) | (bufferAddrP[offset + 13] & 0xFF);
-              // String length
-              int string_length = ((bufferAddrP[offset + 14] & 0xFF) << 8) | (bufferAddrP[offset + 15] & 0xFF);
-              if (string_length > 0) {
-                 // Set argument point to payload in read buffer
-                 memmove(bufferAddrP, &bufferAddrP[offset + 16], string_length);
-                 bufferAddrP[string_length] = 0;
-                 return string_length;
-                 }
-              }
-           }
-        offset += length;
-        len -= length;
-        }
-  return 0;
-}
 
 bool cSatipSocket::Write(const char *addrP, const unsigned char *bufferAddrP, unsigned int bufferLenP)
 {

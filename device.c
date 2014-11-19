@@ -12,8 +12,6 @@
 #include "param.h"
 #include "device.h"
 
-#define SATIP_MAX_DEVICES MAXDEVICES
-
 static cSatipDevice * SatipDevicesS[SATIP_MAX_DEVICES] = { NULL };
 
 cSatipDevice::cSatipDevice(unsigned int indexP)

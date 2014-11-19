@@ -12,10 +12,11 @@
 #include <vdr/tools.h>
 
 #include "deviceif.h"
+#include "rtp.h"
+#include "rtcp.h"
 #include "rtsp.h"
 #include "server.h"
 #include "statistics.h"
-#include "socket.h"
 
 class cSatipPid : public cVector<int> {
 private:
@@ -43,40 +44,40 @@ public:
   }
 };
 
-class cSatipTuner : public cThread, public cSatipTunerStatistics, public cSatipTunerIf {
+class cSatipTuner : public cThread, public cSatipTunerStatistics, public cSatipTunerIf
+{
 private:
   enum {
-    eMaxFileDescriptors     = 2,     // RTP + RTCP
     eDummyPid               = 100,
     eDefaultSignalStrength  = 15,
     eDefaultSignalQuality   = 224,
-    eReadTimeoutMs          = 500,   // in milliseconds
+    eApplicationMaxSizeB    = 1500,
+    eSleepTimeoutMs         = 500,  // in milliseconds
     eStatusUpdateTimeoutMs  = 1000,  // in milliseconds
     ePidUpdateIntervalMs    = 250,   // in milliseconds
     eConnectTimeoutMs       = 5000,  // in milliseconds
     eMinKeepAliveIntervalMs = 30000  // in milliseconds
   };
-  enum eTunerStatus { tsIdle, tsRelease, tsSet, tsTuned, tsLocked };
+  enum eTunerState { tsIdle, tsRelease, tsSet, tsTuned, tsLocked };
 
   cCondWait sleepM;
   cSatipDeviceIf* deviceM;
   int deviceIdM;
-  unsigned char* packetBufferM;
-  unsigned int packetBufferLenM;
-  cSatipRtsp *rtspM;
-  cSatipSocket *rtpSocketM;
-  cSatipSocket *rtcpSocketM;
+  cSatipRtsp rtspM;
+  cSatipRtp rtpM;
+  cSatipRtcp rtcpM;
   cString streamAddrM;
   cString streamParamM;
   cSatipServer *currentServerM;
   cSatipServer *nextServerM;
   cMutex mutexM;
+  cTimeMs reConnectM;
   cTimeMs keepAliveM;
   cTimeMs statusUpdateM;
   cTimeMs pidUpdateCacheM;
   cString sessionM;
-  eTunerStatus tunerStatusM;
-  int fdM;
+  eTunerState currentStateM;
+  eTunerState nextStateM;
   int timeoutM;
   bool hasLockM;
   int signalStrengthM;
@@ -91,7 +92,9 @@ private:
   bool KeepAlive(bool forceP = false);
   bool ReadReceptionStatus(bool forceP = false);
   bool UpdatePids(bool forceP = false);
-  const char *TunerStatusString(eTunerStatus statusP);
+  bool StateRequested(void);
+  bool RequestState(eTunerState stateP);
+  const char *TunerStateString(eTunerState stateP);
 
 protected:
   virtual void Action(void);
@@ -99,7 +102,7 @@ protected:
 public:
   cSatipTuner(cSatipDeviceIf &deviceP, unsigned int packetLenP);
   virtual ~cSatipTuner();
-  bool IsTuned(void) const { return tunerStatusM > tsIdle; }
+  bool IsTuned(void) const { return currentStateM > tsIdle; }
   bool SetSource(cSatipServer *serverP, const char *parameterP, const int indexP);
   bool SetPid(int pidP, int typeP, bool onP);
   bool Open(void);
@@ -112,7 +115,9 @@ public:
 
   // for internal tuner interface
 public:
-  virtual void ParseReceptionParameters(const char *paramP);
+  virtual unsigned int GetVideoDataSize(void);
+  virtual void ProcessVideoData(u_char *bufferP, int lengthP);
+  virtual void ProcessApplicationData(u_char *bufferP, int lengthP);
   virtual void SetStreamId(int streamIdP);
   virtual void SetSessionTimeout(const char *sessionP, int timeoutP);
   virtual int GetId(void);

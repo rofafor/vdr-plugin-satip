@@ -11,6 +11,7 @@
 #include "config.h"
 #include "device.h"
 #include "discover.h"
+#include "poller.h"
 #include "setup.h"
 
 #if defined(LIBCURL_VERSION_NUM) && LIBCURL_VERSION_NUM < 0x072400
@@ -25,7 +26,7 @@
 #define GITVERSION ""
 #endif
 
-       const char VERSION[]     = "0.3.4" GITVERSION;
+       const char VERSION[]     = "1.0.0" GITVERSION;
 static const char DESCRIPTION[] = trNOOP("SAT>IP Devices");
 
 class cPluginSatip : public cPlugin {
@@ -116,6 +117,7 @@ bool cPluginSatip::Initialize(void)
   if (curl_global_init(CURL_GLOBAL_ALL) != CURLE_OK)
      error("Unable to initialize CURL");
   SatipConfig.SetConfigDirectory(cPlugin::ResourceDirectory(PLUGIN_NAME_I18N));
+  cSatipPoller::GetInstance()->Initialize();
   cSatipDiscover::GetInstance()->Initialize(serversM);
   return cSatipDevice::Initialize(deviceCountM);
 }
@@ -141,6 +143,7 @@ void cPluginSatip::Stop(void)
   // Stop any background activities the plugin is performing.
   cSatipDevice::Shutdown();
   cSatipDiscover::GetInstance()->Destroy();
+  cSatipPoller::GetInstance()->Destroy();
   curl_global_cleanup();
 }
 

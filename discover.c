@@ -18,13 +18,6 @@
 
 cSatipDiscover *cSatipDiscover::instanceS = NULL;
 
-const char *cSatipDiscover::bcastAddressS = "239.255.255.250";
-const char *cSatipDiscover::bcastMessageS = "M-SEARCH * HTTP/1.1\r\n"                  \
-                                            "HOST: 239.255.255.250:1900\r\n"           \
-                                            "MAN: \"ssdp:discover\"\r\n"               \
-                                            "ST: urn:ses-com:device:SatIPServer:1\r\n" \
-                                            "MX: 2\r\n\r\n";
-
 cSatipDiscover *cSatipDiscover::GetInstance(void)
 {
   if (!instanceS)
@@ -126,11 +119,12 @@ int cSatipDiscover::DebugCallback(CURL *handleP, curl_infotype typeP, char *data
 cSatipDiscover::cSatipDiscover()
 : cThread("SAT>IP discover"),
   mutexM(),
+  msearchM(),
+  probeUrlListM(),
   handleM(curl_easy_init()),
-  socketM(new cSatipSocket()),
   sleepM(),
   probeIntervalM(0),
-  serversM(new cSatipServers())
+  serversM()
 {
   debug("cSatipDiscover::%s()", __FUNCTION__);
 }
@@ -141,11 +135,10 @@ cSatipDiscover::~cSatipDiscover()
   Deactivate();
   cMutexLock MutexLock(&mutexM);
   // Free allocated memory
-  DELETENULL(socketM);
-  DELETENULL(serversM);
   if (handleM)
      curl_easy_cleanup(handleM);
   handleM = NULL;
+  probeUrlListM.Clear();
 }
 
 void cSatipDiscover::Activate(void)
@@ -166,119 +159,80 @@ void cSatipDiscover::Deactivate(void)
 void cSatipDiscover::Action(void)
 {
   debug("cSatipDiscover::%s(): entering", __FUNCTION__);
+  probeIntervalM.Set(eProbeIntervalMs);
+  msearchM.Probe();
   // Do the thread loop
   while (Running()) {
+        cStringList tmp;
+
         if (probeIntervalM.TimedOut()) {
            probeIntervalM.Set(eProbeIntervalMs);
-           Probe();
-           Janitor();
+           msearchM.Probe();
+           mutexM.Lock();
+           serversM.Cleanup(eProbeIntervalMs * 2);
+           mutexM.Unlock();
+           }
+        mutexM.Lock();
+        if (probeUrlListM.Size()) {
+           for (int i = 0; i < probeUrlListM.Size(); ++i)
+               tmp.Insert(strdup(probeUrlListM.At(i)));
+           probeUrlListM.Clear();
+           }
+        mutexM.Unlock();
+        if (tmp.Size()) {
+           for (int i = 0; i < tmp.Size(); ++i)
+               Fetch(tmp.At(i));
+           tmp.Clear();
            }
         // to avoid busy loop and reduce cpu load
-        sleepM.Wait(10);
+        sleepM.Wait(eSleepTimeoutMs);
         }
   debug("cSatipDiscover::%s(): exiting", __FUNCTION__);
 }
 
-void cSatipDiscover::Janitor(void)
+void cSatipDiscover::Probe(const char *urlP)
 {
-  debug("cSatipDiscover::%s()", __FUNCTION__);
+  debug("cSatipDiscover::%s(%s)", __FUNCTION__, urlP);
   cMutexLock MutexLock(&mutexM);
-  if (serversM)
-     serversM->Cleanup(eProbeIntervalMs * 2);
+  probeUrlListM.Insert(strdup(urlP));
+  sleepM.Signal();
 }
 
-void cSatipDiscover::Probe(void)
+void cSatipDiscover::Fetch(const char *urlP)
 {
-  debug("cSatipDiscover::%s()", __FUNCTION__);
-  if (socketM && socketM->Open(eDiscoveryPort)) {
-     cTimeMs timeout(eProbeTimeoutMs);
-     socketM->Write(bcastAddressS, reinterpret_cast<const unsigned char *>(bcastMessageS), strlen(bcastMessageS));
-     while (Running() && !timeout.TimedOut()) {
-           Read();
-           // to avoid busy loop and reduce cpu load
-           sleepM.Wait(100);
-           }
-     socketM->Close();
-     }
-}
-
-void cSatipDiscover::Read(void)
-{
-  //debug("cSatipDiscover::%s()", __FUNCTION__);
-  if (socketM) {
-     unsigned char *buf = MALLOC(unsigned char, eProbeBufferSize + 1);
-     if (buf) {
-        memset(buf, 0, eProbeBufferSize + 1);
-        int len = socketM->Read(buf, eProbeBufferSize);
-        if (len > 0) {
-           //debug("cSatipDiscover::%s(): len=%d", __FUNCTION__, len);
-           bool status = false, valid = false;
-           char *s, *p = reinterpret_cast<char *>(buf), *location = NULL;
-           char *r = strtok_r(p, "\r\n", &s);
-           while (r) {
-                 //debug("cSatipDiscover::%s(): %s", __FUNCTION__, r);
-                 // Check the status code
-                 // HTTP/1.1 200 OK
-                 if (!status && startswith(r, "HTTP/1.1 200 OK")) {
-                    status = true;
-                    }
-                 if (status) {
-                    // Check the location data
-                    // LOCATION: http://192.168.0.115:8888/octonet.xml
-                    if (startswith(r, "LOCATION:")) {
-                       location = compactspace(r + 9);
-                       debug("cSatipDiscover::%s(): location='%s'", __FUNCTION__, location);
-                       }
-                    // Check the source type
-                    // ST: urn:ses-com:device:SatIPServer:1
-                    else if (startswith(r, "ST:")) {
-                       char *st = compactspace(r + 3);
-                       if (strstr(st, "urn:ses-com:device:SatIPServer:1"))
-                          valid = true;
-                       debug("cSatipDiscover::%s(): st='%s'", __FUNCTION__, st);
-                       }
-                    // Check whether all the required data is found
-                    if (valid && !isempty(location))
-                       break;
-                    }
-                 r = strtok_r(NULL, "\r\n", &s);
-                 }
-           if (handleM && valid && !isempty(location)) {
-              long rc = 0;
-              CURLcode res = CURLE_OK;
+  debug("cSatipDiscover::%s(%s)", __FUNCTION__, urlP);
+  if (handleM && !isempty(urlP)) {
+     long rc = 0;
+     CURLcode res = CURLE_OK;
 #ifdef DEBUG
-              // Verbose output
-              SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_VERBOSE, 1L);
-              SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_DEBUGFUNCTION, cSatipDiscover::DebugCallback);
-              SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_DEBUGDATA, this);
+     // Verbose output
+     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_VERBOSE, 1L);
+     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_DEBUGFUNCTION, cSatipDiscover::DebugCallback);
+     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_DEBUGDATA, this);
 #endif
-              // Set callback
-              SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_WRITEFUNCTION, cSatipDiscover::WriteCallback);
-              SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_WRITEDATA, this);
+     // Set callback
+     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_WRITEFUNCTION, cSatipDiscover::WriteCallback);
+     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_WRITEDATA, this);
 
-              // No progress meter and no signaling
-              SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_NOPROGRESS, 1L);
-              SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_NOSIGNAL, 1L);
+     // No progress meter and no signaling
+     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_NOPROGRESS, 1L);
+     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_NOSIGNAL, 1L);
 
-              // Set timeouts
-              SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_TIMEOUT_MS, (long)eConnectTimeoutMs);
-              SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_CONNECTTIMEOUT_MS, (long)eConnectTimeoutMs);
+     // Set timeouts
+     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_TIMEOUT_MS, (long)eConnectTimeoutMs);
+     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_CONNECTTIMEOUT_MS, (long)eConnectTimeoutMs);
 
-              // Set user-agent
-              SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_USERAGENT, *cString::sprintf("vdr-%s/%s", PLUGIN_NAME_I18N, VERSION));
+     // Set user-agent
+     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_USERAGENT, *cString::sprintf("vdr-%s/%s", PLUGIN_NAME_I18N, VERSION));
 
-              // Set URL
-              SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_URL, location);
+     // Set URL
+     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_URL, urlP);
 
-              // Fetch the data
-              SATIP_CURL_EASY_PERFORM(handleM);
-              SATIP_CURL_EASY_GETINFO(handleM, CURLINFO_RESPONSE_CODE, &rc);
-              if (rc != 200)
-                 error("Discovery detected invalid status code: %ld", rc);
-              }
-           }
-        free(buf);
-        }
+     // Fetch the data
+     SATIP_CURL_EASY_PERFORM(handleM);
+     SATIP_CURL_EASY_GETINFO(handleM, CURLINFO_RESPONSE_CODE, &rc);
+     if (rc != 200)
+        error("Discovery detected invalid status code: %ld", rc);
      }
 }
 
@@ -286,79 +240,75 @@ void cSatipDiscover::AddServer(const char *addrP, const char *modelP, const char
 {
   debug("cSatipDiscover::%s(%s, %s, %s)", __FUNCTION__, addrP, modelP, descP);
   cMutexLock MutexLock(&mutexM);
-  if (serversM) {
-     cSatipServer *tmp = new cSatipServer(addrP, modelP, descP);
-     // Validate against existing servers
-     if (!serversM->Update(tmp)) {
-        info("Adding device '%s|%s|%s'",  tmp->Address(), tmp->Model(), tmp->Description());
-        serversM->Add(tmp);
-        }
-     else
-        DELETENULL(tmp);
+  cSatipServer *tmp = new cSatipServer(addrP, modelP, descP);
+  // Validate against existing servers
+  if (!serversM.Update(tmp)) {
+     info("Adding device '%s|%s|%s'",  tmp->Address(), tmp->Model(), tmp->Description());
+     serversM.Add(tmp);
      }
+  else
+     DELETENULL(tmp);
 }
 
 int cSatipDiscover::GetServerCount(void)
 {
   //debug("cSatipDiscover::%s()", __FUNCTION__);
   cMutexLock MutexLock(&mutexM);
-  return serversM ? serversM->Count() : -1;
+  return serversM.Count();
 }
 
 cSatipServer *cSatipDiscover::GetServer(int sourceP, int transponderP, int systemP)
 {
   //debug("cSatipDiscover::%s(%d, %d, %d)", __FUNCTION__, sourceP, transponderP, systemP);
   cMutexLock MutexLock(&mutexM);
-  return serversM ? serversM->Find(sourceP, transponderP, systemP) : NULL;
+  return serversM.Find(sourceP, transponderP, systemP);
 }
 
 cSatipServer *cSatipDiscover::GetServer(cSatipServer *serverP)
 {
   //debug("cSatipDiscover::%s()", __FUNCTION__);
   cMutexLock MutexLock(&mutexM);
-  return serversM ? serversM->Find(serverP) : NULL;
+  return serversM.Find(serverP);
 }
 
 cSatipServers *cSatipDiscover::GetServers(void)
 {
   //debug("cSatipDiscover::%s()", __FUNCTION__);
   cMutexLock MutexLock(&mutexM);
-  return serversM;
+  return &serversM;
 }
 
 cString cSatipDiscover::GetServerString(cSatipServer *serverP)
 {
   //debug("cSatipDiscover::%s()", __FUNCTION__);
   cMutexLock MutexLock(&mutexM);
-  return serversM ? serversM->GetString(serverP) : "";
+  return serversM.GetString(serverP);
 }
 
 cString cSatipDiscover::GetServerList(void)
 {
   //debug("cSatipDiscover::%s()", __FUNCTION__);
   cMutexLock MutexLock(&mutexM);
-  return serversM ? serversM->List() : "";
+  return serversM.List();
 }
 
 void cSatipDiscover::SetTransponder(cSatipServer *serverP, int transponderP)
 {
   //debug("cSatipDiscover::%s(%d)", __FUNCTION__, transponderP);
   cMutexLock MutexLock(&mutexM);
-  if (serversM)
-     serversM->SetTransponder(serverP, transponderP);
+  serversM.SetTransponder(serverP, transponderP);
 }
 
 void cSatipDiscover::UseServer(cSatipServer *serverP, bool onOffP)
 {
   //debug("cSatipDiscover::%s(%d)", __FUNCTION__, onOffP);
   cMutexLock MutexLock(&mutexM);
-  if (serversM)
-     serversM->Use(serverP, onOffP);
+  serversM.Use(serverP, onOffP);
 }
 
 int cSatipDiscover::NumProvidedSystems(void)
 {
   //debug("cSatipDiscover::%s()", __FUNCTION__);
   cMutexLock MutexLock(&mutexM);
-  return serversM ? serversM->NumProvidedSystems() : 0;
+  return serversM.NumProvidedSystems();
 }
