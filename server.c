@@ -50,7 +50,7 @@ cSatipServer::cSatipServer(const char *addressP, const char *modelP, const char 
               modelCountM[eSatipModuleDVBS2] = 1;
            }
         if (strstr(r, "DVBT2")) {
-           modelTypeM |= cSatipServer::eSatipModelTypeDVBT | cSatipServer::eSatipModelTypeDVBT2;
+           modelTypeM |= cSatipServer::eSatipModelTypeDVBT2;
            if (char *c = strstr(r, "-"))
               modelCountM[eSatipModuleDVBT2] = atoi(++c);
            else
@@ -71,6 +71,14 @@ cSatipServer::cSatipServer(const char *addressP, const char *modelP, const char 
            if (!isempty(*descriptionM) && strstr(*descriptionM, "OctopusNet"))
               modelTypeM |= cSatipServer::eSatipModelTypeDVBC;
               modelCountM[eSatipModuleDVBC] = modelCountM[eSatipModuleDVBT];
+           }
+        if (strstr(r, "DVBC2")) {
+           modelTypeM |= cSatipServer::eSatipModelTypeDVBC2;
+           if (char *c = strstr(r, "-"))
+              modelCountM[eSatipModuleDVBC2] = atoi(++c);
+           else
+              modelCountM[eSatipModuleDVBC2] = 1;
+           // Add model quirks here
            }
         if (strstr(r, "DVBC")) {
            modelTypeM |= cSatipServer::eSatipModelTypeDVBC;
@@ -213,8 +221,9 @@ int cSatipServers::NumProvidedSystems(void)
       // DVB-T2: qpsk, qam16, qam64, qam256
       // DVB-T: qpsk, qam16, qam64
       count += s->Terrestrial2() ? s->Terrestrial2() * 4 : s->Terrestrial() * 3;
+      // DVB-C2: qam16, qam32, qam64, qam128, qam256
       // DVB-C: qam64, qam128, qam256
-      count += s->Cable() * 3;
+      count += s->Cable2() ? s->Cable2() * 5 : s->Cable() * 3;
       }
   return count;
 }

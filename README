@@ -109,10 +109,6 @@ Notes:
 - The stream id "-1" states about unsuccessful tuning. This might be a
   result of invalid channel parameters or lack of free SAT>IP tuners.
 
-- SAT>IP specification 1.2 doesn't support DVB-C/DVB-C2 receivers yet,
-  but DVB-C (KABEL>IP) is supported for Digital Devices Octopus Net
-  devices.
-
 - If the plugin doesn't detect your SAT>IP network device, make sure
   your setup doesn't have firewalled the UDP port 1900.
 

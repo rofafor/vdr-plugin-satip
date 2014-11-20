@@ -265,6 +265,8 @@ void cSatipTuner::ProcessApplicationData(u_char *bufferP, int lengthP)
   // ver=<major>.<minor>;src=<srcID>;tuner=<feID>,<level>,<lock>,<quality>,<frequency>,<polarisation>,<system>,<type>,<pilots>,<roll_off>,<symbol_rate>,<fec_inner>;pids=<pid0>,...,<pidn>
   // DVB-T2:
   // ver=1.1;tuner=<feID>,<level>,<lock>,<quality>,<freq>,<bw>,<msys>,<tmode>,<mtype>,<gi>,<fec>,<plp>,<t2id>,<sm>;pids=<pid0>,...,<pidn>
+  // DVB-C2:
+  // ver=1.2;tuner=<feID>,<level>,<lock>,<quality>,<freq>,<bw>,<msys>,<mtype>,<sr>,<c2tft>,<ds>,<plp>,<specinv>;pids=<pid0>,...,<pidn>
   if (lengthP > 0) {
      char *s = strndup((char *)bufferP, lengthP);
      //debug("cSatipTuner::%s(%s) [device %d]", __FUNCTION__, s, deviceIdM);

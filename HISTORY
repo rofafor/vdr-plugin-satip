@@ -83,3 +83,5 @@ VDR Plugin 'satip' Revision History
 - Refactored input thread to increase performance.
 - Added new STAT command into the SVDRP interface.
 - Refactored tuner implementation.
+- Updated against SAT>IP protocol specification
+  version 1.2.1.

@@ -17,6 +17,7 @@ private:
     eSatipModuleDVBT,
     eSatipModuleDVBT2,
     eSatipModuleDVBC,
+    eSatipModuleDVBC2,
     eSatipModuleCount
   };
   cString addressM;
@@ -44,7 +45,8 @@ public:
     eSatipModelTypeDVBT  = 0x02,
     eSatipModelTypeDVBT2 = 0x04,
     eSatipModelTypeDVBC  = 0x08,
-    eSatipModelTypeMask  = 0x0F
+    eSatipModelTypeDVBC2 = 0x10,
+    eSatipModelTypeMask  = 0xFF
   };
   cSatipServer(const char *addressP, const char *modelP, const char *descriptionP);
   virtual ~cSatipServer();
@@ -59,7 +61,8 @@ public:
   bool Quirk(int quirkP)    { return ((quirkP & eSatipQuirkMask) & quirkM); }
   int ModelType(void)       { return modelTypeM; }
   bool Match(int modelP)    { return ((modelP & eSatipModelTypeMask) & modelTypeM); }
-  int Cable()               { return Match(eSatipModelTypeDVBC)  ? modelCountM[eSatipModuleDVBC] : 0; }
+  int Cable()               { return Match(eSatipModelTypeDVBC)  ? modelCountM[eSatipModuleDVBC]  : 0; }
+  int Cable2()              { return Match(eSatipModelTypeDVBC2) ? modelCountM[eSatipModuleDVBC2] : 0; }
   int Satellite()           { return Match(eSatipModelTypeDVBS2) ? modelCountM[eSatipModuleDVBS2] : 0; }
   int Terrestrial()         { return Match(eSatipModelTypeDVBT)  ? modelCountM[eSatipModuleDVBT]  : 0; }
   int Terrestrial2()        { return Match(eSatipModelTypeDVBT2) ? modelCountM[eSatipModuleDVBT2] : 0; }
