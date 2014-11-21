@@ -28,7 +28,6 @@ private:
   };
 
   cSatipTunerIf &tunerM;
-  int tunerIdM;
   CURL *handleM;
   struct curl_slist *headerListM;
 

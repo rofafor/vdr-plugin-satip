@@ -10,7 +10,6 @@
 
 cSatipRtsp::cSatipRtsp(cSatipTunerIf &tunerP)
 : tunerM(tunerP),
-  tunerIdM(tunerP.GetId()),
   handleM(curl_easy_init()),
   headerListM(NULL)
 {
@@ -33,7 +32,7 @@ cSatipRtsp::cSatipRtsp(cSatipTunerIf &tunerP)
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_CONNECTTIMEOUT_MS, (long)eConnectTimeoutMs);
 
      // Set user-agent
-     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_USERAGENT, *cString::sprintf("vdr-%s/%s (device %d)", PLUGIN_NAME_I18N, VERSION, tunerIdM));
+     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_USERAGENT, *cString::sprintf("vdr-%s/%s (device %d)", PLUGIN_NAME_I18N, VERSION, tunerM.GetId()));
      }
 }
 
@@ -101,19 +100,19 @@ int cSatipRtsp::DebugCallback(CURL *handleP, curl_infotype typeP, char *dataP, s
   if (obj) {
      switch (typeP) {
        case CURLINFO_TEXT:
-            debug("cSatipTuner::%s(%d): RTSP INFO %.*s", __FUNCTION__, obj->tunerM.GetId(), (int)sizeP, dataP);
+            debug("cSatipRtsp::%s(%d): RTSP INFO %.*s", __FUNCTION__, obj->tunerM.GetId(), (int)sizeP, dataP);
             break;
        case CURLINFO_HEADER_IN:
-            debug("cSatipTuner::%s(%d): RTSP HEAD <<< %.*s", __FUNCTION__, obj->tunerM.GetId(), (int)sizeP, dataP);
+            debug("cSatipRtsp::%s(%d): RTSP HEAD <<< %.*s", __FUNCTION__, obj->tunerM.GetId(), (int)sizeP, dataP);
             break;
        case CURLINFO_HEADER_OUT:
-            debug("cSatipTuner::%s(%d): RTSP HEAD >>>\n%.*s", __FUNCTION__, obj->tunerM.GetId(), (int)sizeP, dataP);
+            debug("cSatipRtsp::%s(%d): RTSP HEAD >>>\n%.*s", __FUNCTION__, obj->tunerM.GetId(), (int)sizeP, dataP);
             break;
        case CURLINFO_DATA_IN:
-            debug("cSatipTuner::%s(%d): RTSP DATA <<< %.*s", __FUNCTION__, obj->tunerM.GetId(), (int)sizeP, dataP);
+            debug("cSatipRtsp::%s(%d): RTSP DATA <<< %.*s", __FUNCTION__, obj->tunerM.GetId(), (int)sizeP, dataP);
             break;
        case CURLINFO_DATA_OUT:
-            debug("cSatipTuner::%s(%d): RTSP DATA >>>\n%.*s", __FUNCTION__, obj->tunerM.GetId(), (int)sizeP, dataP);
+            debug("cSatipRtsp::%s(%d): RTSP DATA >>>\n%.*s", __FUNCTION__, obj->tunerM.GetId(), (int)sizeP, dataP);
             break;
        default:
             break;
@@ -125,7 +124,7 @@ int cSatipRtsp::DebugCallback(CURL *handleP, curl_infotype typeP, char *dataP, s
 
 cString cSatipRtsp::RtspUnescapeString(const char *strP)
 {
-  debug("cSatipRtsp::%s(%d): str=%s", __FUNCTION__, tunerIdM, strP);
+  debug("cSatipRtsp::%s(%s) [device %d]", __FUNCTION__, strP, tunerM.GetId());
   if (handleM) {
      char *p = curl_easy_unescape(handleM, strP, 0, NULL);
      cString s = p;
@@ -139,7 +138,7 @@ cString cSatipRtsp::RtspUnescapeString(const char *strP)
 
 bool cSatipRtsp::Options(const char *uriP)
 {
-  debug("cSatipRtsp::%s(%d): uri=%s", __FUNCTION__, tunerIdM, uriP);
+  debug("cSatipRtsp::%s(%s) [device %d]", __FUNCTION__, uriP, tunerM.GetId());
   if (handleM && !isempty(uriP)) {
      CURLcode res = CURLE_OK;
 
@@ -157,7 +156,7 @@ bool cSatipRtsp::Options(const char *uriP)
 
 bool cSatipRtsp::Setup(const char *uriP, int rtpPortP, int rtcpPortP)
 {
-  debug("cSatipRtsp::%s(%d): uri=%s rtp=%d rtcp=%d", __FUNCTION__, tunerIdM, uriP, rtpPortP, rtcpPortP);
+  debug("cSatipRtsp::%s(%s, %d, %d) [device %d]", __FUNCTION__, uriP, rtpPortP, rtcpPortP, tunerM.GetId());
   if (handleM && !isempty(uriP)) {
      CURLcode res = CURLE_OK;
      cString transport = cString::sprintf("RTP/AVP;unicast;client_port=%d-%d", rtpPortP, rtcpPortP);
@@ -182,11 +181,11 @@ bool cSatipRtsp::Setup(const char *uriP, int rtpPortP, int rtcpPortP)
 
 bool cSatipRtsp::SetSession(const char *sessionP)
 {
-  debug("cSatipRtsp::%s(%d): session=%s", __FUNCTION__, tunerIdM, sessionP);
+  debug("cSatipRtsp::%s(%s) [device %d]", __FUNCTION__, sessionP, tunerM.GetId());
   if (handleM) {
      CURLcode res = CURLE_OK;
 
-     debug("cSatipRtsp::%s(%d): session id quirk enabled", __FUNCTION__, tunerIdM);
+     debug("cSatipRtsp::%s(): session id quirk enabled [device %d]", __FUNCTION__, tunerM.GetId());
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_SESSION_ID, sessionP);
      }
 
@@ -195,7 +194,7 @@ bool cSatipRtsp::SetSession(const char *sessionP)
 
 bool cSatipRtsp::Describe(const char *uriP)
 {
-  debug("cSatipRtsp::%s(%d): uri=%s", __FUNCTION__, tunerIdM, uriP);
+  debug("cSatipRtsp::%s(%s) [device %d]", __FUNCTION__, uriP, tunerM.GetId());
   if (handleM && !isempty(uriP)) {
      CURLcode res = CURLE_OK;
 
@@ -215,7 +214,7 @@ bool cSatipRtsp::Describe(const char *uriP)
 
 bool cSatipRtsp::Play(const char *uriP)
 {
-  debug("cSatipRtsp::%s(%d): uri=%s", __FUNCTION__, tunerIdM, uriP);
+  debug("cSatipRtsp::%s(%s) [device %d]", __FUNCTION__, uriP, tunerM.GetId());
   if (handleM && !isempty(uriP)) {
      CURLcode res = CURLE_OK;
 
@@ -231,7 +230,7 @@ bool cSatipRtsp::Play(const char *uriP)
 
 bool cSatipRtsp::Teardown(const char *uriP)
 {
-  debug("cSatipRtsp::%s(%d): uri=%s", __FUNCTION__, tunerIdM, uriP);
+  debug("cSatipRtsp::%s(%s) [device %d]", __FUNCTION__, uriP, tunerM.GetId());
   if (handleM && !isempty(uriP)) {
      CURLcode res = CURLE_OK;
 
@@ -260,10 +259,10 @@ bool cSatipRtsp::ValidateLatestResponse(void)
      else if (rc != 0) {
         char *url = NULL;
         SATIP_CURL_EASY_GETINFO(handleM, CURLINFO_EFFECTIVE_URL, &url);
-        error("Detected invalid status code %ld: %s [device %d]", rc, url, tunerIdM);
+        error("Detected invalid status code %ld: %s [device %d]", rc, url, tunerM.GetId());
         }
      }
-  debug("cSatipRtsp::%s(%d): %s", __FUNCTION__, tunerIdM, result ? "ok" : "failed");
+  debug("cSatipRtsp::%s(%s) [device %d]", __FUNCTION__, result ? "ok" : "failed", tunerM.GetId());
 
   return result;
 }

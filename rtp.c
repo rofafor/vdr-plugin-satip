@@ -16,6 +16,7 @@ cSatipRtp::cSatipRtp(cSatipTunerIf &tunerP, unsigned int bufferLenP)
   packetErrorsM(0),
   sequenceNumberM(-1)
 {
+  debug("cSatipRtp::%s(%u) [device %d]", __FUNCTION__, bufferLenP, tunerM.GetId());
   if (bufferM)
      memset(bufferM, 0, bufferLenM);
   else
@@ -24,6 +25,7 @@ cSatipRtp::cSatipRtp(cSatipTunerIf &tunerP, unsigned int bufferLenP)
 
 cSatipRtp::~cSatipRtp()
 {
+  debug("cSatipRtp::%s() [device %d]", __FUNCTION__, tunerM.GetId());
   DELETE_POINTER(bufferM);
 }
 
@@ -34,7 +36,7 @@ int cSatipRtp::GetFd(void)
 
 void cSatipRtp::Close(void)
 {
-  debug("cSatipRtp::%s(%d)", __FUNCTION__, GetFd());
+  debug("cSatipRtp::%s() [device %d]", __FUNCTION__, tunerM.GetId());
 
   cSatipSocket::Close();
 
@@ -48,7 +50,7 @@ void cSatipRtp::Close(void)
 
 int cSatipRtp::GetHeaderLenght(int lengthP)
 {
-  //debug("cSatipRtp::%s()", __FUNCTION__);
+  //debug("cSatipRtp::%s() [device %d]", __FUNCTION__, tunerM.GetId());
   unsigned int headerlen = 0;
 
   if (lengthP > 0) {
@@ -72,7 +74,7 @@ int cSatipRtp::GetHeaderLenght(int lengthP)
         else if ((sequenceNumberM >= 0) && (((sequenceNumberM + 1) % 0xFFFF) != seq)) {
            packetErrorsM++;
            if (time(NULL) - lastErrorReportM > eReportIntervalS) {
-              info("Detected %d RTP packet errors", packetErrorsM);
+              info("Detected %d RTP packet errors [device %d]", packetErrorsM, tunerM.GetId());
               packetErrorsM = 0;
               lastErrorReportM = time(NULL);
               }
@@ -91,7 +93,7 @@ int cSatipRtp::GetHeaderLenght(int lengthP)
            }
         // Check that rtp is version 2 and payload contains multiple of TS packet data
         if ((v != 2) || (((lengthP - headerlen) % TS_SIZE) != 0) || (bufferM[headerlen] != TS_SYNC_BYTE)) {
-           debug("cSatipRtp::%s(%d): Received incorrect RTP packet", __FUNCTION__, lengthP);
+           debug("cSatipRtp::%s(%d): Received incorrect RTP packet [device %d]", __FUNCTION__, lengthP, tunerM.GetId());
            headerlen = -1;
            }
         }
@@ -102,7 +104,7 @@ int cSatipRtp::GetHeaderLenght(int lengthP)
 
 void cSatipRtp::Process(int fdP)
 {
-  //debug("cSatipRtp::%s(%d)", __FUNCTION__, fdP);
+  //debug("cSatipRtp::%s() [device %d]", __FUNCTION__, tunerM.GetId());
   if (bufferM) {
      int length = Read(bufferM, min(tunerM.GetVideoDataSize(), bufferLenM));
      if (length > 0) {

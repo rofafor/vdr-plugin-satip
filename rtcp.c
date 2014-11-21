@@ -13,6 +13,7 @@ cSatipRtcp::cSatipRtcp(cSatipTunerIf &tunerP, unsigned int bufferLenP)
   bufferLenM(bufferLenP),
   bufferM(MALLOC(unsigned char, bufferLenM))
 {
+  debug("cSatipRtcp::%s(%u) [device %d]", __FUNCTION__, bufferLenP, tunerM.GetId());
   if (bufferM)
      memset(bufferM, 0, bufferLenM);
   else
@@ -21,17 +22,19 @@ cSatipRtcp::cSatipRtcp(cSatipTunerIf &tunerP, unsigned int bufferLenP)
 
 cSatipRtcp::~cSatipRtcp()
 {
+  debug("cSatipRtcp::%s() [device %d]", __FUNCTION__, tunerM.GetId());
   DELETE_POINTER(bufferM);
 }
 
 int cSatipRtcp::GetFd(void)
 {
+  //debug("cSatipRtcp::%s() [device %d]", __FUNCTION__, tunerM.GetId());
   return Fd();
 }
 
 int cSatipRtcp::GetApplicationOffset(int *lengthP)
 {
-  //debug("cSatipRtcp::%s()", __FUNCTION__);
+  //debug("cSatipRtcp::%s() [device %d]", __FUNCTION__, tunerM.GetId());
   if (!lengthP)
      return -1;
   int offset = 0;
@@ -76,7 +79,7 @@ int cSatipRtcp::GetApplicationOffset(int *lengthP)
 
 void cSatipRtcp::Process(int fdP)
 {
-  //debug("cSatipRtcp::%s(%d)", __FUNCTION__, fdP);
+  //debug("cSatipRtcp::%s(%d) [device %d]", __FUNCTION__, fdP, tunerM.GetId());
   if (bufferM) {
      int length = Read(bufferM, bufferLenM);
      if (length > 0) {
