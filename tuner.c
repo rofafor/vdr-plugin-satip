@@ -88,8 +88,10 @@ void cSatipTuner::Action(void)
   // Do the thread loop
   while (Running()) {
         mutexM.Lock();
-        if (StateRequested())
+        if (StateRequested()) {
+           debug("cSatipTuner::%s(): switching from %s to %s [device %d]", __FUNCTION__, TunerStateString(currentStateM), TunerStateString(nextStateM), deviceIdM);
            currentStateM = nextStateM;
+           }
         mutexM.Unlock();
         switch (currentStateM) {
           case tsIdle:
@@ -189,16 +191,19 @@ bool cSatipTuner::Connect(void)
      // Just retune
      if (streamIdM >= 0) {
         debug("cSatipTuner::%s(): retune [device %d]", __FUNCTION__, deviceIdM);
-        KeepAlive(true);
+        if (rtspM.Setup(*uri, rtpM.Port(), rtcpM.Port())) {
+           keepAliveM.Set(timeoutM);
+           return true;
+           }
+        }
+     else if (rtspM.Options(*connectionUri)) {
         // Flush any old content
         rtpM.Flush();
-        return rtspM.Setup(*uri, rtpM.Port(), rtcpM.Port());
-        }
-     keepAliveM.Set(timeoutM);
-     if (rtspM.Options(*connectionUri)) {
+        rtcpM.Flush();
         if (nextServerM && nextServerM->Quirk(cSatipServer::eSatipQuirkSessionId))
            rtspM.SetSession(SkipZeroes(*sessionM));
         if (rtspM.Setup(*uri, rtpM.Port(), rtcpM.Port())) {
+           keepAliveM.Set(timeoutM);
            if (nextServerM) {
               cSatipDiscover::GetInstance()->UseServer(nextServerM, true);
               currentServerM = nextServerM;
@@ -223,8 +228,8 @@ bool cSatipTuner::Disconnect(void)
      cString uri = cString::sprintf("rtsp://%s/stream=%d", *streamAddrM, streamIdM);
      rtspM.Teardown(*uri);
      }
-  currentStateM = tsIdle;
-  nextStateM = tsIdle;
+  //currentStateM = tsIdle;
+  //nextStateM = tsIdle;
 
   // Reset signal parameters
   hasLockM = false;
@@ -450,7 +455,7 @@ bool cSatipTuner::StateRequested(void)
 bool cSatipTuner::RequestState(eTunerState stateP)
 {
   cMutexLock MutexLock(&mutexM);
-  debug("cSatipTuner::%s(%s) %s <> %s [device %d]", __FUNCTION__, TunerStateString(stateP), TunerStateString(currentStateM), TunerStateString(nextStateM), deviceIdM);
+  debug("cSatipTuner::%s(%s) current=%s next=%s [device %d]", __FUNCTION__, TunerStateString(stateP), TunerStateString(currentStateM), TunerStateString(nextStateM), deviceIdM);
 
   // validate legal state changes
   switch (currentStateM) {
