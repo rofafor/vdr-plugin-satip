@@ -450,11 +450,23 @@ bool cSatipTuner::StateRequested(void)
 bool cSatipTuner::RequestState(eTunerState stateP)
 {
   cMutexLock MutexLock(&mutexM);
-  debug("cSatipTuner::%s(%s) [device %d]", __FUNCTION__, TunerStateString(stateP), deviceIdM);
+  debug("cSatipTuner::%s(%s) %s <> %s [device %d]", __FUNCTION__, TunerStateString(stateP), TunerStateString(currentStateM), TunerStateString(nextStateM), deviceIdM);
+
+  // validate legal state changes
+  switch (currentStateM) {
+    case tsIdle:
+         if (stateP == tsRelease)
+            return false;
+    case tsRelease:
+    case tsSet:
+    case tsLocked:
+    case tsTuned:
+    default:
+         break;
+    }
 
   nextStateM = stateP;
 
-  // validate legal state changes
   return true;
 }
 
