@@ -184,8 +184,8 @@ bool cSatipTuner::Connect(void)
   debug("cSatipTuner::%s() [device %d]", __FUNCTION__, deviceIdM);
 
   if (!isempty(*streamAddrM)) {
-     cString connectionUri = cString::sprintf("rtsp://%s", *streamAddrM);
-     cString uri = cString::sprintf("%s/?%s", *connectionUri, *streamParamM);
+     cString connectionUri = cString::sprintf("rtsp://%s/", *streamAddrM);
+     cString uri = cString::sprintf("%s?%s", *connectionUri, *streamParamM);
      // Just retune
      if (streamIdM >= 0) {
         debug("cSatipTuner::%s(): retune [device %d]", __FUNCTION__, deviceIdM);
