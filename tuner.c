@@ -116,20 +116,17 @@ void cSatipTuner::Action(void)
           case tsTuned:
                //debug("cSatipTuner::%s(): tsTuned [device %d]", __FUNCTION__, deviceIdM);
                reConnectM.Set(eConnectTimeoutMs);
-               // Quirk for devices without valid reception data
-               if (currentServerM && currentServerM->Quirk(cSatipServer::eSatipQuirkForceLock)) {
-                  hasLockM = true;
-                  signalStrengthM = eDefaultSignalStrength;
-                  signalQualityM = eDefaultSignalQuality;
+               // Read reception statistics via DESCRIBE and RTCP
+               if (hasLockM || ReadReceptionStatus()) {
+                  // Quirk for devices without valid reception data
+                  if (currentServerM && currentServerM->Quirk(cSatipServer::eSatipQuirkForceLock)) {
+                     hasLockM = true;
+                     signalStrengthM = eDefaultSignalStrength;
+                     signalQualityM = eDefaultSignalQuality;
+                     }
+                  if (hasLockM)
+                     RequestState(tsLocked);
                   }
-               // Read reception statistics via DESCRIBE
-               else if (!ReadReceptionStatus()) {
-                  error("Reading reception status failed - re-tuning [device %d]", deviceIdM);
-                  RequestState(tsSet);
-                  break;
-                  }
-               if (hasLockM)
-                  RequestState(tsLocked);
                break;
           case tsLocked:
                //debug("cSatipTuner::%s(): tsLocked [device %d]", __FUNCTION__, deviceIdM);
