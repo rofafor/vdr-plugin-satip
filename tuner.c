@@ -227,6 +227,7 @@ bool cSatipTuner::Disconnect(void)
   if (!isempty(*streamAddrM) && (streamIdM >= 0)) {
      cString uri = cString::sprintf("rtsp://%s/stream=%d", *streamAddrM, streamIdM);
      rtspM.Teardown(*uri);
+     streamIdM = -1;
      }
   //currentStateM = tsIdle;
   //nextStateM = tsIdle;
@@ -456,6 +457,9 @@ bool cSatipTuner::RequestState(eTunerState stateP)
 {
   cMutexLock MutexLock(&mutexM);
   debug("cSatipTuner::%s(%s) current=%s next=%s [device %d]", __FUNCTION__, TunerStateString(stateP), TunerStateString(currentStateM), TunerStateString(nextStateM), deviceIdM);
+
+  if (currentStateM != nextStateM)
+     debug("cSatipTuner::%s() invalid state change attempt [device %d]", __FUNCTION__, deviceIdM);
 
   // validate legal state changes
   switch (currentStateM) {
