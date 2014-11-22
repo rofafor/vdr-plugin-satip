@@ -13,6 +13,8 @@ cSatipRtsp::cSatipRtsp(cSatipTunerIf &tunerP)
   handleM(curl_easy_init()),
   headerListM(NULL)
 {
+  debug("cSatipRtsp::%s() [device %d]", __FUNCTION__, tunerM.GetId());
+
   if (handleM) {
      CURLcode res = CURLE_OK;
 
@@ -38,6 +40,8 @@ cSatipRtsp::cSatipRtsp(cSatipTunerIf &tunerP)
 
 cSatipRtsp::~cSatipRtsp()
 {
+  debug("cSatipRtsp::%s() [device %d]", __FUNCTION__, tunerM.GetId());
+
   if (handleM) {
      // Cleanup curl stuff
      if (headerListM) {
@@ -100,19 +104,19 @@ int cSatipRtsp::DebugCallback(CURL *handleP, curl_infotype typeP, char *dataP, s
   if (obj) {
      switch (typeP) {
        case CURLINFO_TEXT:
-            debug("cSatipRtsp::%s(%d): RTSP INFO %.*s", __FUNCTION__, obj->tunerM.GetId(), (int)sizeP, dataP);
+            debug("cSatipRtsp::%s(): [device %d] RTSP INFO %.*s", __FUNCTION__, obj->tunerM.GetId(), (int)sizeP, dataP);
             break;
        case CURLINFO_HEADER_IN:
-            debug("cSatipRtsp::%s(%d): RTSP HEAD <<< %.*s", __FUNCTION__, obj->tunerM.GetId(), (int)sizeP, dataP);
+            debug("cSatipRtsp::%s(): [device %d] RTSP HEAD <<< %.*s", __FUNCTION__, obj->tunerM.GetId(), (int)sizeP, dataP);
             break;
        case CURLINFO_HEADER_OUT:
-            debug("cSatipRtsp::%s(%d): RTSP HEAD >>>\n%.*s", __FUNCTION__, obj->tunerM.GetId(), (int)sizeP, dataP);
+            debug("cSatipRtsp::%s(): [device %d] RTSP HEAD >>>\n%.*s", __FUNCTION__, obj->tunerM.GetId(), (int)sizeP, dataP);
             break;
        case CURLINFO_DATA_IN:
-            debug("cSatipRtsp::%s(%d): RTSP DATA <<< %.*s", __FUNCTION__, obj->tunerM.GetId(), (int)sizeP, dataP);
+            debug("cSatipRtsp::%s(): [device %d] RTSP DATA <<< %.*s", __FUNCTION__, obj->tunerM.GetId(), (int)sizeP, dataP);
             break;
        case CURLINFO_DATA_OUT:
-            debug("cSatipRtsp::%s(%d): RTSP DATA >>>\n%.*s", __FUNCTION__, obj->tunerM.GetId(), (int)sizeP, dataP);
+            debug("cSatipRtsp::%s(): [device %d] RTSP DATA >>>\n%.*s", __FUNCTION__, obj->tunerM.GetId(), (int)sizeP, dataP);
             break;
        default:
             break;
@@ -262,7 +266,7 @@ bool cSatipRtsp::ValidateLatestResponse(void)
         error("Detected invalid status code %ld: %s [device %d]", rc, url, tunerM.GetId());
         }
      }
-  debug("cSatipRtsp::%s(%s) [device %d]", __FUNCTION__, result ? "ok" : "failed", tunerM.GetId());
+  debug("cSatipRtsp::%s(): %s [device %d]", __FUNCTION__, result ? "ok" : "failed", tunerM.GetId());
 
   return result;
 }
