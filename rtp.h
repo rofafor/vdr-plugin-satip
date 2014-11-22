@@ -23,7 +23,7 @@ private:
   time_t lastErrorReportM;
   int packetErrorsM;
   int sequenceNumberM;
-  int GetHeaderLenght(int lengthP);
+  int GetHeaderLenght(unsigned int lengthP);
 
 public:
   cSatipRtp(cSatipTunerIf &tunerP, unsigned int bufferLenP);

@@ -207,6 +207,7 @@ bool cSatipTuner::Connect(void)
            return true;
            }
         }
+     streamIdM = -1;
      error("Connect failed [device %d]", deviceIdM);
      }
 
@@ -412,8 +413,8 @@ bool cSatipTuner::KeepAlive(bool forceP)
      keepAliveM.Set(timeoutM);
      forceP = true;
      }
-  if (forceP && !isempty(*streamAddrM) && (streamIdM > 0)) {
-     cString uri = cString::sprintf("rtsp://%s/stream=%d", *streamAddrM, streamIdM);
+  if (forceP && !isempty(*streamAddrM)) {
+     cString uri = cString::sprintf("rtsp://%s/", *streamAddrM);
      if (!rtspM.Options(*uri))
         return false;
      }

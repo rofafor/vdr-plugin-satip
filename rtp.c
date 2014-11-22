@@ -48,7 +48,7 @@ void cSatipRtp::Close(void)
      }
 }
 
-int cSatipRtp::GetHeaderLenght(int lengthP)
+int cSatipRtp::GetHeaderLenght(unsigned int lengthP)
 {
   //debug("cSatipRtp::%s() [device %d]", __FUNCTION__, tunerM.GetId());
   unsigned int headerlen = 0;
@@ -91,9 +91,14 @@ int cSatipRtp::GetHeaderLenght(int lengthP)
            // Update header length
            headerlen += (ehl + 1) * (unsigned int)sizeof(uint32_t);
            }
+        // Check for empty payload
+        if (lengthP == headerlen) {
+           debug("cSatipRtp::%s(%d): Received empty RTP packet #%d [device %d]", __FUNCTION__, lengthP, seq, tunerM.GetId());
+           headerlen = -1;
+           }
         // Check that rtp is version 2 and payload contains multiple of TS packet data
-        if ((v != 2) || (((lengthP - headerlen) % TS_SIZE) != 0) || (bufferM[headerlen] != TS_SYNC_BYTE)) {
-           debug("cSatipRtp::%s(%d): Received incorrect RTP packet [device %d]", __FUNCTION__, lengthP, tunerM.GetId());
+        else if ((v != 2) || (((lengthP - headerlen) % TS_SIZE) != 0) || (bufferM[headerlen] != TS_SYNC_BYTE)) {
+           debug("cSatipRtp::%s(%d): Received incorrect RTP packet #%d v=%d len=%d sync=0x%02X [device %d]", __FUNCTION__, lengthP, seq, v, headerlen, bufferM[headerlen], tunerM.GetId());
            headerlen = -1;
            }
         }
