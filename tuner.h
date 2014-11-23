@@ -59,6 +59,7 @@ private:
     eMinKeepAliveIntervalMs = 30000  // in milliseconds
   };
   enum eTunerState { tsIdle, tsRelease, tsSet, tsTuned, tsLocked };
+  enum eStateMode { smInternal, smExternal };
 
   cCondWait sleepM;
   cSatipDeviceIf* deviceM;
@@ -77,7 +78,8 @@ private:
   cTimeMs pidUpdateCacheM;
   cString sessionM;
   eTunerState currentStateM;
-  eTunerState nextStateM;
+  cVector<eTunerState> internalStateM;
+  cVector<eTunerState> externalStateM;
   int timeoutM;
   bool hasLockM;
   int signalStrengthM;
@@ -92,8 +94,10 @@ private:
   bool KeepAlive(bool forceP = false);
   bool ReadReceptionStatus(bool forceP = false);
   bool UpdatePids(bool forceP = false);
+  void UpdateCurrentState(void);
   bool StateRequested(void);
-  bool RequestState(eTunerState stateP);
+  bool RequestState(eTunerState stateP, eStateMode modeP);
+  const char *StateModeString(eStateMode modeP);
   const char *TunerStateString(eTunerState stateP);
 
 protected:
