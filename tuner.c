@@ -248,12 +248,6 @@ bool cSatipTuner::Disconnect(void)
   return true;
 }
 
-unsigned int cSatipTuner::GetVideoDataSize(void)
-{
-  //debug("cSatipTuner::%s() [device %d]", __FUNCTION__, deviceIdM);
-  return deviceM->CheckData();
-}
-
 void cSatipTuner::ProcessVideoData(u_char *bufferP, int lengthP)
 {
   //debug("cSatipTuner::%s(%d) [device %d]", __FUNCTION__, lengthP, deviceIdM);

@@ -418,14 +418,6 @@ void cSatipDevice::WriteData(uchar *bufferP, int lengthP)
      pSectionFilterHandlerM->Write(bufferP, lengthP);
 }
 
-unsigned int cSatipDevice::CheckData(void)
-{
-  //debug("cSatipDevice::%s(%u)", __FUNCTION__, deviceIndexM);
-  if (tsBufferM)
-     return (unsigned int)tsBufferM->Free();
-  return 0;
-}
-
 int cSatipDevice::GetId(void)
 {
   //debug("cSatipDevice::%s(%u)", __FUNCTION__, deviceIndexM);

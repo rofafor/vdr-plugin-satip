@@ -50,7 +50,7 @@ void cSatipRtp::Close(void)
 
 int cSatipRtp::GetHeaderLenght(unsigned int lengthP)
 {
-  //debug("cSatipRtp::%s() [device %d]", __FUNCTION__, tunerM.GetId());
+  //debug("cSatipRtp::%s(%d) [device %d]", __FUNCTION__, lengthP, tunerM.GetId());
   unsigned int headerlen = 0;
 
   if (lengthP > 0) {
@@ -109,9 +109,9 @@ int cSatipRtp::GetHeaderLenght(unsigned int lengthP)
 
 void cSatipRtp::Process(int fdP)
 {
-  //debug("cSatipRtp::%s() [device %d]", __FUNCTION__, tunerM.GetId());
+  //debug("cSatipRtp::%s(%d) [device %d]", __FUNCTION__, fdP, tunerM.GetId());
   if (bufferM) {
-     int length = Read(bufferM, min(tunerM.GetVideoDataSize(), bufferLenM));
+     int length = Read(bufferM, bufferLenM);
      if (length > 0) {
         int headerlen = GetHeaderLenght(length);
         if ((headerlen >= 0) && (headerlen < length))

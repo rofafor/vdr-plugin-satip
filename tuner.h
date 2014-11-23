@@ -115,7 +115,6 @@ public:
 
   // for internal tuner interface
 public:
-  virtual unsigned int GetVideoDataSize(void);
   virtual void ProcessVideoData(u_char *bufferP, int lengthP);
   virtual void ProcessApplicationData(u_char *bufferP, int lengthP);
   virtual void SetStreamId(int streamIdP);
