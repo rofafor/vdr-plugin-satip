@@ -49,7 +49,7 @@ int cSatipMsearch::GetFd(void)
   return Fd();
 }
 
-void cSatipMsearch::Process(int fdP)
+void cSatipMsearch::Process(void)
 {
   //debug("cSatipMsearch::%s()", __FUNCTION__);
   if (bufferM) {

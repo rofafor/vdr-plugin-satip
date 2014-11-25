@@ -107,9 +107,9 @@ int cSatipRtp::GetHeaderLenght(unsigned int lengthP)
   return headerlen;
 }
 
-void cSatipRtp::Process(int fdP)
+void cSatipRtp::Process(void)
 {
-  //debug("cSatipRtp::%s(%d) [device %d]", __FUNCTION__, fdP, tunerM.GetId());
+  //debug("cSatipRtp::%s() [device %d]", __FUNCTION__, tunerM.GetId());
   if (bufferM) {
      int length = Read(bufferM, bufferLenM);
      if (length > 0) {

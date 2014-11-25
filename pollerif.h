@@ -13,7 +13,7 @@ public:
   cSatipPollerIf() {}
   virtual ~cSatipPollerIf() {}
   virtual int GetFd(void) = 0;
-  virtual void Process(int fdP) = 0;
+  virtual void Process(void) = 0;
 
 private:
   cSatipPollerIf(const cSatipPollerIf&);

@@ -77,9 +77,9 @@ int cSatipRtcp::GetApplicationOffset(int *lengthP)
   return -1;
 }
 
-void cSatipRtcp::Process(int fdP)
+void cSatipRtcp::Process(void)
 {
-  //debug("cSatipRtcp::%s(%d) [device %d]", __FUNCTION__, fdP, tunerM.GetId());
+  //debug("cSatipRtcp::%s() [device %d]", __FUNCTION__, tunerM.GetId());
   if (bufferM) {
      int length = Read(bufferM, bufferLenM);
      if (length > 0) {

@@ -31,7 +31,7 @@ public:
   // for internal poller interface
 public:
   virtual int GetFd(void);
-  virtual void Process(int fdP);
+  virtual void Process(void);
 };
 
 #endif /* __SATIP_MSEARCH_H_ */
