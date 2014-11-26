@@ -408,7 +408,7 @@ void cSatipDevice::WriteData(uchar *bufferP, int lengthP)
 {
   //debug("cSatipDevice::%s(%u)", __FUNCTION__, deviceIndexM);
   // Fill up TS buffer
-  if (tsBufferM) {
+  if (isOpenDvrM && tsBufferM) {
      int len = tsBufferM->Put(bufferP, lengthP);
      if (len != lengthP)
         tsBufferM->ReportOverflow(lengthP - len);
