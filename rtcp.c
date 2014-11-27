@@ -81,11 +81,13 @@ void cSatipRtcp::Process(void)
 {
   //debug("cSatipRtcp::%s() [device %d]", __FUNCTION__, tunerM.GetId());
   if (bufferM) {
-     int length = Read(bufferM, bufferLenM);
-     if (length > 0) {
-        int offset = GetApplicationOffset(&length);
-        if (offset >= 0)
-           tunerM.ProcessApplicationData(bufferM + offset, length);
-        }
+      int length;
+      while ((length = Read(bufferM, bufferLenM)) > 0) {
+            int offset = GetApplicationOffset(&length);
+            if (offset >= 0)
+               tunerM.ProcessApplicationData(bufferM + offset, length);
+            }
+      if (errno != EAGAIN && errno != EWOULDBLOCK)
+         error("Error %d reading from RTCP socket [device %d]", errno, tunerM.GetId());
      }
 }

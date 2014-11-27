@@ -111,11 +111,13 @@ void cSatipRtp::Process(void)
 {
   //debug("cSatipRtp::%s() [device %d]", __FUNCTION__, tunerM.GetId());
   if (bufferM) {
-     int length = Read(bufferM, bufferLenM);
-     if (length > 0) {
-        int headerlen = GetHeaderLenght(length);
-        if ((headerlen >= 0) && (headerlen < length))
-           tunerM.ProcessVideoData(bufferM + headerlen, length - headerlen);
-        }
+     int length;
+     while ((length = Read(bufferM, bufferLenM)) > 0) {
+           int headerlen = GetHeaderLenght(length);
+           if ((headerlen >= 0) && (headerlen < length))
+               tunerM.ProcessVideoData(bufferM + headerlen, length - headerlen);
+           }
+     if (errno != EAGAIN && errno != EWOULDBLOCK)
+        error("Error %d reading from RTP socket [device %d]", errno, tunerM.GetId());
      }
 }
