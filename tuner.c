@@ -255,7 +255,6 @@ void cSatipTuner::ProcessVideoData(u_char *bufferP, int lengthP)
      AddTunerStatistic(lengthP);
      deviceM->WriteData(bufferP, lengthP);
      }
-  cMutexLock MutexLock(&mutexM);
   reConnectM.Set(eConnectTimeoutMs);
 }
 
@@ -306,6 +305,7 @@ void cSatipTuner::ProcessApplicationData(u_char *bufferP, int lengthP)
         }
      free(s);
      }
+  reConnectM.Set(eConnectTimeoutMs);
 }
 
 void cSatipTuner::SetStreamId(int streamIdP)
