@@ -14,6 +14,7 @@ public:
   virtual ~cSatipPollerIf() {}
   virtual int GetFd(void) = 0;
   virtual void Process(void) = 0;
+  virtual cString ToString(void) const = 0;
 
 private:
   cSatipPollerIf(const cSatipPollerIf&);

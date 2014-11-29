@@ -92,3 +92,8 @@ void cSatipMsearch::Process(void)
          }
      }
 }
+
+cString cSatipMsearch::ToString(void) const
+{
+  return "MSearch";
+}

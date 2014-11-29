@@ -69,6 +69,7 @@ void cSatipPoller::Action(void)
 {
   debug("cSatipPoller::%s(): entering", __FUNCTION__);
   struct epoll_event events[eMaxFileDescriptors];
+  int maxElapsed = 0;
   // Increase priority
   SetPriority(-1);
   // Do the thread loop
@@ -77,8 +78,16 @@ void cSatipPoller::Action(void)
         ERROR_IF_FUNC((nfds == -1), "epoll_wait() failed", break, ;);
         for (int i = 0; i < nfds; ++i) {
             cSatipPollerIf* poll = reinterpret_cast<cSatipPollerIf *>(events[i].data.ptr);
-            if (poll)
+            if (poll) {
+               int elapsed;
+               cTimeMs processing(0);
                poll->Process();
+               elapsed = processing.Elapsed();
+               if (elapsed > maxElapsed) {
+                  maxElapsed = elapsed;
+                  debug("cSatipPoller::%s(): Processing %s took %d ms", __FUNCTION__, *(poll->ToString()), maxElapsed);
+                  }
+               }
            }
         }
   debug("cSatipPoller::%s(): exiting", __FUNCTION__);

@@ -34,6 +34,7 @@ public:
 public:
   virtual int GetFd(void);
   virtual void Process(void);
+  virtual cString ToString(void) const;
 };
 
 #endif /* __SATIP_RTP_H_ */

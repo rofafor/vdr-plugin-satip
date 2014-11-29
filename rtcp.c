@@ -91,3 +91,8 @@ void cSatipRtcp::Process(void)
          error("Error %d reading from RTCP socket [device %d]", errno, tunerM.GetId());
      }
 }
+
+cString cSatipRtcp::ToString(void) const
+{
+  return cString::sprintf("RTCP [device %d]", tunerM.GetId());
+}
