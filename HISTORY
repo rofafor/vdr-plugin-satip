@@ -65,7 +65,7 @@ VDR Plugin 'satip' Revision History
 - Added a validity check for the session member.
 - Added a session id quirk for Triax TSS 400.
 
-2014-11-22: Version 1.0.0
+2014-12-06: Version 1.0.0
 
 - Fixed the cable only device detection.
 - Added support for blacklisted sources.
