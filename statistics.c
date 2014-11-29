@@ -150,14 +150,16 @@ cSatipTunerStatistics::~cSatipTunerStatistics()
 cString cSatipTunerStatistics::GetTunerStatistic()
 {
   //debug("cSatipTunerStatistics::%s()", __FUNCTION__);
-  cMutexLock MutexLock(&mutexM);
+  mutexM.Lock();
   uint64_t elapsed = timerM.Elapsed(); /* in milliseconds */
   timerM.Set();
   long bitrate = elapsed ? (long)(1000.0L * dataBytesM / KILOBYTE(1) / elapsed) : 0L;
+  dataBytesM = 0;
+  mutexM.Unlock();
+
   if (!SatipConfig.GetUseBytes())
      bitrate *= 8;
   cString s = cString::sprintf("%ld k%s/s", bitrate, SatipConfig.GetUseBytes() ? "B" : "bit");
-  dataBytesM = 0;
   return s;
 }
 
