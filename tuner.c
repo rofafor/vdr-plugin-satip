@@ -262,7 +262,8 @@ void cSatipTuner::ProcessApplicationData(u_char *bufferP, int lengthP)
   // DVB-C2:
   // ver=1.2;tuner=<feID>,<level>,<lock>,<quality>,<freq>,<bw>,<msys>,<mtype>,<sr>,<c2tft>,<ds>,<plp>,<specinv>;pids=<pid0>,...,<pidn>
   if (lengthP > 0) {
-     char *s = strndup((char *)bufferP, lengthP);
+     char s[lengthP];
+     memcpy(s, (char *)bufferP, lengthP);
      //debug("cSatipTuner::%s(%s) [device %d]", __FUNCTION__, s, deviceIdM);
      char *c = strstr(s, ";tuner=");
      if (c)  {
@@ -297,7 +298,6 @@ void cSatipTuner::ProcessApplicationData(u_char *bufferP, int lengthP)
         // Scale value to 0-100
         signalQualityM = (hasLockM && (value >= 0)) ? (value * 100 / 15) : 0;
         }
-     free(s);
      }
   reConnectM.Set(eConnectTimeoutMs);
 }
