@@ -8,6 +8,7 @@
 #ifndef __SATIP_MSEARCH_H_
 #define __SATIP_MSEARCH_H_
 
+#include "discoverif.h"
 #include "socket.h"
 #include "pollerif.h"
 
@@ -19,12 +20,13 @@ private:
   };
   static const char *bcastAddressS;
   static const char *bcastMessageS;
+  cSatipDiscoverIf &discoverM;
   unsigned int bufferLenM;
   unsigned char *bufferM;
   bool registeredM;
 
 public:
-  cSatipMsearch(void);
+  cSatipMsearch(cSatipDiscoverIf &discoverP);
   virtual ~cSatipMsearch();
   void Probe(void);
 

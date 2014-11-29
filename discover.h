@@ -13,6 +13,7 @@
 #include <vdr/thread.h>
 #include <vdr/tools.h>
 
+#include "discoverif.h"
 #include "msearch.h"
 #include "server.h"
 #include "socket.h"
@@ -35,7 +36,7 @@ public:
 class cSatipDiscoverServers : public cList<cSatipDiscoverServer> {
 };
 
-class cSatipDiscover : public cThread {
+class cSatipDiscover : public cThread, public cSatipDiscoverIf {
 private:
   enum {
     eSleepTimeoutMs   = 500,  // in milliseconds
@@ -71,7 +72,6 @@ public:
   static bool Initialize(cSatipDiscoverServers *serversP);
   static void Destroy(void);
   virtual ~cSatipDiscover();
-  void Probe(const char *urlP);
   void TriggerScan(void) { probeIntervalM.Set(0); }
   int GetServerCount(void);
   cSatipServer *GetServer(int sourceP, int transponderP = 0, int systemP = -1);
@@ -82,6 +82,10 @@ public:
   void UseServer(cSatipServer *serverP, bool onOffP);
   cString GetServerList(void);
   int NumProvidedSystems(void);
+
+  // for internal discover interface
+public:
+  virtual void SetUrl(const char *urlP);
 };
 
 #endif // __SATIP_DISCOVER_H

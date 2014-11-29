@@ -119,7 +119,7 @@ int cSatipDiscover::DebugCallback(CURL *handleP, curl_infotype typeP, char *data
 cSatipDiscover::cSatipDiscover()
 : cThread("SAT>IP discover"),
   mutexM(),
-  msearchM(),
+  msearchM(*this),
   probeUrlListM(),
   handleM(curl_easy_init()),
   sleepM(),
@@ -188,14 +188,6 @@ void cSatipDiscover::Action(void)
         sleepM.Wait(eSleepTimeoutMs);
         }
   debug("cSatipDiscover::%s(): exiting", __FUNCTION__);
-}
-
-void cSatipDiscover::Probe(const char *urlP)
-{
-  debug("cSatipDiscover::%s(%s)", __FUNCTION__, urlP);
-  cMutexLock MutexLock(&mutexM);
-  probeUrlListM.Insert(strdup(urlP));
-  sleepM.Signal();
 }
 
 void cSatipDiscover::Fetch(const char *urlP)
@@ -311,4 +303,13 @@ int cSatipDiscover::NumProvidedSystems(void)
   //debug("cSatipDiscover::%s()", __FUNCTION__);
   cMutexLock MutexLock(&mutexM);
   return serversM.NumProvidedSystems();
+}
+
+void cSatipDiscover::SetUrl(const char *urlP)
+{
+  //debug("cSatipDiscover::%s(%s)", __FUNCTION__, urlP);
+  mutexM.Lock();
+  probeUrlListM.Insert(strdup(urlP));
+  mutexM.Unlock();
+  sleepM.Signal();
 }

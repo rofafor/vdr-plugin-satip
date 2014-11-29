@@ -118,7 +118,7 @@ void cSatipRtp::Process(void)
                tunerM.ProcessVideoData(bufferM + headerlen, length - headerlen);
            }
      if (errno != EAGAIN && errno != EWOULDBLOCK)
-        error("Error %d reading from RTP socket [device %d]", errno, tunerM.GetId());
+        error("Error %d reading in %s", errno, *ToString());
      }
 }
 
