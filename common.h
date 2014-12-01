@@ -27,7 +27,7 @@
 
 #define SATIP_MAX_DEVICES                MAXDEVICES
 
-#define SATIP_BUFFER_SIZE                KILOBYTE(512)
+#define SATIP_BUFFER_SIZE                KILOBYTE(1024)
 
 #define SATIP_DEVICE_INFO_ALL            0
 #define SATIP_DEVICE_INFO_GENERAL        1
