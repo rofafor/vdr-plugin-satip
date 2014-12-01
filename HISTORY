@@ -85,3 +85,5 @@ VDR Plugin 'satip' Revision History
 - Refactored tuner implementation.
 - Updated against SAT>IP protocol specification
   version 1.2.1.
+- Added plenty of performance tweaks (Thanks to
+  Stefan Schallenberg).

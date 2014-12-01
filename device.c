@@ -29,7 +29,7 @@ cSatipDevice::cSatipDevice(unsigned int indexP)
   tsBufferM = new cRingBufferLinear(bufsize + 1, TS_SIZE, false,
                                    *cString::sprintf("SAT>IP TS %d", deviceIndexM));
   if (tsBufferM) {
-     tsBufferM->SetTimeouts(100, 100);
+     tsBufferM->SetTimeouts(10, 10);
      tsBufferM->SetIoThrottle();
      pTunerM = new cSatipTuner(*this, tsBufferM->Free());
      }
