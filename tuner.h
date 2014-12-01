@@ -22,8 +22,8 @@ class cSatipPid : public cVector<int> {
 private:
   int PidIndex(const int &pidP)
   {
-    for (int i = 0; i < this->Size(); ++i) {
-        if (pidP == this->At(i))
+    for (int i = 0; i < Size(); ++i) {
+        if (pidP == At(i))
            return i;
         }
     return -1;
@@ -34,13 +34,13 @@ public:
   {
     int i = PidIndex(pidP);
     if (i >= 0)
-       this->Remove(i);
+       Remove(i);
   }
 
   void AddPid(int pidP)
   {
     if (PidIndex(pidP) < 0)
-       this->Append(pidP);
+       Append(pidP);
   }
 };
 
