@@ -182,17 +182,18 @@ bool cSatipTuner::Connect(void)
   debug("cSatipTuner::%s() [device %d]", __FUNCTION__, deviceIdM);
 
   if (!isempty(*streamAddrM)) {
-     cString connectionUri = cString::sprintf("rtsp://%s/", *streamAddrM);
-     cString uri = cString::sprintf("%s?%s", *connectionUri, *streamParamM);
+     cString connectionUri = cString::sprintf("rtsp://%s", *streamAddrM);
      // Just retune
      if (streamIdM >= 0) {
-        debug("cSatipTuner::%s(): retune [device %d]", __FUNCTION__, deviceIdM);
-        if (rtspM.Setup(*uri, rtpM.Port(), rtcpM.Port())) {
+        cString uri = cString::sprintf("%s/stream=%d?%s", *connectionUri, streamIdM, *streamParamM);
+        debug("cSatipTuner::%s(): retuning [device %d]", __FUNCTION__, deviceIdM);
+        if (rtspM.Play(*uri)) {
            keepAliveM.Set(timeoutM);
            return true;
            }
         }
      else if (rtspM.Options(*connectionUri)) {
+        cString uri = cString::sprintf("%s/?%s", *connectionUri, *streamParamM);
         // Flush any old content
         rtpM.Flush();
         rtcpM.Flush();
