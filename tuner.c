@@ -101,14 +101,13 @@ void cSatipTuner::Action(void)
           case tsSet:
                //debug("cSatipTuner::%s(): tsSet [device %d]", __FUNCTION__, deviceIdM);
                reConnectM.Set(eConnectTimeoutMs);
-               Disconnect();
                if (Connect()) {
                   RequestState(tsTuned, smInternal);
                   UpdatePids(true);
                   }
                else {
-                  error("Tuning failed - re-tuning [device %d]", deviceIdM);
-                  RequestState(tsIdle, smInternal);
+                  error("Tuning failed - retuning [device %d]", deviceIdM);
+                  Disconnect();
                   }
                break;
           case tsTuned:
@@ -129,17 +128,17 @@ void cSatipTuner::Action(void)
           case tsLocked:
                //debug("cSatipTuner::%s(): tsLocked [device %d]", __FUNCTION__, deviceIdM);
                if (!UpdatePids()) {
-                  error("Pid update failed - re-tuning [device %d]", deviceIdM);
+                  error("Pid update failed - retuning [device %d]", deviceIdM);
                   RequestState(tsSet, smInternal);
                   break;
                   }
                if (!KeepAlive()) {
-                  error("Keep-alive failed - re-tuning [device %d]", deviceIdM);
+                  error("Keep-alive failed - retuning [device %d]", deviceIdM);
                   RequestState(tsSet, smInternal);
                   break;
                   }
                if (reConnectM.TimedOut()) {
-                  error("Connection timeout - re-tuning [device %d]", deviceIdM);
+                  error("Connection timeout - retuning [device %d]", deviceIdM);
                   RequestState(tsSet, smInternal);
                   break;
                   }
@@ -182,10 +181,10 @@ bool cSatipTuner::Connect(void)
   debug("cSatipTuner::%s() [device %d]", __FUNCTION__, deviceIdM);
 
   if (!isempty(*streamAddrM)) {
-     cString connectionUri = cString::sprintf("rtsp://%s", *streamAddrM);
+     cString connectionUri = cString::sprintf("rtsp://%s/", *streamAddrM);
      // Just retune
      if (streamIdM >= 0) {
-        cString uri = cString::sprintf("%s/stream=%d?%s", *connectionUri, streamIdM, *streamParamM);
+        cString uri = cString::sprintf("%sstream=%d?%s", *connectionUri, streamIdM, *streamParamM);
         debug("cSatipTuner::%s(): retuning [device %d]", __FUNCTION__, deviceIdM);
         if (rtspM.Play(*uri)) {
            keepAliveM.Set(timeoutM);
@@ -193,7 +192,7 @@ bool cSatipTuner::Connect(void)
            }
         }
      else if (rtspM.Options(*connectionUri)) {
-        cString uri = cString::sprintf("%s/?%s", *connectionUri, *streamParamM);
+        cString uri = cString::sprintf("%s?%s", *connectionUri, *streamParamM);
         // Flush any old content
         rtpM.Flush();
         rtcpM.Flush();
@@ -334,6 +333,8 @@ bool cSatipTuner::SetSource(cSatipServer *serverP, const char *parameterP, const
         // Update stream address and parameter
         streamAddrM = rtspM.RtspUnescapeString(nextServerM->Address());
         streamParamM = rtspM.RtspUnescapeString(parameterP);
+        // Reconnect
+        RequestState(tsSet, smExternal);
         }
      }
   else {
