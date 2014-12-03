@@ -16,6 +16,7 @@
 #define error(x...) esyslog("SATIP-ERROR: " x)
 #define info(x...)  isyslog("SATIP: " x)
 #define debug(x...) void( SatipConfig.IsLogLevelDebug() ? dsyslog("SATIP: " x) : void() )
+#define extra(x...) void( SatipConfig.IsLogLevelExtra() ? dsyslog("SATIP: " x) : void() )
 
 #define ELEMENTS(x)                      (sizeof(x) / sizeof(x[0]))
 

@@ -105,19 +105,19 @@ int cSatipRtsp::DebugCallback(CURL *handleP, curl_infotype typeP, char *dataP, s
   if (obj) {
      switch (typeP) {
        case CURLINFO_TEXT:
-            debug("cSatipRtsp::%s(): [device %d] RTSP INFO %.*s", __FUNCTION__, obj->tunerM.GetId(), (int)sizeP, dataP);
+            extra("cSatipRtsp::%s(): [device %d] RTSP INFO %.*s", __FUNCTION__, obj->tunerM.GetId(), (int)sizeP, dataP);
             break;
        case CURLINFO_HEADER_IN:
-            debug("cSatipRtsp::%s(): [device %d] RTSP HEAD <<< %.*s", __FUNCTION__, obj->tunerM.GetId(), (int)sizeP, dataP);
+            extra("cSatipRtsp::%s(): [device %d] RTSP HEAD <<< %.*s", __FUNCTION__, obj->tunerM.GetId(), (int)sizeP, dataP);
             break;
        case CURLINFO_HEADER_OUT:
-            debug("cSatipRtsp::%s(): [device %d] RTSP HEAD >>>\n%.*s", __FUNCTION__, obj->tunerM.GetId(), (int)sizeP, dataP);
+            extra("cSatipRtsp::%s(): [device %d] RTSP HEAD >>>\n%.*s", __FUNCTION__, obj->tunerM.GetId(), (int)sizeP, dataP);
             break;
        case CURLINFO_DATA_IN:
-            debug("cSatipRtsp::%s(): [device %d] RTSP DATA <<< %.*s", __FUNCTION__, obj->tunerM.GetId(), (int)sizeP, dataP);
+            extra("cSatipRtsp::%s(): [device %d] RTSP DATA <<< %.*s", __FUNCTION__, obj->tunerM.GetId(), (int)sizeP, dataP);
             break;
        case CURLINFO_DATA_OUT:
-            debug("cSatipRtsp::%s(): [device %d] RTSP DATA >>>\n%.*s", __FUNCTION__, obj->tunerM.GetId(), (int)sizeP, dataP);
+            extra("cSatipRtsp::%s(): [device %d] RTSP DATA >>>\n%.*s", __FUNCTION__, obj->tunerM.GetId(), (int)sizeP, dataP);
             break;
        default:
             break;

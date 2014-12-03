@@ -94,19 +94,19 @@ int cSatipDiscover::DebugCallback(CURL *handleP, curl_infotype typeP, char *data
   if (obj) {
      switch (typeP) {
        case CURLINFO_TEXT:
-            debug("cSatipDiscover::%s(): HTTP INFO %.*s", __FUNCTION__, (int)sizeP, dataP);
+            extra("cSatipDiscover::%s(): HTTP INFO %.*s", __FUNCTION__, (int)sizeP, dataP);
             break;
        case CURLINFO_HEADER_IN:
-            debug("cSatipDiscover::%s(): HTTP HEAD <<< %.*s", __FUNCTION__, (int)sizeP, dataP);
+            extra("cSatipDiscover::%s(): HTTP HEAD <<< %.*s", __FUNCTION__, (int)sizeP, dataP);
             break;
        case CURLINFO_HEADER_OUT:
-            debug("cSatipDiscover::%s(): HTTP HEAD >>>\n%.*s", __FUNCTION__, (int)sizeP, dataP);
+            extra("cSatipDiscover::%s(): HTTP HEAD >>>\n%.*s", __FUNCTION__, (int)sizeP, dataP);
             break;
        case CURLINFO_DATA_IN:
-            debug("cSatipDiscover::%s(): HTTP DATA <<< %.*s", __FUNCTION__, (int)sizeP, dataP);
+            extra("cSatipDiscover::%s(): HTTP DATA <<< %.*s", __FUNCTION__, (int)sizeP, dataP);
             break;
        case CURLINFO_DATA_OUT:
-            debug("cSatipDiscover::%s(): HTTP DATA >>>\n%.*s", __FUNCTION__, (int)sizeP, dataP);
+            extra("cSatipDiscover::%s(): HTTP DATA >>>\n%.*s", __FUNCTION__, (int)sizeP, dataP);
             break;
        default:
             break;
