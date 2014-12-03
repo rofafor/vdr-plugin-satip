@@ -15,6 +15,7 @@ class cSatipConfig
 {
 private:
   unsigned int operatingModeM;
+  unsigned int logLevelM;
   unsigned int eitScanM;
   unsigned int useBytesM;
   int disabledSourcesM[MAX_DISABLED_SOURCES_COUNT];
@@ -29,6 +30,12 @@ public:
     eOperatingModeHigh,
     eOperatingModeCount
   };
+  enum {
+   eLogLevelNormal = 0x00,
+   eLogLevelDebug  = 0x01,
+   eLogLevelExtra  = 0x02,
+   eLogLevelMask   = 0x0F
+  };
   cSatipConfig();
   unsigned int GetOperatingMode(void) const { return operatingModeM; }
   bool IsOperatingModeOff(void) const { return (operatingModeM == eOperatingModeOff); }
@@ -36,6 +43,9 @@ public:
   bool IsOperatingModeNormal(void) const { return (operatingModeM == eOperatingModeNormal); }
   bool IsOperatingModeHigh(void) const { return (operatingModeM == eOperatingModeHigh); }
   void ToggleOperatingMode(void) { operatingModeM = (operatingModeM + 1) % eOperatingModeCount; }
+  unsigned int GetLogLevel(void) const { return logLevelM; }
+  bool IsLogLevelDebug(void) const { return (logLevelM & eLogLevelDebug); }
+  bool IsLogLevelExtra(void) const { return (logLevelM & eLogLevelExtra); }
   unsigned int GetEITScan(void) const { return eitScanM; }
   unsigned int GetUseBytes(void) const { return useBytesM; }
   const char *GetConfigDirectory(void) const { return configDirectoryM; }
@@ -45,6 +55,7 @@ public:
   int GetDisabledFilters(unsigned int indexP) const;
 
   void SetOperatingMode(unsigned int operatingModeP) { operatingModeM = operatingModeP; }
+  void SetLogLevel(unsigned int logLevelP) { logLevelM = (logLevelP & eLogLevelMask); }
   void SetEITScan(unsigned int onOffP) { eitScanM = onOffP; }
   void SetUseBytes(unsigned int onOffP) { useBytesM = onOffP; }
   void SetConfigDirectory(const char *directoryP);

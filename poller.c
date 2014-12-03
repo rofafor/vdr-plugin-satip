@@ -7,6 +7,7 @@
 
 #include <sys/epoll.h>
 
+#include "config.h"
 #include "common.h"
 #include "poller.h"
 

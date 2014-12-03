@@ -89,16 +89,20 @@ bool cPluginSatip::ProcessArgs(int argc, char *argv[])
   debug("cPluginSatip::%s()", __FUNCTION__);
   // Implement command line argument processing here if applicable.
   static const struct option long_options[] = {
-    { "devices", required_argument, NULL, 'd' },
-    { "server",  required_argument, NULL, 's' },
-    { NULL,      no_argument,       NULL,  0  }
+    { "devices",  required_argument, NULL, 'd' },
+    { "loglevel", required_argument, NULL, 'l' },
+    { "server",   required_argument, NULL, 's' },
+    { NULL,       no_argument,       NULL,  0  }
     };
 
   int c;
-  while ((c = getopt_long(argc, argv, "d:s:", long_options, NULL)) != -1) {
+  while ((c = getopt_long(argc, argv, "d:l:s:", long_options, NULL)) != -1) {
     switch (c) {
       case 'd':
            deviceCountM = atoi(optarg);
+           break;
+      case 'l':
+           SatipConfig.SetLogLevel(atoi(optarg));
            break;
       case 's':
            ParseServer(optarg);
@@ -316,6 +320,8 @@ const char **cPluginSatip::SVDRPHelpPages(void)
     "    Shows SAT>IP device count.\n",
     "OPER\n"
     "    Toggles operating mode of SAT>IP devices.\n",
+    "LOGL [ <level> ]\n"
+    "    Gets and sets used logging level.\n",
     NULL
     };
   return HelpPages;
@@ -395,6 +401,11 @@ cString cPluginSatip::SVDRPCommand(const char *commandP, const char *optionP, in
             break;
        }
      return cString::sprintf("SAT>IP operating mode: %s\n", *mode);
+     }
+  else if (strcasecmp(commandP, "LOGL") == 0) {
+     if (optionP && *optionP)
+        SatipConfig.SetLogLevel(atoi(optionP));
+     return cString::sprintf("SAT>IP logging level: %d\n", SatipConfig.GetLogLevel());
      }
 
   return NULL;

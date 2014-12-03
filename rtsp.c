@@ -5,6 +5,7 @@
  *
  */
 
+#include "config.h"
 #include "common.h"
 #include "rtsp.h"
 
@@ -18,12 +19,12 @@ cSatipRtsp::cSatipRtsp(cSatipTunerIf &tunerP)
   if (handleM) {
      CURLcode res = CURLE_OK;
 
-#ifdef DEBUG
      // Verbose output
-     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_VERBOSE, 1L);
-     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_DEBUGFUNCTION, cSatipRtsp::DebugCallback);
-     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_DEBUGDATA, this);
-#endif
+     if (SatipConfig.IsLogLevelExtra()) {
+        SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_VERBOSE, 1L);
+        SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_DEBUGFUNCTION, cSatipRtsp::DebugCallback);
+        SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_DEBUGDATA, this);
+        }
 
      // No progress meter and no signaling
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_NOPROGRESS, 1L);

@@ -196,12 +196,14 @@ void cSatipDiscover::Fetch(const char *urlP)
   if (handleM && !isempty(urlP)) {
      long rc = 0;
      CURLcode res = CURLE_OK;
-#ifdef DEBUG
+
      // Verbose output
-     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_VERBOSE, 1L);
-     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_DEBUGFUNCTION, cSatipDiscover::DebugCallback);
-     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_DEBUGDATA, this);
-#endif
+     if (SatipConfig.IsLogLevelExtra()) {
+        SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_VERBOSE, 1L);
+        SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_DEBUGFUNCTION, cSatipDiscover::DebugCallback);
+        SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_DEBUGDATA, this);
+        }
+
      // Set callback
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_WRITEFUNCTION, cSatipDiscover::WriteCallback);
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_WRITEDATA, this);

@@ -7,6 +7,7 @@
 
 #include <vdr/sources.h>
 
+#include "config.h"
 #include "common.h"
 #include "server.h"
 
