@@ -5,6 +5,8 @@
  *
  */
 
+#define __STDC_FORMAT_MACROS // Required for format specifiers
+#include <inttypes.h>
 #include <sys/epoll.h>
 
 #include "config.h"
