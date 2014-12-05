@@ -7,6 +7,7 @@
 
 #include "config.h"
 #include "common.h"
+#include "log.h"
 #include "rtp.h"
 
 cSatipRtp::cSatipRtp(cSatipTunerIf &tunerP, unsigned int bufferLenP)

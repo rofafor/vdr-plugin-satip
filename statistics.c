@@ -9,6 +9,7 @@
 
 #include "common.h"
 #include "statistics.h"
+#include "log.h"
 #include "config.h"
 
 // Section statistics class

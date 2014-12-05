@@ -9,6 +9,7 @@
 
 #include "config.h"
 #include "discover.h"
+#include "log.h"
 #include "param.h"
 #include "device.h"
 

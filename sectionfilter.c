@@ -6,6 +6,7 @@
  */
 
 #include "config.h"
+#include "log.h"
 #include "sectionfilter.h"
 
 cSatipSectionFilter::cSatipSectionFilter(int deviceIndexP, uint16_t pidP, uint8_t tidP, uint8_t maskP)

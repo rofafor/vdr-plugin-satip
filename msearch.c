@@ -8,6 +8,7 @@
 #include "config.h"
 #include "common.h"
 #include "discover.h"
+#include "log.h"
 #include "poller.h"
 #include "msearch.h"
 

@@ -8,6 +8,7 @@
 #include "common.h"
 #include "config.h"
 #include "discover.h"
+#include "log.h"
 #include "poller.h"
 #include "tuner.h"
 

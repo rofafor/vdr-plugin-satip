@@ -12,6 +12,7 @@
 #include "config.h"
 #include "device.h"
 #include "discover.h"
+#include "log.h"
 #include "setup.h"
 
 // --- cSatipEditSrcItem ------------------------------------------------------

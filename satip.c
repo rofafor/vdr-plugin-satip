@@ -11,6 +11,7 @@
 #include "config.h"
 #include "device.h"
 #include "discover.h"
+#include "log.h"
 #include "poller.h"
 #include "setup.h"
 

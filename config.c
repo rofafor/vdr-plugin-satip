@@ -6,6 +6,7 @@
  */
 
 #include "discover.h"
+#include "log.h"
 #include "config.h"
 
 cSatipConfig SatipConfig;

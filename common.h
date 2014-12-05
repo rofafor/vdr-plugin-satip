@@ -13,11 +13,6 @@
 #include <vdr/config.h>
 #include <vdr/i18n.h>
 
-#define error(x...) esyslog("SATIP-ERROR: " x)
-#define info(x...)  isyslog("SATIP: " x)
-#define debug(x...) void( SatipConfig.IsLogLevelDebug() ? dsyslog("SATIP: " x) : void() )
-#define extra(x...) void( SatipConfig.IsLogLevelExtra() ? dsyslog("SATIP: " x) : void() )
-
 #define ELEMENTS(x)                      (sizeof(x) / sizeof(x[0]))
 
 #define SATIP_MAX_DEVICES                MAXDEVICES
@@ -44,19 +39,19 @@
 
 #define SATIP_CURL_EASY_SETOPT(X, Y, Z) \
   if ((res = curl_easy_setopt((X), (Y), (Z))) != CURLE_OK) { \
-     error("curl_easy_setopt(%s, %s) [%s,%d] failed: %s (%d)", #Y, #Z, __FILE__, __LINE__, curl_easy_strerror(res), res); \
+     esyslog("curl_easy_setopt(%s, %s) [%s,%d] failed: %s (%d)", #Y, #Z, __FILE__, __LINE__, curl_easy_strerror(res), res); \
      }
 
 #define SATIP_CURL_EASY_PERFORM(X) \
   if ((res = curl_easy_perform((X))) != CURLE_OK) { \
-     error("curl_easy_perform() [%s,%d] failed: %s (%d)",  __FILE__, __LINE__, curl_easy_strerror(res), res); \
+     esyslog("curl_easy_perform() [%s,%d] failed: %s (%d)",  __FILE__, __LINE__, curl_easy_strerror(res), res); \
      }
 
 #define ERROR_IF_FUNC(exp, errstr, func, ret)              \
   do {                                                     \
      if (exp) {                                            \
         char tmp[64];                                      \
-        error("[%s,%d]: "errstr": %s", __FILE__, __LINE__, \
+        esyslog("[%s,%d]: "errstr": %s", __FILE__, __LINE__, \
               strerror_r(errno, tmp, sizeof(tmp)));        \
         func;                                              \
         ret;                                               \

@@ -16,6 +16,7 @@
 
 #include "common.h"
 #include "config.h"
+#include "log.h"
 #include "socket.h"
 
 cSatipSocket::cSatipSocket()
