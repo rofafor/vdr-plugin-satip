@@ -39,7 +39,7 @@ void cSatipPoller::Destroy(void)
 }
 
 cSatipPoller::cSatipPoller()
-: cThread("SAT>IP poller"),
+: cThread("SATIP poller"),
   mutexM(),
   fdM(epoll_create(eMaxFileDescriptors))
 {

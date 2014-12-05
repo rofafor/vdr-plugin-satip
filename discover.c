@@ -118,7 +118,7 @@ int cSatipDiscover::DebugCallback(CURL *handleP, curl_infotype typeP, char *data
 }
 
 cSatipDiscover::cSatipDiscover()
-: cThread("SAT>IP discover"),
+: cThread("SATIP discover"),
   mutexM(),
   msearchM(*this),
   probeUrlListM(),

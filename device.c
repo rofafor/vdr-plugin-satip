@@ -26,9 +26,9 @@ cSatipDevice::cSatipDevice(unsigned int indexP)
 {
   unsigned int bufsize = (unsigned int)SATIP_BUFFER_SIZE;
   bufsize -= (bufsize % TS_SIZE);
-  info("Creating SAT>IP CardIndex=%d [device %u]", CardIndex(), deviceIndexM);
+  info("Creating SATIP device CardIndex=%d [device %u]", CardIndex(), deviceIndexM);
   tsBufferM = new cRingBufferLinear(bufsize + 1, TS_SIZE, false,
-                                   *cString::sprintf("SAT>IP TS %d", deviceIndexM));
+                                   *cString::sprintf("SATIP %d TS", deviceIndexM));
   if (tsBufferM) {
      tsBufferM->SetTimeouts(10, 10);
      tsBufferM->SetIoThrottle();
@@ -317,7 +317,7 @@ bool cSatipDevice::SetChannelDevice(const cChannel *channelP, bool liveViewP)
      cDvbTransponderParameters dtp(channelP->Parameters());
      cString params = GetTransponderUrlParameters(channelP);
      if (isempty(params)) {
-        error("Unrecognized SAT>IP channel parameters: %s", channelP->Parameters());
+        error("Unrecognized SATIP channel parameters: %s", channelP->Parameters());
         return false;
         }
      cString address;

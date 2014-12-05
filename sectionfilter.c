@@ -232,8 +232,8 @@ bool cSatipSectionFilter::Send(void)
 
 
 cSatipSectionFilterHandler::cSatipSectionFilterHandler(int deviceIndexP, unsigned int bufferLenP)
-: cThread(cString::sprintf("SAT>IP %d section handler", deviceIndexP)),
-  ringBufferM(new cRingBufferLinear(bufferLenP, TS_SIZE, false, *cString::sprintf("SAT>IP SECTION HANDLER %d", deviceIndexP))),
+: cThread(cString::sprintf("SATIP %d section handler", deviceIndexP)),
+  ringBufferM(new cRingBufferLinear(bufferLenP, TS_SIZE, false, *cString::sprintf("SATIP %d section handler", deviceIndexP))),
   mutexM(),
   deviceIndexM(deviceIndexP)
 {
