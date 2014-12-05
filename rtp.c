@@ -17,7 +17,7 @@ cSatipRtp::cSatipRtp(cSatipTunerIf &tunerP, unsigned int bufferLenP)
   packetErrorsM(0),
   sequenceNumberM(-1)
 {
-  debug("cSatipRtp::%s(%u) [device %d]", __FUNCTION__, bufferLenP, tunerM.GetId());
+  debug("%s(, %u) [device %d]", __PRETTY_FUNCTION__, bufferLenP, tunerM.GetId());
   if (bufferM)
      memset(bufferM, 0, bufferLenM);
   else
@@ -26,7 +26,7 @@ cSatipRtp::cSatipRtp(cSatipTunerIf &tunerP, unsigned int bufferLenP)
 
 cSatipRtp::~cSatipRtp()
 {
-  debug("cSatipRtp::%s() [device %d]", __FUNCTION__, tunerM.GetId());
+  debug("%s [device %d]", __PRETTY_FUNCTION__, tunerM.GetId());
   DELETE_POINTER(bufferM);
 }
 
@@ -37,13 +37,13 @@ int cSatipRtp::GetFd(void)
 
 void cSatipRtp::Close(void)
 {
-  debug("cSatipRtp::%s() [device %d]", __FUNCTION__, tunerM.GetId());
+  debug("%s [device %d]", __PRETTY_FUNCTION__, tunerM.GetId());
 
   cSatipSocket::Close();
 
   sequenceNumberM = -1;
   if (packetErrorsM) {
-     info("Detected %d RTP packet errors", packetErrorsM);
+     info("Detected %d RTP packet errors [device %d]", packetErrorsM, tunerM.GetId());
      packetErrorsM = 0;
      lastErrorReportM = time(NULL);
      }
@@ -51,7 +51,7 @@ void cSatipRtp::Close(void)
 
 int cSatipRtp::GetHeaderLenght(unsigned int lengthP)
 {
-  //debug("cSatipRtp::%s(%d) [device %d]", __FUNCTION__, lengthP, tunerM.GetId());
+  //debug("%s(%d) [device %d]", __PRETTY_FUNCTION__, lengthP, tunerM.GetId());
   unsigned int headerlen = 0;
 
   if (lengthP > 0) {
@@ -94,12 +94,12 @@ int cSatipRtp::GetHeaderLenght(unsigned int lengthP)
            }
         // Check for empty payload
         if (lengthP == headerlen) {
-           debug("cSatipRtp::%s(%d): Received empty RTP packet #%d [device %d]", __FUNCTION__, lengthP, seq, tunerM.GetId());
+           debug("%s(%d) Received empty RTP packet #%d [device %d]", __PRETTY_FUNCTION__, lengthP, seq, tunerM.GetId());
            headerlen = -1;
            }
         // Check that rtp is version 2 and payload contains multiple of TS packet data
         else if ((v != 2) || (((lengthP - headerlen) % TS_SIZE) != 0) || (bufferM[headerlen] != TS_SYNC_BYTE)) {
-           debug("cSatipRtp::%s(%d): Received incorrect RTP packet #%d v=%d len=%d sync=0x%02X [device %d]", __FUNCTION__, lengthP, seq, v, headerlen, bufferM[headerlen], tunerM.GetId());
+           debug("%s(%d) Received incorrect RTP packet #%d v=%d len=%d sync=0x%02X [device %d]", __PRETTY_FUNCTION__, lengthP, seq, v, headerlen, bufferM[headerlen], tunerM.GetId());
            headerlen = -1;
            }
         }
@@ -110,7 +110,7 @@ int cSatipRtp::GetHeaderLenght(unsigned int lengthP)
 
 void cSatipRtp::Process(void)
 {
-  //debug("cSatipRtp::%s() [device %d]", __FUNCTION__, tunerM.GetId());
+  //debug("%s [device %d]", __PRETTY_FUNCTION__, tunerM.GetId());
   if (bufferM) {
      int length;
      while ((length = Read(bufferM, bufferLenM)) > 0) {
@@ -119,7 +119,7 @@ void cSatipRtp::Process(void)
                tunerM.ProcessVideoData(bufferM + headerlen, length - headerlen);
            }
      if (errno != EAGAIN && errno != EWOULDBLOCK)
-        error("Error %d reading in %s", errno, *ToString());
+        error("Error %d reading in %s [device %d]", errno, *ToString(), tunerM.GetId());
      }
 }
 

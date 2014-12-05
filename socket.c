@@ -22,13 +22,13 @@ cSatipSocket::cSatipSocket()
 : socketPortM(0),
   socketDescM(-1)
 {
-  debug("cSatipSocket::%s()", __FUNCTION__);
+  debug("%s", __PRETTY_FUNCTION__);
   memset(&sockAddrM, 0, sizeof(sockAddrM));
 }
 
 cSatipSocket::~cSatipSocket()
 {
-  debug("cSatipSocket::%s()", __FUNCTION__);
+  debug("%s", __PRETTY_FUNCTION__);
   // Close the socket
   Close();
 }
@@ -60,13 +60,13 @@ bool cSatipSocket::Open(const int portP)
                    "getsockname()", Close(), return false);
      socketPortM = ntohs(sockAddrM.sin_port);
      }
-  debug("cSatipSocket::%s(%d): socketPort=%d", __FUNCTION__, portP, socketPortM);
+  debug("%s(%d) socketPort=%d", __PRETTY_FUNCTION__, portP, socketPortM);
   return true;
 }
 
 void cSatipSocket::Close(void)
 {
-  debug("cSatipSocket::%s(%d)", __FUNCTION__, socketPortM);
+  debug("%s sockerPort=%d", __PRETTY_FUNCTION__, socketPortM);
   // Check if socket exists
   if (socketDescM >= 0) {
      close(socketDescM);
@@ -78,7 +78,7 @@ void cSatipSocket::Close(void)
 
 bool cSatipSocket::Flush(void)
 {
-  debug("cSatipSocket::%s()", __FUNCTION__);
+  debug("%s", __PRETTY_FUNCTION__);
   if (socketDescM < 0) {
      const unsigned int len = 65535;
      unsigned char *buf = MALLOC(unsigned char, len);
@@ -97,10 +97,10 @@ bool cSatipSocket::Flush(void)
 
 int cSatipSocket::Read(unsigned char *bufferAddrP, unsigned int bufferLenP)
 {
-  //debug("cSatipSocket::%s()", __FUNCTION__);
+  //debug("%s(, %d)", __PRETTY_FUNCTION__, bufferLenP);
   // Error out if socket not initialized
   if (socketDescM <= 0) {
-     error("Invalid socket in cSatipUdpSocket::%s()", __FUNCTION__);
+     error("Invalid socket in %s()", __PRETTY_FUNCTION__);
      return -1;
      }
   int len = 0;
@@ -135,10 +135,10 @@ int cSatipSocket::Read(unsigned char *bufferAddrP, unsigned int bufferLenP)
 
 bool cSatipSocket::Write(const char *addrP, const unsigned char *bufferAddrP, unsigned int bufferLenP)
 {
-  debug("cSatipSocket::%s(%s)", __FUNCTION__, addrP);
+  debug("%s(%s, , %d)", __PRETTY_FUNCTION__, addrP, bufferLenP);
   // Error out if socket not initialized
   if (socketDescM <= 0) {
-     error("cSatipSocket::%s(): Invalid socket", __FUNCTION__);
+     error("%s Invalid socket", __PRETTY_FUNCTION__);
      return false;
      }
   struct sockaddr_in sockAddr;
