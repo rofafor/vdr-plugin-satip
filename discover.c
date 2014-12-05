@@ -199,7 +199,7 @@ void cSatipDiscover::Fetch(const char *urlP)
      CURLcode res = CURLE_OK;
 
      // Verbose output
-     if (SatipConfig.IsLogLevelExtra()) {
+     if (SatipConfig.IsLoggingExtra()) {
         SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_VERBOSE, 1L);
         SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_DEBUGFUNCTION, cSatipDiscover::DebugCallback);
         SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_DEBUGDATA, this);

@@ -90,20 +90,20 @@ bool cPluginSatip::ProcessArgs(int argc, char *argv[])
   debug("%s", __PRETTY_FUNCTION__);
   // Implement command line argument processing here if applicable.
   static const struct option long_options[] = {
-    { "devices",  required_argument, NULL, 'd' },
-    { "loglevel", required_argument, NULL, 'l' },
-    { "server",   required_argument, NULL, 's' },
-    { NULL,       no_argument,       NULL,  0  }
+    { "devices", required_argument, NULL, 'd' },
+    { "logging", required_argument, NULL, 'l' },
+    { "server",  required_argument, NULL, 's' },
+    { NULL,      no_argument,       NULL,  0  }
     };
 
   int c;
   while ((c = getopt_long(argc, argv, "d:l:s:", long_options, NULL)) != -1) {
     switch (c) {
       case 'd':
-           deviceCountM = atoi(optarg);
+           deviceCountM = strtol(optarg, NULL, 0);
            break;
       case 'l':
-           SatipConfig.SetLogLevel(atoi(optarg));
+           SatipConfig.SetLogging(strtol(optarg, NULL, 0));
            break;
       case 's':
            ParseServer(optarg);
@@ -321,8 +321,8 @@ const char **cPluginSatip::SVDRPHelpPages(void)
     "    Shows SAT>IP device count.\n",
     "OPER\n"
     "    Toggles operating mode of SAT>IP devices.\n",
-    "LOGL [ <level> ]\n"
-    "    Gets and sets used logging level.\n",
+    "LOGG [ <mask> ]\n"
+    "    Gets and sets used logging mask.\n",
     NULL
     };
   return HelpPages;
@@ -403,10 +403,10 @@ cString cPluginSatip::SVDRPCommand(const char *commandP, const char *optionP, in
        }
      return cString::sprintf("SAT>IP operating mode: %s\n", *mode);
      }
-  else if (strcasecmp(commandP, "LOGL") == 0) {
+  else if (strcasecmp(commandP, "LOGG") == 0) {
      if (optionP && *optionP)
-        SatipConfig.SetLogLevel(atoi(optionP));
-     return cString::sprintf("SAT>IP logging level: %d\n", SatipConfig.GetLogLevel());
+        SatipConfig.SetLogging(strtol(optionP, NULL, 0));
+     return cString::sprintf("SAT>IP logging: 0x%02X\n", SatipConfig.GetLogging());
      }
 
   return NULL;

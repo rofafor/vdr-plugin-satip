@@ -12,8 +12,8 @@
 
 #define error(x...) esyslog("SATIP-ERROR: " x)
 #define info(x...)  isyslog("SATIP: " x)
-#define debug(x...) void( SatipConfig.IsLogLevelDebug() ? dsyslog("SATIP: " x) : void() )
-#define extra(x...) void( SatipConfig.IsLogLevelExtra() ? dsyslog("SATIP: " x) : void() )
+#define debug(x...) void( SatipConfig.IsLoggingDebug() ? dsyslog("SATIP: " x) : void() )
+#define extra(x...) void( SatipConfig.IsLoggingExtra() ? dsyslog("SATIP: " x) : void() )
 
 #endif // __SATIP_LOG_H
 
