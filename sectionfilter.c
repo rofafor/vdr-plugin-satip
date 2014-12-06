@@ -21,7 +21,7 @@ cSatipSectionFilter::cSatipSectionFilter(int deviceIndexP, uint16_t pidP, uint8_
   ringBufferM(new cRingBufferFrame(eDmxMaxSectionCount * eDmxMaxSectionSize)),
   deviceIndexM(deviceIndexP)
 {
-  //debug("%s(%d, %d, %d, %d) [device %d]", __PRETTY_FUNCTION__, deviceIndexM, pidM, tidP, maskP, deviceIndexM);
+  debug8("%s(%d, %d, %d, %d) [device %d]", __PRETTY_FUNCTION__, deviceIndexM, pidM, tidP, maskP, deviceIndexM);
   int i;
 
   memset(secBufBaseM,     0, sizeof(secBufBaseM));
@@ -62,7 +62,7 @@ cSatipSectionFilter::cSatipSectionFilter(int deviceIndexP, uint16_t pidP, uint8_
 
 cSatipSectionFilter::~cSatipSectionFilter()
 {
-  //debug("%s pid=%d [device %d]", __PRETTY_FUNCTION__, pidM, deviceIndexM);
+  debug8("%s pid=%d [device %d]", __PRETTY_FUNCTION__, pidM, deviceIndexM);
   int tmp = socketM[1];
   socketM[1] = -1;
   if (tmp >= 0)
@@ -237,7 +237,7 @@ cSatipSectionFilterHandler::cSatipSectionFilterHandler(int deviceIndexP, unsigne
   mutexM(),
   deviceIndexM(deviceIndexP)
 {
-  debug("%s(%d, %d) [device %d]", __PRETTY_FUNCTION__, deviceIndexM, bufferLenP, deviceIndexM);
+  debug1("%s(%d, %d) [device %d]", __PRETTY_FUNCTION__, deviceIndexM, bufferLenP, deviceIndexM);
 
   // Initialize filter pointers
   memset(filtersM, 0, sizeof(filtersM));
@@ -255,7 +255,7 @@ cSatipSectionFilterHandler::cSatipSectionFilterHandler(int deviceIndexP, unsigne
 
 cSatipSectionFilterHandler::~cSatipSectionFilterHandler()
 {
-  debug("%s [device %d]", __PRETTY_FUNCTION__, deviceIndexM);
+  debug1("%s [device %d]", __PRETTY_FUNCTION__, deviceIndexM);
   // Stop thread
   if (Running())
      Cancel(3);
@@ -269,7 +269,7 @@ cSatipSectionFilterHandler::~cSatipSectionFilterHandler()
 
 void cSatipSectionFilterHandler::Action(void)
 {
-  debug("%s Entering [device %d]", __PRETTY_FUNCTION__, deviceIndexM);
+  debug1("%s Entering [device %d]", __PRETTY_FUNCTION__, deviceIndexM);
   bool processed = false;
   // Do the thread loop
   while (Running()) {
@@ -300,7 +300,7 @@ void cSatipSectionFilterHandler::Action(void)
                         }
                      }
                  ringBufferM->Del(len);
-                 debug("%s Skipped %d bytes to sync on TS packet [device %d]", __PRETTY_FUNCTION__, len, deviceIndexM);
+                 debug1("%s Skipped %d bytes to sync on TS packet [device %d]", __PRETTY_FUNCTION__, len, deviceIndexM);
                  continue;
                  }
               // Process TS packet through all filters
@@ -316,12 +316,12 @@ void cSatipSectionFilterHandler::Action(void)
            }
         cCondWait::SleepMs(10); // to avoid busy loop and reduce cpu load
         }
-  debug("%s Exiting [device %d]", __PRETTY_FUNCTION__, deviceIndexM);
+  debug1("%s Exiting [device %d]", __PRETTY_FUNCTION__, deviceIndexM);
 }
 
 cString cSatipSectionFilterHandler::GetInformation(void)
 {
-  //debug("%s [device %d]", __PRETTY_FUNCTION__, deviceIndexM);
+  debug8("%s [device %d]", __PRETTY_FUNCTION__, deviceIndexM);
   // loop through active section filters
   cMutexLock MutexLock(&mutexM);
   cString s = "";
@@ -340,9 +340,9 @@ cString cSatipSectionFilterHandler::GetInformation(void)
 
 bool cSatipSectionFilterHandler::Delete(unsigned int indexP)
 {
-  //debug("%s(%d) [device %d]", __PRETTY_FUNCTION__, indexP, deviceIndexM);
+  debug8("%s(%d) [device %d]", __PRETTY_FUNCTION__, indexP, deviceIndexM);
   if ((indexP < eMaxSecFilterCount) && filtersM[indexP]) {
-     //debug("%s(%d) Found [device %d]", __PRETTY_FUNCTION__, indexP, deviceIndexM);
+     debug3("%s(%d) Found [device %d]", __PRETTY_FUNCTION__, indexP, deviceIndexM);
      cSatipSectionFilter *tmp = filtersM[indexP];
      filtersM[indexP] = NULL;
      delete tmp;
@@ -353,7 +353,7 @@ bool cSatipSectionFilterHandler::Delete(unsigned int indexP)
 
 bool cSatipSectionFilterHandler::IsBlackListed(u_short pidP, u_char tidP, u_char maskP) const
 {
-  //debug("%s(%d, %02X, %02X) [device %d]", __PRETTY_FUNCTION__, pidP, tidP, maskP, deviceIndexM);
+  debug8("%s(%d, %02X, %02X) [device %d]", __PRETTY_FUNCTION__, pidP, tidP, maskP, deviceIndexM);
   // loop through section filter table
   for (int i = 0; i < SECTION_FILTER_TABLE_SIZE; ++i) {
       int index = SatipConfig.GetDisabledFilters(i);
@@ -361,7 +361,7 @@ bool cSatipSectionFilterHandler::IsBlackListed(u_short pidP, u_char tidP, u_char
       if ((index >= 0) && (index < SECTION_FILTER_TABLE_SIZE) &&
           (section_filter_table[index].pid == pidP) && (section_filter_table[index].tid == tidP) &&
           (section_filter_table[index].mask == maskP)) {
-         //debug("%s Found %s [device %d]", __PRETTY_FUNCTION__, section_filter_table[index].description, deviceIndexM);
+         debug3("%s Found %s [device %d]", __PRETTY_FUNCTION__, section_filter_table[index].description, deviceIndexM);
          return true;
          }
       }
@@ -379,7 +379,7 @@ int cSatipSectionFilterHandler::Open(u_short pidP, u_char tidP, u_char maskP)
   for (unsigned int i = 0; i < eMaxSecFilterCount; ++i) {
       if (!filtersM[i]) {
          filtersM[i] = new cSatipSectionFilter(deviceIndexM, pidP, tidP, maskP);
-         //debug("%s(%d, %02X, %02X) handle=%d index=%u [device %d]", __PRETTY_FUNCTION__, pidP, tidP, maskP, filtersM[i]->GetFd(), i, deviceIndexM);
+         debug8("%s(%d, %02X, %02X) handle=%d index=%u [device %d]", __PRETTY_FUNCTION__, pidP, tidP, maskP, filtersM[i]->GetFd(), i, deviceIndexM);
          return filtersM[i]->GetFd();
          }
       }
@@ -394,7 +394,7 @@ void cSatipSectionFilterHandler::Close(int handleP)
   // Search the filter for deletion
   for (unsigned int i = 0; i < eMaxSecFilterCount; ++i) {
       if (filtersM[i] && (handleP == filtersM[i]->GetFd())) {
-         //debug("%s(%d) pid=%d index=%u [device %d]", __PRETTY_FUNCTION__, handleP, filtersM[i]->GetPid(), i, deviceIndexM);
+         debug3("%s(%d) pid=%d index=%u [device %d]", __PRETTY_FUNCTION__, handleP, filtersM[i]->GetPid(), i, deviceIndexM);
          Delete(i);
          break;
          }
@@ -408,7 +408,7 @@ int cSatipSectionFilterHandler::GetPid(int handleP)
   // Search the filter for data
   for (unsigned int i = 0; i < eMaxSecFilterCount; ++i) {
       if (filtersM[i] && (handleP == filtersM[i]->GetFd())) {
-         //debug("%s(%d) pid=%d index=%u [device %d]", __PRETTY_FUNCTION__, handleP, filtersM[i]->GetPid(), i, deviceIndexM);
+         debug3("%s(%d) pid=%d index=%u [device %d]", __PRETTY_FUNCTION__, handleP, filtersM[i]->GetPid(), i, deviceIndexM);
          return filtersM[i]->GetPid();
          }
       }
@@ -417,7 +417,7 @@ int cSatipSectionFilterHandler::GetPid(int handleP)
 
 void cSatipSectionFilterHandler::Write(uchar *bufferP, int lengthP)
 {
-  //debug("%s(, %d) [device %d]", __PRETTY_FUNCTION__, lengthP, deviceIndexM);
+  debug8("%s(, %d) [device %d]", __PRETTY_FUNCTION__, lengthP, deviceIndexM);
   // Fill up the buffer
   if (ringBufferM) {
      int len = ringBufferM->Put(bufferP, lengthP);

@@ -39,7 +39,7 @@ cSatipMsearch::~cSatipMsearch()
 
 void cSatipMsearch::Probe(void)
 {
-  debug("%s", __PRETTY_FUNCTION__);
+  debug1("%s", __PRETTY_FUNCTION__);
   if (!registeredM) {
      cSatipPoller::GetInstance()->Register(*this);
      registeredM = true;
@@ -54,17 +54,17 @@ int cSatipMsearch::GetFd(void)
 
 void cSatipMsearch::Process(void)
 {
-  //debug("%s", __PRETTY_FUNCTION__);
+  debug8("%s", __PRETTY_FUNCTION__);
   if (bufferM) {
      int length;
      while ((length = Read(bufferM, bufferLenM)) > 0) {
            bufferM[min(length, int(bufferLenM - 1))] = 0;
-           //debug("%s len=%d buf=%s", __PRETTY_FUNCTION__, length, bufferM);
+           debug3("%s len=%d buf=%s", __PRETTY_FUNCTION__, length, bufferM);
            bool status = false, valid = false;
            char *s, *p = reinterpret_cast<char *>(bufferM), *location = NULL;
            char *r = strtok_r(p, "\r\n", &s);
            while (r) {
-                 //debug("%s r=%s", __PRETTY_FUNCTION__, r);
+                 debug3("%s r=%s", __PRETTY_FUNCTION__, r);
                  // Check the status code
                  // HTTP/1.1 200 OK
                  if (!status && startswith(r, "HTTP/1.1 200 OK"))
@@ -74,7 +74,7 @@ void cSatipMsearch::Process(void)
                     // LOCATION: http://192.168.0.115:8888/octonet.xml
                     if (startswith(r, "LOCATION:")) {
                        location = compactspace(r + 9);
-                       debug("%s location='%s'", __PRETTY_FUNCTION__, location);
+                       debug1("%s location='%s'", __PRETTY_FUNCTION__, location);
                        }
                     // Check the source type
                     // ST: urn:ses-com:device:SatIPServer:1
@@ -82,7 +82,7 @@ void cSatipMsearch::Process(void)
                        char *st = compactspace(r + 3);
                        if (strstr(st, "urn:ses-com:device:SatIPServer:1"))
                           valid = true;
-                       debug("%s st='%s'", __PRETTY_FUNCTION__, st);
+                       debug1("%s st='%s'", __PRETTY_FUNCTION__, st);
                        }
                     // Check whether all the required data is found
                     if (valid && !isempty(location)) {

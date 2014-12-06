@@ -25,7 +25,7 @@ cSatipPoller *cSatipPoller::GetInstance(void)
 
 bool cSatipPoller::Initialize(void)
 {
-  debug("%s", __PRETTY_FUNCTION__);
+  debug1("%s", __PRETTY_FUNCTION__);
   if (instanceS)
      instanceS->Activate();
   return true;
@@ -33,7 +33,7 @@ bool cSatipPoller::Initialize(void)
 
 void cSatipPoller::Destroy(void)
 {
-  debug("%s", __PRETTY_FUNCTION__);
+  debug1("%s", __PRETTY_FUNCTION__);
   if (instanceS)
      instanceS->Deactivate();
 }
@@ -43,12 +43,12 @@ cSatipPoller::cSatipPoller()
   mutexM(),
   fdM(epoll_create(eMaxFileDescriptors))
 {
-  debug("%s", __PRETTY_FUNCTION__);
+  debug1("%s", __PRETTY_FUNCTION__);
 }
 
 cSatipPoller::~cSatipPoller()
 {
-  debug("%s", __PRETTY_FUNCTION__);
+  debug1("%s", __PRETTY_FUNCTION__);
   Deactivate();
   cMutexLock MutexLock(&mutexM);
   close(fdM);
@@ -63,7 +63,7 @@ void cSatipPoller::Activate(void)
 
 void cSatipPoller::Deactivate(void)
 {
-  debug("%s", __PRETTY_FUNCTION__);
+  debug1("%s", __PRETTY_FUNCTION__);
   cMutexLock MutexLock(&mutexM);
   if (Running())
      Cancel(3);
@@ -71,7 +71,7 @@ void cSatipPoller::Deactivate(void)
 
 void cSatipPoller::Action(void)
 {
-  debug("%s Entering", __PRETTY_FUNCTION__);
+  debug1("%s Entering", __PRETTY_FUNCTION__);
   struct epoll_event events[eMaxFileDescriptors];
   uint64_t maxElapsed = 0;
   // Increase priority
@@ -89,34 +89,34 @@ void cSatipPoller::Action(void)
                elapsed = processing.Elapsed();
                if (elapsed > maxElapsed) {
                   maxElapsed = elapsed;
-                  debug("%s Processing %s took %" PRIu64 " ms", __PRETTY_FUNCTION__, *(poll->ToString()), maxElapsed);
+                  debug1("%s Processing %s took %" PRIu64 " ms", __PRETTY_FUNCTION__, *(poll->ToString()), maxElapsed);
                   }
                }
            }
         }
-  debug("%s Exiting", __PRETTY_FUNCTION__);
+  debug1("%s Exiting", __PRETTY_FUNCTION__);
 }
 
 bool cSatipPoller::Register(cSatipPollerIf &pollerP)
 {
-  debug("%s fd=%d", __PRETTY_FUNCTION__, pollerP.GetFd());
+  debug1("%s fd=%d", __PRETTY_FUNCTION__, pollerP.GetFd());
   cMutexLock MutexLock(&mutexM);
 
   struct epoll_event ev;
   ev.events = EPOLLIN | EPOLLET;
   ev.data.ptr = &pollerP;
   ERROR_IF_RET(epoll_ctl(fdM, EPOLL_CTL_ADD, pollerP.GetFd(), &ev) == -1, "epoll_ctl(EPOLL_CTL_ADD) failed", return false);
-  debug("%s Added interface fd=%d", __PRETTY_FUNCTION__, pollerP.GetFd());
+  debug1("%s Added interface fd=%d", __PRETTY_FUNCTION__, pollerP.GetFd());
 
   return true;
 }
 
 bool cSatipPoller::Unregister(cSatipPollerIf &pollerP)
 {
-  debug("%s fd=%d", __PRETTY_FUNCTION__, pollerP.GetFd());
+  debug1("%s fd=%d", __PRETTY_FUNCTION__, pollerP.GetFd());
   cMutexLock MutexLock(&mutexM);
   ERROR_IF_RET((epoll_ctl(fdM, EPOLL_CTL_DEL, pollerP.GetFd(), NULL) == -1), "epoll_ctl(EPOLL_CTL_DEL) failed", return false);
-  debug("%s Removed interface fd=%d", __PRETTY_FUNCTION__, pollerP.GetFd());
+  debug1("%s Removed interface fd=%d", __PRETTY_FUNCTION__, pollerP.GetFd());
 
   return true;
 }
