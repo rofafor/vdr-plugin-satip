@@ -71,7 +71,10 @@ int cSatipRtp::GetHeaderLenght(unsigned int lengthP)
         // CSCR count
         unsigned int cc = bufferM[0] & 0x0F;
         // Payload type: MPEG2 TS = 33
-        //unsigned int pt = bufferM[1] & 0x7F;
+        unsigned int pt = bufferM[1] & 0x7F;
+        if (pt != 33)
+           debug16("%s (%d) Received invalid RTP payload type %d - v=%d len=%d sync=0x%02X [device %d]",
+                    __PRETTY_FUNCTION__, lengthP, pt, v, headerlen, bufferM[headerlen], tunerM.GetId());
         // Sequence number
         int seq = ((bufferM[2] & 0xFF) << 8) | (bufferM[3] & 0xFF);
         if ((((sequenceNumberM + 1) % 0xFFFF) == 0) && (seq == 0xFFFF))
@@ -98,14 +101,18 @@ int cSatipRtp::GetHeaderLenght(unsigned int lengthP)
            }
         // Check for empty payload
         if (lengthP == headerlen) {
-           debug1("%s (%d) Received empty RTP packet #%d [device %d]", __PRETTY_FUNCTION__, lengthP, seq, tunerM.GetId());
+           debug16("%s (%d) Received empty RTP packet #%d [device %d]", __PRETTY_FUNCTION__, lengthP, seq, tunerM.GetId());
            headerlen = -1;
            }
         // Check that rtp is version 2 and payload contains multiple of TS packet data
         else if ((v != 2) || (((lengthP - headerlen) % TS_SIZE) != 0) || (bufferM[headerlen] != TS_SYNC_BYTE)) {
-           debug1("%s (%d) Received incorrect RTP packet #%d v=%d len=%d sync=0x%02X [device %d]", __PRETTY_FUNCTION__, lengthP, seq, v, headerlen, bufferM[headerlen], tunerM.GetId());
+           debug16("%s (%d) Received incorrect RTP packet #%d v=%d len=%d sync=0x%02X [device %d]", __PRETTY_FUNCTION__,
+                   lengthP, seq, v, headerlen, bufferM[headerlen], tunerM.GetId());
            headerlen = -1;
            }
+        else
+           debug16("%s (%d) Received RTP packet #%d v=%d len=%d sync=0x%02X [device %d]", __PRETTY_FUNCTION__,
+                   lengthP, seq, v, headerlen, bufferM[headerlen], tunerM.GetId());
         }
      }
 
