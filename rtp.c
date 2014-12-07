@@ -5,6 +5,9 @@
  *
  */
 
+#define __STDC_FORMAT_MACROS // Required for format specifiers
+#include <inttypes.h>
+
 #include "config.h"
 #include "common.h"
 #include "log.h"
@@ -68,7 +71,7 @@ int cSatipRtp::GetHeaderLenght(unsigned int lengthP)
         // CSCR count
         unsigned int cc = bufferM[0] & 0x0F;
         // Payload type: MPEG2 TS = 33
-        //unsigned int pt = bufferAddrP[1] & 0x7F;
+        //unsigned int pt = bufferM[1] & 0x7F;
         // Sequence number
         int seq = ((bufferM[2] & 0xFF) << 8) | (bufferM[3] & 0xFF);
         if ((((sequenceNumberM + 1) % 0xFFFF) == 0) && (seq == 0xFFFF))
@@ -113,14 +116,22 @@ void cSatipRtp::Process(void)
 {
   debug8("%s [device %d]", __PRETTY_FUNCTION__, tunerM.GetId());
   if (bufferM) {
-     int length;
+     uint64_t elapsed;
+     int length, count = 0;
+     cTimeMs processing(0);
+
      while ((length = Read(bufferM, bufferLenM)) > 0) {
            int headerlen = GetHeaderLenght(length);
            if ((headerlen >= 0) && (headerlen < length))
                tunerM.ProcessVideoData(bufferM + headerlen, length - headerlen);
+           ++count;
            }
      if (errno != EAGAIN && errno != EWOULDBLOCK)
         error("Error %d reading in %s [device %d]", errno, *ToString(), tunerM.GetId());
+
+     elapsed = processing.Elapsed();
+     if (elapsed > 1)
+        debug6("%s %d read(s) took %" PRIu64 " ms [device %d]", __PRETTY_FUNCTION__, count, elapsed, tunerM.GetId());
      }
 }
 

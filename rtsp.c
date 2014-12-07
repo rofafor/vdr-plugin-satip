@@ -5,6 +5,9 @@
  *
  */
 
+#define __STDC_FORMAT_MACROS // Required for format specifiers
+#include <inttypes.h>
+
 #include "config.h"
 #include "common.h"
 #include "log.h"
@@ -143,7 +146,11 @@ cString cSatipRtsp::RtspUnescapeString(const char *strP)
 bool cSatipRtsp::Options(const char *uriP)
 {
   debug1("%s (%s) [device %d]", __PRETTY_FUNCTION__, uriP, tunerM.GetId());
+  bool result = false;
+
   if (handleM && !isempty(uriP)) {
+     long rc = 0;
+     cTimeMs processing(0);
      CURLcode res = CURLE_OK;
 
      if (!strstr(uriP, "?"))
@@ -152,16 +159,21 @@ bool cSatipRtsp::Options(const char *uriP)
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_REQUEST, (long)CURL_RTSPREQ_OPTIONS);
      SATIP_CURL_EASY_PERFORM(handleM);
 
-     return ValidateLatestResponse();
+     result = ValidateLatestResponse(&rc);
+     debug5("%s (%s) Response %ld in %" PRIu64 " ms [device %d]", __PRETTY_FUNCTION__, uriP, rc, processing.Elapsed(), tunerM.GetId());
      }
 
-  return false;
+  return result;
 }
 
 bool cSatipRtsp::Setup(const char *uriP, int rtpPortP, int rtcpPortP)
 {
   debug1("%s (%s, %d, %d) [device %d]", __PRETTY_FUNCTION__, uriP, rtpPortP, rtcpPortP, tunerM.GetId());
+  bool result = false;
+
   if (handleM && !isempty(uriP)) {
+     long rc = 0;
+     cTimeMs processing(0);
      CURLcode res = CURLE_OK;
      cString transport = cString::sprintf("RTP/AVP;unicast;client_port=%d-%d", rtpPortP, rtcpPortP);
 
@@ -177,10 +189,11 @@ bool cSatipRtsp::Setup(const char *uriP, int rtpPortP, int rtcpPortP)
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_HEADERFUNCTION, NULL);
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_WRITEHEADER, NULL);
 
-     return ValidateLatestResponse();
+     result = ValidateLatestResponse(&rc);
+     debug5("%s (%s, %d, %d) Response %ld in %" PRIu64 " ms [device %d]", __PRETTY_FUNCTION__, uriP, rtpPortP, rtcpPortP, rc, processing.Elapsed(), tunerM.GetId());
      }
 
-  return false;
+  return result;
 }
 
 bool cSatipRtsp::SetSession(const char *sessionP)
@@ -199,7 +212,11 @@ bool cSatipRtsp::SetSession(const char *sessionP)
 bool cSatipRtsp::Describe(const char *uriP)
 {
   debug1("%s (%s) [device %d]", __PRETTY_FUNCTION__, uriP, tunerM.GetId());
+  bool result = false;
+
   if (handleM && !isempty(uriP)) {
+     long rc = 0;
+     cTimeMs processing(0);
      CURLcode res = CURLE_OK;
 
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_STREAM_URI, uriP);
@@ -210,32 +227,42 @@ bool cSatipRtsp::Describe(const char *uriP)
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_WRITEFUNCTION, NULL);
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_WRITEDATA, NULL);
 
-     return ValidateLatestResponse();
+     result = ValidateLatestResponse(&rc);
+     debug5("%s (%s) Response %ld in %" PRIu64 " ms [device %d]", __PRETTY_FUNCTION__, uriP, rc, processing.Elapsed(), tunerM.GetId());
      }
 
-  return false;
+  return result;
 }
 
 bool cSatipRtsp::Play(const char *uriP)
 {
   debug1("%s (%s) [device %d]", __PRETTY_FUNCTION__, uriP, tunerM.GetId());
+  bool result = false;
+
   if (handleM && !isempty(uriP)) {
+     long rc = 0;
+     cTimeMs processing(0);
      CURLcode res = CURLE_OK;
 
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_STREAM_URI, uriP);
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_REQUEST, (long)CURL_RTSPREQ_PLAY);
      SATIP_CURL_EASY_PERFORM(handleM);
 
-     return ValidateLatestResponse();
+     result = ValidateLatestResponse(&rc);
+     debug5("%s (%s) Response %ld in %" PRIu64 " ms [device %d]", __PRETTY_FUNCTION__, uriP, rc, processing.Elapsed(), tunerM.GetId());
      }
 
-  return false;
+  return result;
 }
 
 bool cSatipRtsp::Teardown(const char *uriP)
 {
   debug1("%s (%s) [device %d]", __PRETTY_FUNCTION__, uriP, tunerM.GetId());
+  bool result = false;
+
   if (handleM && !isempty(uriP)) {
+     long rc = 0;
+     cTimeMs processing(0);
      CURLcode res = CURLE_OK;
 
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_STREAM_URI, uriP);
@@ -245,15 +272,17 @@ bool cSatipRtsp::Teardown(const char *uriP)
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_CLIENT_CSEQ, 1L);
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_SESSION_ID, NULL);
 
-     return ValidateLatestResponse();
+     result = ValidateLatestResponse(&rc);
+     debug5("%s (%s) Response %ld in %" PRIu64 " ms [device %d]", __PRETTY_FUNCTION__, uriP, rc, processing.Elapsed(), tunerM.GetId());
      }
 
-  return false;
+  return result;
 }
 
-bool cSatipRtsp::ValidateLatestResponse(void)
+bool cSatipRtsp::ValidateLatestResponse(long *rcP)
 {
   bool result = false;
+
   if (handleM) {
      long rc = 0;
      CURLcode res = CURLE_OK;
@@ -265,6 +294,8 @@ bool cSatipRtsp::ValidateLatestResponse(void)
         SATIP_CURL_EASY_GETINFO(handleM, CURLINFO_EFFECTIVE_URL, &url);
         error("Detected invalid status code %ld: %s [device %d]", rc, url, tunerM.GetId());
         }
+     if (rcP)
+        *rcP = rc;
      }
   debug1("%s result=%s [device %d]", __PRETTY_FUNCTION__, result ? "ok" : "failed", tunerM.GetId());
 

@@ -31,7 +31,7 @@ private:
   CURL *handleM;
   struct curl_slist *headerListM;
 
-  bool ValidateLatestResponse(void);
+  bool ValidateLatestResponse(long *rcP);
 
   // to prevent copy constructor and assignment
   cSatipRtsp(const cSatipRtsp&);

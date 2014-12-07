@@ -5,6 +5,9 @@
  *
  */
 
+#define __STDC_FORMAT_MACROS // Required for format specifiers
+#include <inttypes.h>
+
 #include "common.h"
 #include "config.h"
 #include "discover.h"
@@ -245,8 +248,19 @@ void cSatipTuner::ProcessVideoData(u_char *bufferP, int lengthP)
 {
   debug8("%s (, %d) [device %d]", __PRETTY_FUNCTION__, lengthP, deviceIdM);
   if (lengthP > 0) {
+     uint64_t elapsed;
+     cTimeMs processing(0);
+
      AddTunerStatistic(lengthP);
+     elapsed = processing.Elapsed();
+     if (elapsed > 1)
+        debug6("%s AddTunerStatistic() took %" PRIu64 " ms [device %d]", __PRETTY_FUNCTION__, elapsed, deviceIdM);
+
+     processing.Set(0);
      deviceM->WriteData(bufferP, lengthP);
+     elapsed = processing.Elapsed();
+     if (elapsed > 1)
+        debug6("%s WriteData() took %" PRIu64 " ms [device %d]", __FUNCTION__, elapsed, deviceIdM);
      }
   reConnectM.Set(eConnectTimeoutMs);
 }
