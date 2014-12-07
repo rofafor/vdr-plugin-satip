@@ -321,8 +321,8 @@ const char **cPluginSatip::SVDRPHelpPages(void)
     "    Shows SAT>IP device count.\n",
     "OPER\n"
     "    Toggles operating mode of SAT>IP devices.\n",
-    "LOGG [ <mask> ]\n"
-    "    Gets and sets used logging mask.\n",
+    "LOGG [ <mode> ]\n"
+    "    Gets and/or sets used logging mode.\n",
     NULL
     };
   return HelpPages;
@@ -357,13 +357,13 @@ cString cPluginSatip::SVDRPCommand(const char *commandP, const char *optionP, in
         }
      else {
         replyCodeP = 550; // Requested action not taken
-        return cString("SAT>IP information not available!");
+        return cString("SATIP information not available!");
         }
      }
   else if (strcasecmp(commandP, "MODE") == 0) {
      unsigned int mode = !SatipConfig.GetUseBytes();
      SatipConfig.SetUseBytes(mode);
-     return cString::sprintf("SAT>IP information mode: %s\n", mode ? "bytes" : "bits");
+     return cString::sprintf("SATIP information mode: %s\n", mode ? "bytes" : "bits");
      }
   else if (strcasecmp(commandP, "LIST") == 0) {
      cString list = cSatipDiscover::GetInstance()->GetServerList();
@@ -372,14 +372,14 @@ cString cPluginSatip::SVDRPCommand(const char *commandP, const char *optionP, in
         }
      else {
         replyCodeP = 550; // Requested action not taken
-        return cString("No SAT>IP devices detected!");
+        return cString("No SATIP devices detected!");
         }
      }
   else if (strcasecmp(commandP, "STAT") == 0) {
      return cSatipDevice::GetSatipStatus();
      }
   else if (strcasecmp(commandP, "CONT") == 0) {
-     return cString::sprintf("SAT>IP device count: %u", cSatipDevice::Count());
+     return cString::sprintf("SATIP device count: %u", cSatipDevice::Count());
      }
   else if (strcasecmp(commandP, "OPER") == 0) {
      cString mode;
@@ -401,12 +401,12 @@ cString cPluginSatip::SVDRPCommand(const char *commandP, const char *optionP, in
             mode = "unknown";
             break;
        }
-     return cString::sprintf("SAT>IP operating mode: %s\n", *mode);
+     return cString::sprintf("SATIP operating mode: %s\n", *mode);
      }
   else if (strcasecmp(commandP, "LOGG") == 0) {
      if (optionP && *optionP)
         SatipConfig.SetLoggingMode(strtol(optionP, NULL, 0));
-     return cString::sprintf("SAT>IP logging: 0x%02X\n", SatipConfig.GetLoggingMode());
+     return cString::sprintf("SATIP logging mode: 0x%02X\n", SatipConfig.GetLoggingMode());
      }
 
   return NULL;
