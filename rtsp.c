@@ -167,6 +167,18 @@ bool cSatipRtsp::Setup(const char *uriP, int rtpPortP, int rtcpPortP)
      CURLcode res = CURLE_OK;
      cString transport = cString::sprintf("RTP/AVP;unicast;client_port=%d-%d", rtpPortP, rtcpPortP);
 
+     // Verbose output
+     if (SatipConfig.IsLoggingMode(cSatipConfig::eLoggingModeDebug2)) {
+        SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_VERBOSE, 1L);
+        SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_DEBUGFUNCTION, cSatipRtsp::DebugCallback);
+        SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_DEBUGDATA, this);
+        }
+     else {
+        SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_VERBOSE, 0L);
+        SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_DEBUGFUNCTION, NULL);
+        SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_DEBUGDATA, NULL);
+        }
+
      // Setup media stream
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_STREAM_URI, uriP);
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_TRANSPORT, *transport);
