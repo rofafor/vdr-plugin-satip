@@ -21,7 +21,7 @@ cSatipRtsp::cSatipRtsp(cSatipTunerIf &tunerP)
      CURLcode res = CURLE_OK;
 
      // Verbose output
-     if (SatipConfig.IsLoggingDebug2()) {
+     if (SatipConfig.IsLoggingMode(cSatipConfig::eLoggingModeDebug2)) {
         SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_VERBOSE, 1L);
         SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_DEBUGFUNCTION, cSatipRtsp::DebugCallback);
         SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_DEBUGDATA, this);

@@ -14,9 +14,9 @@ cSatipConfig SatipConfig;
 cSatipConfig::cSatipConfig(void)
 : operatingModeM(eOperatingModeLow),
 #ifdef DEBUG
-  loggingM(eLoggingDebug1 & eLoggingDebug2),
+  loggingModeM(eLoggingModeDebug1 & eLoggingModeDebug2),
 #else
-  loggingM(eLoggingNormal),
+  loggingModeM(eLoggingModeNormal),
 #endif
   eitScanM(1),
   useBytesM(1)

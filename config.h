@@ -15,7 +15,7 @@ class cSatipConfig
 {
 private:
   unsigned int operatingModeM;
-  unsigned int loggingM;
+  unsigned int loggingModeM;
   unsigned int eitScanM;
   unsigned int useBytesM;
   int disabledSourcesM[MAX_DISABLED_SOURCES_COUNT];
@@ -23,24 +23,24 @@ private:
   char configDirectoryM[PATH_MAX];
 
 public:
-  enum {
+  enum eOperatingMode {
     eOperatingModeOff = 0,
     eOperatingModeLow,
     eOperatingModeNormal,
     eOperatingModeHigh,
     eOperatingModeCount
   };
-  enum {
-   eLoggingNormal = 0x00,
-   eLoggingDebug1 = 0x01,
-   eLoggingDebug2 = 0x02,
-   eLoggingDebug3 = 0x04,
-   eLoggingDebug4 = 0x08,
-   eLoggingDebug5 = 0x10,
-   eLoggingDebug6 = 0x20,
-   eLoggingDebug7 = 0x40,
-   eLoggingDebug8 = 0x80,
-   eLoggingMask   = 0xFF
+  enum eLoggingMode {
+   eLoggingModeNormal = 0x00,
+   eLoggingModeDebug1 = 0x01,
+   eLoggingModeDebug2 = 0x02,
+   eLoggingModeDebug3 = 0x04,
+   eLoggingModeDebug4 = 0x08,
+   eLoggingModeDebug5 = 0x10,
+   eLoggingModeDebug6 = 0x20,
+   eLoggingModeDebug7 = 0x40,
+   eLoggingModeDebug8 = 0x80,
+   eLoggingModeMask   = 0xFF
   };
   cSatipConfig();
   unsigned int GetOperatingMode(void) const { return operatingModeM; }
@@ -49,15 +49,8 @@ public:
   bool IsOperatingModeNormal(void) const { return (operatingModeM == eOperatingModeNormal); }
   bool IsOperatingModeHigh(void) const { return (operatingModeM == eOperatingModeHigh); }
   void ToggleOperatingMode(void) { operatingModeM = (operatingModeM + 1) % eOperatingModeCount; }
-  unsigned int GetLogging(void) const { return loggingM; }
-  bool IsLoggingDebug1(void) const { return (loggingM & eLoggingDebug1); }
-  bool IsLoggingDebug2(void) const { return (loggingM & eLoggingDebug2); }
-  bool IsLoggingDebug3(void) const { return (loggingM & eLoggingDebug3); }
-  bool IsLoggingDebug4(void) const { return (loggingM & eLoggingDebug4); }
-  bool IsLoggingDebug5(void) const { return (loggingM & eLoggingDebug5); }
-  bool IsLoggingDebug6(void) const { return (loggingM & eLoggingDebug6); }
-  bool IsLoggingDebug7(void) const { return (loggingM & eLoggingDebug7); }
-  bool IsLoggingDebug8(void) const { return (loggingM & eLoggingDebug8); }
+  unsigned int GetLoggingMode(void) const { return loggingModeM; }
+  bool IsLoggingMode(eLoggingMode modeP) const { return (loggingModeM & modeP); }
   unsigned int GetEITScan(void) const { return eitScanM; }
   unsigned int GetUseBytes(void) const { return useBytesM; }
   const char *GetConfigDirectory(void) const { return configDirectoryM; }
@@ -67,7 +60,7 @@ public:
   int GetDisabledFilters(unsigned int indexP) const;
 
   void SetOperatingMode(unsigned int operatingModeP) { operatingModeM = operatingModeP; }
-  void SetLogging(unsigned int logLevelP) { loggingM = (logLevelP & eLoggingMask); }
+  void SetLoggingMode(unsigned int modeP) { loggingModeM = (modeP & eLoggingModeMask); }
   void SetEITScan(unsigned int onOffP) { eitScanM = onOffP; }
   void SetUseBytes(unsigned int onOffP) { useBytesM = onOffP; }
   void SetConfigDirectory(const char *directoryP);

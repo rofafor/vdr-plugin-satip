@@ -103,7 +103,7 @@ bool cPluginSatip::ProcessArgs(int argc, char *argv[])
            deviceCountM = strtol(optarg, NULL, 0);
            break;
       case 'l':
-           SatipConfig.SetLogging(strtol(optarg, NULL, 0));
+           SatipConfig.SetLoggingMode(strtol(optarg, NULL, 0));
            break;
       case 's':
            ParseServer(optarg);
@@ -405,8 +405,8 @@ cString cPluginSatip::SVDRPCommand(const char *commandP, const char *optionP, in
      }
   else if (strcasecmp(commandP, "LOGG") == 0) {
      if (optionP && *optionP)
-        SatipConfig.SetLogging(strtol(optionP, NULL, 0));
-     return cString::sprintf("SAT>IP logging: 0x%02X\n", SatipConfig.GetLogging());
+        SatipConfig.SetLoggingMode(strtol(optionP, NULL, 0));
+     return cString::sprintf("SAT>IP logging: 0x%02X\n", SatipConfig.GetLoggingMode());
      }
 
   return NULL;
