@@ -106,7 +106,7 @@ protected:
 public:
   cSatipTuner(cSatipDeviceIf &deviceP, unsigned int packetLenP);
   virtual ~cSatipTuner();
-  bool IsTuned(void) const { return currentStateM > tsIdle; }
+  bool IsTuned(void) const { return (currentStateM >= tsTuned); }
   bool SetSource(cSatipServer *serverP, const char *parameterP, const int indexP);
   bool SetPid(int pidP, int typeP, bool onP);
   bool Open(void);
