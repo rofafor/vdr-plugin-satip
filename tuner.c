@@ -197,8 +197,6 @@ bool cSatipTuner::Connect(void)
         // Flush any old content
         rtpM.Flush();
         rtcpM.Flush();
-        if (nextServerM && nextServerM->Quirk(cSatipServer::eSatipQuirkSessionId))
-           rtspM.SetSession(SkipZeroes(*sessionM));
         if (rtspM.Setup(*uri, rtpM.Port(), rtcpM.Port())) {
            keepAliveM.Set(timeoutM);
            if (nextServerM) {
@@ -315,6 +313,8 @@ void cSatipTuner::SetSessionTimeout(const char *sessionP, int timeoutP)
   cMutexLock MutexLock(&mutexM);
   debug1("%s (%s, %d) [device %d]", __PRETTY_FUNCTION__, sessionP, timeoutP, deviceIdM);
   sessionM = sessionP;
+  if (nextServerM && nextServerM->Quirk(cSatipServer::eSatipQuirkSessionId) && !isempty(*sessionM) && startswith(*sessionM, "0"))
+     rtspM.SetSession(SkipZeroes(*sessionM));
   timeoutM = (timeoutP > eMinKeepAliveIntervalMs) ? timeoutP : eMinKeepAliveIntervalMs;
 }
 
