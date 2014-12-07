@@ -45,7 +45,7 @@ cString cSatipSectionStatistics::GetSectionStatistic()
 
 void cSatipSectionStatistics::AddSectionStatistic(long bytesP, long callsP)
 {
-  debug8("%s(%ld, %ld)", __PRETTY_FUNCTION__, bytesP, callsP);
+  debug8("%s (%ld, %ld)", __PRETTY_FUNCTION__, bytesP, callsP);
   cMutexLock MutexLock(&mutexM);
   filteredDataM += bytesP;
   numberOfCallsM += callsP;
@@ -110,7 +110,7 @@ int cSatipPidStatistics::SortPids(const void* data1P, const void* data2P)
 
 void cSatipPidStatistics::AddPidStatistic(int pidP, long payloadP)
 {
-  debug8("%s(%d, %ld)", __PRETTY_FUNCTION__, pidP, payloadP);
+  debug8("%s (%d, %ld)", __PRETTY_FUNCTION__, pidP, payloadP);
   cMutexLock MutexLock(&mutexM);
   const int numberOfElements = sizeof(mostActivePidsM) / sizeof(pidStruct);
   // If our statistic already is in the array, update it and quit
@@ -166,7 +166,7 @@ cString cSatipTunerStatistics::GetTunerStatistic()
 
 void cSatipTunerStatistics::AddTunerStatistic(long bytesP)
 {
-  debug8("%s(%ld)", __PRETTY_FUNCTION__, bytesP);
+  debug8("%s (%ld)", __PRETTY_FUNCTION__, bytesP);
   cMutexLock MutexLock(&mutexM);
   dataBytesM += bytesP;
 }
@@ -214,7 +214,7 @@ cString cSatipBufferStatistics::GetBufferStatistic()
 
 void cSatipBufferStatistics::AddBufferStatistic(long bytesP, long usedP)
 {
-  debug8("%s(%ld, %ld)", __PRETTY_FUNCTION__, bytesP, usedP);
+  debug8("%s (%ld, %ld)", __PRETTY_FUNCTION__, bytesP, usedP);
   cMutexLock MutexLock(&mutexM);
   dataBytesM += bytesP;
   if (usedP > usedSpaceM)

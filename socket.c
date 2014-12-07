@@ -61,7 +61,7 @@ bool cSatipSocket::Open(const int portP)
                    "getsockname()", Close(), return false);
      socketPortM = ntohs(sockAddrM.sin_port);
      }
-  debug1("%s(%d) socketPort=%d", __PRETTY_FUNCTION__, portP, socketPortM);
+  debug1("%s (%d) socketPort=%d", __PRETTY_FUNCTION__, portP, socketPortM);
   return true;
 }
 
@@ -98,7 +98,7 @@ bool cSatipSocket::Flush(void)
 
 int cSatipSocket::Read(unsigned char *bufferAddrP, unsigned int bufferLenP)
 {
-  debug8("%s(, %d)", __PRETTY_FUNCTION__, bufferLenP);
+  debug8("%s (, %d)", __PRETTY_FUNCTION__, bufferLenP);
   // Error out if socket not initialized
   if (socketDescM <= 0) {
      error("Invalid socket in %s()", __PRETTY_FUNCTION__);
@@ -136,7 +136,7 @@ int cSatipSocket::Read(unsigned char *bufferAddrP, unsigned int bufferLenP)
 
 bool cSatipSocket::Write(const char *addrP, const unsigned char *bufferAddrP, unsigned int bufferLenP)
 {
-  debug1("%s(%s, , %d)", __PRETTY_FUNCTION__, addrP, bufferLenP);
+  debug1("%s (%s, , %d)", __PRETTY_FUNCTION__, addrP, bufferLenP);
   // Error out if socket not initialized
   if (socketDescM <= 0) {
      error("%s Invalid socket", __PRETTY_FUNCTION__);

@@ -486,7 +486,7 @@ void cSatipPluginSetup::StoreSources(const char *nameP, int *sourcesP)
       else
          buffer = cString::sprintf("%s", *cSource::ToString(sourcesP[i]));
       }
-  debug1("%s(%s, %s)", __PRETTY_FUNCTION__, nameP, *buffer);
+  debug1("%s (%s, %s)", __PRETTY_FUNCTION__, nameP, *buffer);
   SetupStore(nameP, *buffer);
 }
 
@@ -502,7 +502,7 @@ void cSatipPluginSetup::StoreFilters(const char *nameP, int *valuesP)
       else
          buffer = cString::sprintf("%d", valuesP[i]);
       }
-  debug1("%s(%s, %s)", __PRETTY_FUNCTION__, nameP, *buffer);
+  debug1("%s (%s, %s)", __PRETTY_FUNCTION__, nameP, *buffer);
   SetupStore(nameP, *buffer);
 }
 

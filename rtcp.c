@@ -15,7 +15,7 @@ cSatipRtcp::cSatipRtcp(cSatipTunerIf &tunerP, unsigned int bufferLenP)
   bufferLenM(bufferLenP),
   bufferM(MALLOC(unsigned char, bufferLenM))
 {
-  debug1("%s(, %u) [device %d]", __PRETTY_FUNCTION__, bufferLenP, tunerM.GetId());
+  debug1("%s (, %u) [device %d]", __PRETTY_FUNCTION__, bufferLenP, tunerM.GetId());
   if (bufferM)
      memset(bufferM, 0, bufferLenM);
   else
@@ -36,7 +36,7 @@ int cSatipRtcp::GetFd(void)
 
 int cSatipRtcp::GetApplicationOffset(int *lengthP)
 {
-  debug8("%s(%d) [device %d]", __PRETTY_FUNCTION__, *lengthP, tunerM.GetId());
+  debug8("%s (%d) [device %d]", __PRETTY_FUNCTION__, *lengthP, tunerM.GetId());
   if (!lengthP)
      return -1;
   int offset = 0;

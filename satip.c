@@ -195,7 +195,7 @@ cMenuSetupPage *cPluginSatip::SetupMenu(void)
 
 void cPluginSatip::ParseServer(const char *paramP)
 {
-  debug1("%s(%s)", __PRETTY_FUNCTION__, paramP);
+  debug1("%s (%s)", __PRETTY_FUNCTION__, paramP);
   int n = 0;
   char *s, *p = (char *)paramP;
   char *r = strtok_r(p, ";", &s);
@@ -236,7 +236,7 @@ void cPluginSatip::ParseServer(const char *paramP)
 
 int cPluginSatip::ParseSources(const char *valueP, int *sourcesP)
 {
-  debug1("%s(%s,)", __PRETTY_FUNCTION__, valueP);
+  debug1("%s (%s,)", __PRETTY_FUNCTION__, valueP);
   int n = 0;
   char *s, *p = (char *)valueP;
   char *r = strtok_r(p, " ", &s);
@@ -253,7 +253,7 @@ int cPluginSatip::ParseSources(const char *valueP, int *sourcesP)
 
 int cPluginSatip::ParseFilters(const char *valueP, int *filtersP)
 {
-  debug1("%s(%s,)", __PRETTY_FUNCTION__, valueP);
+  debug1("%s (%s,)", __PRETTY_FUNCTION__, valueP);
   char buffer[256];
   int n = 0;
   while (valueP && *valueP && (n < SECTION_FILTER_TABLE_SIZE)) {
@@ -330,7 +330,7 @@ const char **cPluginSatip::SVDRPHelpPages(void)
 
 cString cPluginSatip::SVDRPCommand(const char *commandP, const char *optionP, int &replyCodeP)
 {
-  debug1("%s(%s, %s,)", __PRETTY_FUNCTION__, commandP, optionP);
+  debug1("%s (%s, %s,)", __PRETTY_FUNCTION__, commandP, optionP);
   if (strcasecmp(commandP, "INFO") == 0) {
      int index = cDevice::ActualDevice()->CardIndex();
      int page = SATIP_DEVICE_INFO_ALL;

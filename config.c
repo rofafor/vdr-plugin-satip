@@ -68,6 +68,6 @@ void cSatipConfig::SetDisabledFilters(unsigned int indexP, int numberP)
 
 void cSatipConfig::SetConfigDirectory(const char *directoryP)
 {
-  debug1("%s(%s)", __PRETTY_FUNCTION__, directoryP);
+  debug1("%s (%s)", __PRETTY_FUNCTION__, directoryP);
   ERROR_IF(!realpath(directoryP, configDirectoryM), "Cannot canonicalize configuration directory");
 }
