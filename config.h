@@ -31,16 +31,24 @@ public:
     eOperatingModeCount
   };
   enum eLoggingMode {
-   eLoggingModeNormal = 0x00,
-   eLoggingModeDebug1 = 0x01,
-   eLoggingModeDebug2 = 0x02,
-   eLoggingModeDebug3 = 0x04,
-   eLoggingModeDebug4 = 0x08,
-   eLoggingModeDebug5 = 0x10,
-   eLoggingModeDebug6 = 0x20,
-   eLoggingModeDebug7 = 0x40,
-   eLoggingModeDebug8 = 0x80,
-   eLoggingModeMask   = 0xFF
+   eLoggingModeNormal  = 0x0000,
+   eLoggingModeDebug1  = 0x0001,
+   eLoggingModeDebug2  = 0x0002,
+   eLoggingModeDebug3  = 0x0004,
+   eLoggingModeDebug4  = 0x0008,
+   eLoggingModeDebug5  = 0x0010,
+   eLoggingModeDebug6  = 0x0020,
+   eLoggingModeDebug7  = 0x0040,
+   eLoggingModeDebug8  = 0x0080,
+   eLoggingModeDebug9  = 0x0100,
+   eLoggingModeDebug10 = 0x0200,
+   eLoggingModeDebug11 = 0x0400,
+   eLoggingModeDebug12 = 0x0800,
+   eLoggingModeDebug13 = 0x1000,
+   eLoggingModeDebug14 = 0x2000,
+   eLoggingModeDebug15 = 0x4000,
+   eLoggingModeDebug16 = 0x8000,
+   eLoggingModeMask    = 0xFFFF
   };
   cSatipConfig();
   unsigned int GetOperatingMode(void) const { return operatingModeM; }
