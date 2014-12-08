@@ -406,7 +406,7 @@ cString cPluginSatip::SVDRPCommand(const char *commandP, const char *optionP, in
   else if (strcasecmp(commandP, "LOGG") == 0) {
      if (optionP && *optionP)
         SatipConfig.SetLoggingMode(strtol(optionP, NULL, 0));
-     return cString::sprintf("SATIP logging mode: 0x%02X\n", SatipConfig.GetLoggingMode());
+     return cString::sprintf("SATIP logging mode: 0x%04X\n", SatipConfig.GetLoggingMode());
      }
 
   return NULL;
