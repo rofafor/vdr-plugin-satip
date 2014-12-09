@@ -232,7 +232,9 @@ bool cSatipDevice::ProvidesSource(int sourceP) const
 bool cSatipDevice::ProvidesTransponder(const cChannel *channelP) const
 {
   debug1("%s (%d) transponder=%d source=%c [device %u]", __PRETTY_FUNCTION__, channelP ? channelP->Number() : -1, channelP ? channelP->Transponder() : -1, channelP ? cSource::ToChar(channelP->Source()) : '?', deviceIndexM);
-  return (ProvidesSource(channelP->Source()));
+  if (!ProvidesSource(channelP->Source()))
+     return false;
+  return DeviceHooksProvidesTransponder(channelP);
 }
 
 bool cSatipDevice::ProvidesChannel(const cChannel *channelP, int priorityP, bool *needsDetachReceiversP) const
