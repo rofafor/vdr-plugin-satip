@@ -14,13 +14,16 @@
 
 class cSatipRtcp : public cSatipSocket, public cSatipPollerIf {
 private:
+  enum {
+    eApplicationMaxSizeB = 1500,
+  };
   cSatipTunerIf &tunerM;
   unsigned int bufferLenM;
   unsigned char *bufferM;
   int GetApplicationOffset(int *lenghtP);
 
 public:
-  cSatipRtcp(cSatipTunerIf &tunerP, unsigned int bufferLenP);
+  cSatipRtcp(cSatipTunerIf &tunerP);
   virtual ~cSatipRtcp();
 
   // for internal poller interface

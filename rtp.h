@@ -15,7 +15,9 @@
 class cSatipRtp : public cSatipSocket, public cSatipPollerIf {
 private:
   enum {
-    eReportIntervalS = 300 // in seconds
+    eRtpPacketReadCount = 50,
+    eMaxUdpPacketSizeB  = TS_SIZE * 7 + 12,
+    eReportIntervalS    = 300 // in seconds
   };
   cSatipTunerIf &tunerM;
   unsigned int bufferLenM;
@@ -23,10 +25,10 @@ private:
   time_t lastErrorReportM;
   int packetErrorsM;
   int sequenceNumberM;
-  int GetHeaderLenght(unsigned int lengthP);
+  int GetHeaderLenght(unsigned char *bufferP, unsigned int lengthP);
 
 public:
-  cSatipRtp(cSatipTunerIf &tunerP, unsigned int bufferLenP);
+  cSatipRtp(cSatipTunerIf &tunerP);
   virtual ~cSatipRtp();
   virtual void Close(void);
 

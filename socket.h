@@ -26,6 +26,7 @@ public:
   bool IsOpen(void) { return (socketDescM >= 0); }
   bool Flush(void);
   int Read(unsigned char *bufferAddrP, unsigned int bufferLenP);
+  int ReadMulti(unsigned char *bufferAddrP, unsigned int *elementRecvSizeP, unsigned int elementCountP, unsigned int elementBufferSizeP);
   bool Write(const char *addrP, const unsigned char *bufferAddrP, unsigned int bufferLenP);
 };
 

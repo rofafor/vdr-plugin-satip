@@ -10,16 +10,16 @@
 #include "log.h"
 #include "rtcp.h"
 
-cSatipRtcp::cSatipRtcp(cSatipTunerIf &tunerP, unsigned int bufferLenP)
+cSatipRtcp::cSatipRtcp(cSatipTunerIf &tunerP)
 : tunerM(tunerP),
-  bufferLenM(bufferLenP),
+  bufferLenM(eApplicationMaxSizeB),
   bufferM(MALLOC(unsigned char, bufferLenM))
 {
-  debug1("%s (, %u) [device %d]", __PRETTY_FUNCTION__, bufferLenP, tunerM.GetId());
+  debug1("%s [device %d]", __PRETTY_FUNCTION__, tunerM.GetId());
   if (bufferM)
      memset(bufferM, 0, bufferLenM);
   else
-     error("Cannot create RTCP buffer!");
+     error("Cannot create RTCP buffer! [device %d]", tunerM.GetId());
 }
 
 cSatipRtcp::~cSatipRtcp()

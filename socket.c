@@ -101,7 +101,7 @@ int cSatipSocket::Read(unsigned char *bufferAddrP, unsigned int bufferLenP)
   debug8("%s (, %d)", __PRETTY_FUNCTION__, bufferLenP);
   // Error out if socket not initialized
   if (socketDescM <= 0) {
-     error("Invalid socket in %s()", __PRETTY_FUNCTION__);
+     error("%s Invalid socket", __PRETTY_FUNCTION__);
      return -1;
      }
   int len = 0;
@@ -120,7 +120,7 @@ int cSatipSocket::Read(unsigned char *bufferAddrP, unsigned int bufferLenP)
     msgh.msg_controllen = sizeof(cbuf);
     msgh.msg_name = &sockAddrM;
     msgh.msg_namelen = addrlen;
-    msgh.msg_iov  = &iov;
+    msgh.msg_iov = &iov;
     msgh.msg_iovlen = 1;
     msgh.msg_flags = 0;
 
@@ -131,6 +131,37 @@ int cSatipSocket::Read(unsigned char *bufferAddrP, unsigned int bufferLenP)
     } while (len > 0);
   ERROR_IF_RET(len < 0 && errno != EAGAIN, "recvmsg()", return -1);
   return 0;
+}
+
+int cSatipSocket::ReadMulti(unsigned char *bufferAddrP, unsigned int *elementRecvSizeP, unsigned int elementCountP, unsigned int elementBufferSizeP)
+{
+  debug8("%s (, , %d, %d)", __PRETTY_FUNCTION__, elementCountP, elementBufferSizeP);
+  // Error out if socket not initialized
+  if (socketDescM <= 0) {
+     error("%s Invalid socket", __PRETTY_FUNCTION__);
+     return -1;
+     }
+  // Initialize iov and msgh structures
+  struct mmsghdr mmsgh[elementCountP];
+  struct iovec iov[elementCountP];
+  memset(mmsgh, 0, sizeof(mmsgh[0]) * elementCountP);
+  for (unsigned int i = 0; i < elementCountP; ++i) {
+      iov[i].iov_base = bufferAddrP + i * elementBufferSizeP;
+      iov[i].iov_len = elementBufferSizeP;
+      mmsgh[i].msg_hdr.msg_iov = &iov[i];
+      mmsgh[i].msg_hdr.msg_iovlen = 1;
+      }
+
+  // Read data from socket as a set
+  int count = -1;
+  if (socketDescM && bufferAddrP && elementRecvSizeP && (elementCountP > 0) && (elementBufferSizeP > 0))
+     count = (int)recvmmsg(socketDescM, mmsgh, elementCountP, MSG_DONTWAIT, NULL);
+  ERROR_IF_RET(count < 0 && errno != EAGAIN && errno != EWOULDBLOCK, "recvmmsg()", return -1);
+  for (int i = 0; i < count; ++i)
+      elementRecvSizeP[i] = mmsgh[i].msg_len;
+  debug8("%s Received %d packets size[0]=%d", __PRETTY_FUNCTION__, count, elementRecvSizeP[0]);
+
+  return count;
 }
 
 
