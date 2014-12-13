@@ -374,6 +374,13 @@ bool cSatipTuner::SetPid(int pidP, int typeP, bool onP)
      delPidsM.AddPid(pidP);
      addPidsM.RemovePid(pidP);
      }
+  if (pidsM.Size()) {
+     cString s = "";
+     for (int i = 0; i < pidsM.Size(); ++i)
+         s = cString::sprintf("%s%d,", *s, pidsM[i]);
+     s = s.Truncate(-1);
+     debug9("%s (%d, %d, %d) pids=%s [device %d]", __PRETTY_FUNCTION__, pidP, typeP, onP, *s, deviceIdM);
+     }
   pidUpdateCacheM.Set(ePidUpdateIntervalMs);
   sleepM.Signal();
 
@@ -391,7 +398,8 @@ bool cSatipTuner::UpdatePids(bool forceP)
         if (pidsM.Size()) {
            uri = cString::sprintf("%s?pids=", *uri);
            for (int i = 0; i < pidsM.Size(); ++i)
-               uri = cString::sprintf("%s%d%s", *uri, pidsM[i], (i == (pidsM.Size() - 1)) ? "" : ",");
+               uri = cString::sprintf("%s%d,", *uri, pidsM[i]);
+           uri = uri.Truncate(-1);
            }
         if (usedummy && (pidsM.Size() == 1) && (pidsM[0] < 0x20))
            uri = cString::sprintf("%s,%d", *uri, eDummyPid);
@@ -400,12 +408,14 @@ bool cSatipTuner::UpdatePids(bool forceP)
         if (addPidsM.Size()) {
            uri = cString::sprintf("%s?addpids=", *uri);
            for (int i = 0; i < addPidsM.Size(); ++i)
-               uri = cString::sprintf("%s%d%s", *uri, addPidsM[i], (i == (addPidsM.Size() - 1)) ? "" : ",");
+               uri = cString::sprintf("%s%d,", *uri, addPidsM[i]);
+           uri = uri.Truncate(-1);
            }
         if (delPidsM.Size()) {
            uri = cString::sprintf("%s%sdelpids=", *uri, addPidsM.Size() ? "&" : "?");
            for (int i = 0; i < delPidsM.Size(); ++i)
-               uri = cString::sprintf("%s%d%s", *uri, delPidsM[i], (i == (delPidsM.Size() - 1)) ? "" : ",");
+               uri = cString::sprintf("%s%d,", *uri, delPidsM[i]);
+           uri = uri.Truncate(-1);
            }
         }
      if (!rtspM.Play(*uri))

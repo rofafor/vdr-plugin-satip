@@ -217,7 +217,7 @@ int cSatipDevice::SignalQuality(void) const
 
 bool cSatipDevice::ProvidesSource(int sourceP) const
 {
-  debug8("%s (%c) [device %u]", __PRETTY_FUNCTION__, cSource::ToChar(sourceP), deviceIndexM);
+  debug9("%s (%c) [device %u]", __PRETTY_FUNCTION__, cSource::ToChar(sourceP), deviceIndexM);
   if (!SatipConfig.IsOperatingModeOff() && !!cSatipDiscover::GetInstance()->GetServer(sourceP)) {
      int numDisabledSourcesM = SatipConfig.GetDisabledSourcesCount();
      for (int i = 0; i < numDisabledSourcesM; ++i) {
@@ -231,7 +231,7 @@ bool cSatipDevice::ProvidesSource(int sourceP) const
 
 bool cSatipDevice::ProvidesTransponder(const cChannel *channelP) const
 {
-  debug1("%s (%d) transponder=%d source=%c [device %u]", __PRETTY_FUNCTION__, channelP ? channelP->Number() : -1, channelP ? channelP->Transponder() : -1, channelP ? cSource::ToChar(channelP->Source()) : '?', deviceIndexM);
+  debug9("%s (%d) transponder=%d source=%c [device %u]", __PRETTY_FUNCTION__, channelP ? channelP->Number() : -1, channelP ? channelP->Transponder() : -1, channelP ? cSource::ToChar(channelP->Source()) : '?', deviceIndexM);
   if (!ProvidesSource(channelP->Source()))
      return false;
   return DeviceHooksProvidesTransponder(channelP);
@@ -243,7 +243,7 @@ bool cSatipDevice::ProvidesChannel(const cChannel *channelP, int priorityP, bool
   bool hasPriority = (priorityP == IDLEPRIORITY) || (priorityP > this->Priority());
   bool needsDetachReceivers = false;
 
-  debug1("%s (%d, %d, %d) [device %u]", __PRETTY_FUNCTION__, channelP ? channelP->Number() : -1, priorityP, !!needsDetachReceiversP, deviceIndexM);
+  debug9("%s (%d, %d, %d) [device %u]", __PRETTY_FUNCTION__, channelP ? channelP->Number() : -1, priorityP, !!needsDetachReceiversP, deviceIndexM);
 
   if (channelP && ProvidesTransponder(channelP)) {
      result = hasPriority;
@@ -315,11 +315,12 @@ bool cSatipDevice::MaySwitchTransponder(const cChannel *channelP) const
 
 bool cSatipDevice::SetChannelDevice(const cChannel *channelP, bool liveViewP)
 {
+  debug9("%s (%d, %d) [device %u]", __PRETTY_FUNCTION__, channelP ? channelP->Number() : -1, liveViewP, deviceIndexM);
   if (channelP) {
      cDvbTransponderParameters dtp(channelP->Parameters());
      cString params = GetTransponderUrlParameters(channelP);
      if (isempty(params)) {
-        error("Unrecognized SATIP channel parameters: %s", channelP->Parameters());
+        error("Unrecognized SATIP channel parameters: %s [device %u]", channelP->Parameters(), deviceIndexM);
         return false;
         }
      cString address;
@@ -344,7 +345,7 @@ bool cSatipDevice::SetChannelDevice(const cChannel *channelP, bool liveViewP)
 
 bool cSatipDevice::SetPid(cPidHandle *handleP, int typeP, bool onP)
 {
-  debug8("%s (%d, %d, %d) [device %u]", __PRETTY_FUNCTION__, handleP->pid, typeP, onP, deviceIndexM);
+  debug9("%s (%d, %d, %d) [device %u]", __PRETTY_FUNCTION__, handleP->pid, typeP, onP, deviceIndexM);
   if (pTunerM && handleP && handleP->pid >= 0) {
      if (onP)
         return pTunerM->SetPid(handleP->pid, typeP, true);
@@ -356,7 +357,7 @@ bool cSatipDevice::SetPid(cPidHandle *handleP, int typeP, bool onP)
 
 int cSatipDevice::OpenFilter(u_short pidP, u_char tidP, u_char maskP)
 {
-  debug8("%s (%d, %02X, %02X) [device %d]", __PRETTY_FUNCTION__, pidP, tidP, maskP, deviceIndexM);
+  debug9("%s (%d, %02X, %02X) [device %d]", __PRETTY_FUNCTION__, pidP, tidP, maskP, deviceIndexM);
   if (pSectionFilterHandlerM) {
      int handle = pSectionFilterHandlerM->Open(pidP, tidP, maskP);
      if (pTunerM && (handle >= 0))
@@ -368,17 +369,18 @@ int cSatipDevice::OpenFilter(u_short pidP, u_char tidP, u_char maskP)
 
 void cSatipDevice::CloseFilter(int handleP)
 {
-  debug8("%s (%d) [device %u]", __PRETTY_FUNCTION__, handleP, deviceIndexM);
   if (pSectionFilterHandlerM) {
+     int pid = pSectionFilterHandlerM->GetPid(handleP);
+     debug9("%s (%d) [device %u]", __PRETTY_FUNCTION__, pid, deviceIndexM);
      if (pTunerM)
-        pTunerM->SetPid(pSectionFilterHandlerM->GetPid(handleP), ptOther, false);
+        pTunerM->SetPid(pid, ptOther, false);
      pSectionFilterHandlerM->Close(handleP);
      }
 }
 
 bool cSatipDevice::OpenDvr(void)
 {
-  debug1("%s [device %u]", __PRETTY_FUNCTION__, deviceIndexM);
+  debug9("%s [device %u]", __PRETTY_FUNCTION__, deviceIndexM);
   isPacketDeliveredM = false;
   tsBufferM->Clear();
   if (pTunerM)
@@ -389,7 +391,7 @@ bool cSatipDevice::OpenDvr(void)
 
 void cSatipDevice::CloseDvr(void)
 {
-  debug1("%s [device %u]", __PRETTY_FUNCTION__, deviceIndexM);
+  debug9("%s [device %u]", __PRETTY_FUNCTION__, deviceIndexM);
   if (pTunerM)
      pTunerM->Close();
   isOpenDvrM = false;
@@ -423,7 +425,6 @@ void cSatipDevice::WriteData(uchar *bufferP, int lengthP)
 
 int cSatipDevice::GetId(void)
 {
-  debug8("%s [device %u]", __PRETTY_FUNCTION__, deviceIndexM);
   return deviceIndexM;
 }
 

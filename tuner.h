@@ -28,19 +28,27 @@ private:
         }
     return -1;
   }
+  static int PidCompare(const void *aPidP, const void *bPidP)
+  {
+    return (*(int*)aPidP - *(int*)bPidP);
+  }
 
 public:
   void RemovePid(const int &pidP)
   {
     int i = PidIndex(pidP);
-    if (i >= 0)
+    if (i >= 0) {
        Remove(i);
+       Sort(PidCompare);
+       }
   }
 
   void AddPid(int pidP)
   {
-    if (PidIndex(pidP) < 0)
+    if (PidIndex(pidP) < 0) {
        Append(pidP);
+       Sort(PidCompare);
+       }
   }
 };
 
