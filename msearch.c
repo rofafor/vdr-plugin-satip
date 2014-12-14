@@ -54,7 +54,7 @@ int cSatipMsearch::GetFd(void)
 
 void cSatipMsearch::Process(void)
 {
-  debug8("%s", __PRETTY_FUNCTION__);
+  debug16("%s", __PRETTY_FUNCTION__);
   if (bufferM) {
      int length;
      while ((length = Read(bufferM, bufferLenM)) > 0) {

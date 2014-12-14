@@ -64,7 +64,7 @@ cPluginSatip::cPluginSatip(void)
 : deviceCountM(1),
   serversM(NULL)
 {
-  debug8("%s", __PRETTY_FUNCTION__);
+  debug16("%s", __PRETTY_FUNCTION__);
   // Initialize any member variables here.
   // DON'T DO ANYTHING ELSE THAT MAY HAVE SIDE EFFECTS, REQUIRE GLOBAL
   // VDR OBJECTS TO EXIST OR PRODUCE ANY OUTPUT!
@@ -72,7 +72,7 @@ cPluginSatip::cPluginSatip(void)
 
 cPluginSatip::~cPluginSatip()
 {
-  debug8("%s", __PRETTY_FUNCTION__);
+  debug16("%s", __PRETTY_FUNCTION__);
   // Clean up after yourself!
 }
 
@@ -154,34 +154,34 @@ void cPluginSatip::Stop(void)
 
 void cPluginSatip::Housekeeping(void)
 {
-  debug8("%s", __PRETTY_FUNCTION__);
+  debug16("%s", __PRETTY_FUNCTION__);
   // Perform any cleanup or other regular tasks.
 }
 
 void cPluginSatip::MainThreadHook(void)
 {
-  debug8("%s", __PRETTY_FUNCTION__);
+  debug16("%s", __PRETTY_FUNCTION__);
   // Perform actions in the context of the main program thread.
   // WARNING: Use with great care - see PLUGINS.html!
 }
 
 cString cPluginSatip::Active(void)
 {
-  debug8("%s", __PRETTY_FUNCTION__);
+  debug16("%s", __PRETTY_FUNCTION__);
   // Return a message string if shutdown should be postponed
   return NULL;
 }
 
 time_t cPluginSatip::WakeupTime(void)
 {
-  debug8("%s", __PRETTY_FUNCTION__);
+  debug16("%s", __PRETTY_FUNCTION__);
   // Return custom wakeup time for shutdown script
   return 0;
 }
 
 cOsdObject *cPluginSatip::MainMenuAction(void)
 {
-  debug8("%s", __PRETTY_FUNCTION__);
+  debug16("%s", __PRETTY_FUNCTION__);
   // Perform the action when selected from the main VDR menu.
   return NULL;
 }

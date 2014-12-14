@@ -83,10 +83,10 @@ unsigned int cSatipDevice::Count(void)
 
 cSatipDevice *cSatipDevice::GetSatipDevice(int cardIndexP)
 {
-  debug8("%s (%d)", __PRETTY_FUNCTION__, cardIndexP);
+  debug16("%s (%d)", __PRETTY_FUNCTION__, cardIndexP);
   for (unsigned int i = 0; i < SATIP_MAX_DEVICES; ++i) {
       if (SatipDevicesS[i] && (SatipDevicesS[i]->CardIndex() == cardIndexP)) {
-         debug3("%s (%d): Found!", __PRETTY_FUNCTION__, cardIndexP);
+         debug16("%s (%d): Found!", __PRETTY_FUNCTION__, cardIndexP);
          return SatipDevicesS[i];
          }
       }
@@ -127,7 +127,7 @@ cString cSatipDevice::GetSatipStatus(void)
 
 cString cSatipDevice::GetGeneralInformation(void)
 {
-  debug8("%s [device %u]", __PRETTY_FUNCTION__, deviceIndexM);
+  debug16("%s [device %u]", __PRETTY_FUNCTION__, deviceIndexM);
   return cString::sprintf("SAT>IP device: %d\nCardIndex: %d\nStream: %s\nSignal: %s\nStream bitrate: %s\n%sChannel: %s",
                           deviceIndexM, CardIndex(),
                           pTunerM ? *pTunerM->GetInformation() : "",
@@ -139,13 +139,13 @@ cString cSatipDevice::GetGeneralInformation(void)
 
 cString cSatipDevice::GetPidsInformation(void)
 {
-  debug8("%s [device %u]", __PRETTY_FUNCTION__, deviceIndexM);
+  debug16("%s [device %u]", __PRETTY_FUNCTION__, deviceIndexM);
   return GetPidStatistic();
 }
 
 cString cSatipDevice::GetFiltersInformation(void)
 {
-  debug8("%s [device %u]", __PRETTY_FUNCTION__, deviceIndexM);
+  debug16("%s [device %u]", __PRETTY_FUNCTION__, deviceIndexM);
   return cString::sprintf("Active section filters:\n%s", pSectionFilterHandlerM ? *pSectionFilterHandlerM->GetInformation() : "");
 }
 
@@ -181,37 +181,37 @@ cString cSatipDevice::GetInformation(unsigned int pageP)
 
 bool cSatipDevice::Ready(void)
 {
-  debug8("%s [device %u]", __PRETTY_FUNCTION__, deviceIndexM);
+  debug16("%s [device %u]", __PRETTY_FUNCTION__, deviceIndexM);
   return ((cSatipDiscover::GetInstance()->GetServerCount() > 0) || (createdM.Elapsed() > eReadyTimeoutMs));
 }
 
 cString cSatipDevice::DeviceType(void) const
 {
-  debug8("%s [device %u]", __PRETTY_FUNCTION__, deviceIndexM);
+  debug16("%s [device %u]", __PRETTY_FUNCTION__, deviceIndexM);
   return "SAT>IP";
 }
 
 cString cSatipDevice::DeviceName(void) const
 {
-  debug8("%s [device %u]", __PRETTY_FUNCTION__, deviceIndexM);
+  debug16("%s [device %u]", __PRETTY_FUNCTION__, deviceIndexM);
   return deviceNameM;
 }
 
 bool cSatipDevice::AvoidRecording(void) const
 {
-  debug8("%s [device %u]", __PRETTY_FUNCTION__, deviceIndexM);
+  debug16("%s [device %u]", __PRETTY_FUNCTION__, deviceIndexM);
   return SatipConfig.IsOperatingModeLow();
 }
 
 int cSatipDevice::SignalStrength(void) const
 {
-  debug8("%s [device %u]", __PRETTY_FUNCTION__, deviceIndexM);
+  debug16("%s [device %u]", __PRETTY_FUNCTION__, deviceIndexM);
   return (pTunerM ? pTunerM->SignalStrength() : -1);
 }
 
 int cSatipDevice::SignalQuality(void) const
 {
-  debug8("%s [device %u]", __PRETTY_FUNCTION__, deviceIndexM);
+  debug16("%s [device %u]", __PRETTY_FUNCTION__, deviceIndexM);
   return (pTunerM ? pTunerM->SignalQuality() : -1);
 }
 
@@ -399,19 +399,19 @@ void cSatipDevice::CloseDvr(void)
 
 bool cSatipDevice::HasLock(int timeoutMsP) const
 {
-  debug8("%s (%d) [device %d]", __PRETTY_FUNCTION__, timeoutMsP, deviceIndexM);
+  debug16("%s (%d) [device %d]", __PRETTY_FUNCTION__, timeoutMsP, deviceIndexM);
   return (pTunerM && pTunerM->HasLock());
 }
 
 bool cSatipDevice::HasInternalCam(void)
 {
-  debug8("%s [device %u]", __PRETTY_FUNCTION__, deviceIndexM);
+  debug16("%s [device %u]", __PRETTY_FUNCTION__, deviceIndexM);
   return false;
 }
 
 void cSatipDevice::WriteData(uchar *bufferP, int lengthP)
 {
-  debug8("%s [device %u]", __PRETTY_FUNCTION__, deviceIndexM);
+  debug16("%s [device %u]", __PRETTY_FUNCTION__, deviceIndexM);
   // Fill up TS buffer
   if (isOpenDvrM && tsBufferM) {
      int len = tsBufferM->Put(bufferP, lengthP);
@@ -430,7 +430,7 @@ int cSatipDevice::GetId(void)
 
 uchar *cSatipDevice::GetData(int *availableP)
 {
-  debug8("%s [device %u]", __PRETTY_FUNCTION__, deviceIndexM);
+  debug16("%s [device %u]", __PRETTY_FUNCTION__, deviceIndexM);
   if (isOpenDvrM && tsBufferM) {
      int count = 0;
      if (isPacketDeliveredM)
@@ -461,7 +461,7 @@ uchar *cSatipDevice::GetData(int *availableP)
 
 void cSatipDevice::SkipData(int countP)
 {
-  debug8("%s [device %u]", __PRETTY_FUNCTION__, deviceIndexM);
+  debug16("%s [device %u]", __PRETTY_FUNCTION__, deviceIndexM);
   tsBufferM->Del(countP);
   isPacketDeliveredM = false;
   // Update buffer statistics
@@ -470,7 +470,7 @@ void cSatipDevice::SkipData(int countP)
 
 bool cSatipDevice::GetTSPacket(uchar *&dataP)
 {
-  debug8("%s [device %u]", __PRETTY_FUNCTION__, deviceIndexM);
+  debug16("%s [device %u]", __PRETTY_FUNCTION__, deviceIndexM);
   if (tsBufferM) {
 #if defined(APIVERSNUM) && APIVERSNUM >= 20104
      if (cCamSlot *cs = CamSlot()) {

@@ -51,7 +51,7 @@ size_t cSatipDiscover::WriteCallback(char *ptrP, size_t sizeP, size_t nmembP, vo
 {
   cSatipDiscover *obj = reinterpret_cast<cSatipDiscover *>(dataP);
   size_t len = sizeP * nmembP;
-  debug8("%s len=%zu", __PRETTY_FUNCTION__, len);
+  debug16("%s len=%zu", __PRETTY_FUNCTION__, len);
 
   if (obj) {
      CURLcode res = CURLE_OK;
@@ -245,70 +245,70 @@ void cSatipDiscover::AddServer(const char *addrP, const char *modelP, const char
 
 int cSatipDiscover::GetServerCount(void)
 {
-  debug8("%s", __PRETTY_FUNCTION__);
+  debug16("%s", __PRETTY_FUNCTION__);
   cMutexLock MutexLock(&mutexM);
   return serversM.Count();
 }
 
 cSatipServer *cSatipDiscover::GetServer(int sourceP, int transponderP, int systemP)
 {
-  debug8("%s (%d, %d, %d)", __PRETTY_FUNCTION__, sourceP, transponderP, systemP);
+  debug16("%s (%d, %d, %d)", __PRETTY_FUNCTION__, sourceP, transponderP, systemP);
   cMutexLock MutexLock(&mutexM);
   return serversM.Find(sourceP, transponderP, systemP);
 }
 
 cSatipServer *cSatipDiscover::GetServer(cSatipServer *serverP)
 {
-  debug8("%s", __PRETTY_FUNCTION__);
+  debug16("%s", __PRETTY_FUNCTION__);
   cMutexLock MutexLock(&mutexM);
   return serversM.Find(serverP);
 }
 
 cSatipServers *cSatipDiscover::GetServers(void)
 {
-  debug8("%s", __PRETTY_FUNCTION__);
+  debug16("%s", __PRETTY_FUNCTION__);
   cMutexLock MutexLock(&mutexM);
   return &serversM;
 }
 
 cString cSatipDiscover::GetServerString(cSatipServer *serverP)
 {
-  debug8("%s", __PRETTY_FUNCTION__);
+  debug16("%s", __PRETTY_FUNCTION__);
   cMutexLock MutexLock(&mutexM);
   return serversM.GetString(serverP);
 }
 
 cString cSatipDiscover::GetServerList(void)
 {
-  debug8("%s", __PRETTY_FUNCTION__);
+  debug16("%s", __PRETTY_FUNCTION__);
   cMutexLock MutexLock(&mutexM);
   return serversM.List();
 }
 
 void cSatipDiscover::SetTransponder(cSatipServer *serverP, int transponderP)
 {
-  debug8("%s (, %d)", __PRETTY_FUNCTION__, transponderP);
+  debug16("%s (, %d)", __PRETTY_FUNCTION__, transponderP);
   cMutexLock MutexLock(&mutexM);
   serversM.SetTransponder(serverP, transponderP);
 }
 
 void cSatipDiscover::UseServer(cSatipServer *serverP, bool onOffP)
 {
-  debug8("%s (, %d)", __PRETTY_FUNCTION__, onOffP);
+  debug16("%s (, %d)", __PRETTY_FUNCTION__, onOffP);
   cMutexLock MutexLock(&mutexM);
   serversM.Use(serverP, onOffP);
 }
 
 int cSatipDiscover::NumProvidedSystems(void)
 {
-  debug8("%s", __PRETTY_FUNCTION__);
+  debug16("%s", __PRETTY_FUNCTION__);
   cMutexLock MutexLock(&mutexM);
   return serversM.NumProvidedSystems();
 }
 
 void cSatipDiscover::SetUrl(const char *urlP)
 {
-  debug8("%s (%s)", __PRETTY_FUNCTION__, urlP);
+  debug16("%s (%s)", __PRETTY_FUNCTION__, urlP);
   mutexM.Lock();
   probeUrlListM.Insert(strdup(urlP));
   mutexM.Unlock();

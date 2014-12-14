@@ -30,13 +30,13 @@ cSatipRtcp::~cSatipRtcp()
 
 int cSatipRtcp::GetFd(void)
 {
-  debug8("%s [device %d]", __PRETTY_FUNCTION__, tunerM.GetId());
+  debug16("%s [device %d]", __PRETTY_FUNCTION__, tunerM.GetId());
   return Fd();
 }
 
 int cSatipRtcp::GetApplicationOffset(int *lengthP)
 {
-  debug8("%s (%d) [device %d]", __PRETTY_FUNCTION__, *lengthP, tunerM.GetId());
+  debug16("%s (%d) [device %d]", __PRETTY_FUNCTION__, *lengthP, tunerM.GetId());
   if (!lengthP)
      return -1;
   int offset = 0;
@@ -81,7 +81,7 @@ int cSatipRtcp::GetApplicationOffset(int *lengthP)
 
 void cSatipRtcp::Process(void)
 {
-  debug8("%s [device %d]", __PRETTY_FUNCTION__, tunerM.GetId());
+  debug16("%s [device %d]", __PRETTY_FUNCTION__, tunerM.GetId());
   if (bufferM) {
      int length;
      while ((length = Read(bufferM, bufferLenM)) > 0) {

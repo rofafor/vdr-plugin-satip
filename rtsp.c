@@ -60,13 +60,13 @@ size_t cSatipRtsp::HeaderCallback(void *ptrP, size_t sizeP, size_t nmembP, void 
 {
   cSatipRtsp *obj = reinterpret_cast<cSatipRtsp *>(dataP);
   size_t len = sizeP * nmembP;
-  debug8("%s len=%zu", __PRETTY_FUNCTION__, len);
+  debug16("%s len=%zu", __PRETTY_FUNCTION__, len);
 
   char *s, *p = (char *)ptrP;
   char *r = strtok_r(p, "\r\n", &s);
 
   while (obj && r) {
-        debug8("%s (%zu): %s", __PRETTY_FUNCTION__, len, r);
+        debug16("%s (%zu): %s", __PRETTY_FUNCTION__, len, r);
         r = skipspace(r);
         if (strstr(r, "com.ses.streamID")) {
            int streamid = -1;
@@ -92,7 +92,7 @@ size_t cSatipRtsp::WriteCallback(void *ptrP, size_t sizeP, size_t nmembP, void *
 {
   cSatipRtsp *obj = reinterpret_cast<cSatipRtsp *>(dataP);
   size_t len = sizeP * nmembP;
-  debug8("%s len=%zu", __PRETTY_FUNCTION__, len);
+  debug16("%s len=%zu", __PRETTY_FUNCTION__, len);
 
   if (obj && (len > 0))
      obj->tunerM.ProcessApplicationData((u_char*)ptrP, len);
