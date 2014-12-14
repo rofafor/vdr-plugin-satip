@@ -30,7 +30,7 @@
 #define debug8(x...)  void( SatipConfig.IsLoggingMode(cSatipConfig::eLoggingModeDebug8)  ? dsyslog("SATIP8: " x)  : void() )
 // 0x0100: Channel switching
 #define debug9(x...)  void( SatipConfig.IsLoggingMode(cSatipConfig::eLoggingModeDebug9)  ? dsyslog("SATIP9: " x)  : void() )
-// 0x0200: TBD
+// 0x0200: RTCP packets
 #define debug10(x...) void( SatipConfig.IsLoggingMode(cSatipConfig::eLoggingModeDebug10) ? dsyslog("SATIP10: " x) : void() )
 // 0x0400: TBD
 #define debug11(x...) void( SatipConfig.IsLoggingMode(cSatipConfig::eLoggingModeDebug11) ? dsyslog("SATIP11: " x) : void() )

@@ -277,7 +277,7 @@ void cSatipTuner::ProcessApplicationData(u_char *bufferP, int lengthP)
   if (lengthP > 0) {
      char s[lengthP];
      memcpy(s, (char *)bufferP, lengthP);
-     debug16("%s (%s) [device %d]", __PRETTY_FUNCTION__, s, deviceIdM);
+     debug10("%s (%s) [device %d]", __PRETTY_FUNCTION__, s, deviceIdM);
      char *c = strstr(s, ";tuner=");
      if (c)  {
         int value;
