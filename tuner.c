@@ -189,6 +189,8 @@ bool cSatipTuner::Connect(void)
      // Just retune
      if (streamIdM >= 0) {
         cString uri = cString::sprintf("%sstream=%d?%s", *connectionUri, streamIdM, *streamParamM);
+        //if (pidsM.Size())
+        //   uri = cString::sprintf("%s&pids=%s", *uri, *pidsM.ListPids());
         debug1("%s Retuning [device %d]", __PRETTY_FUNCTION__, deviceIdM);
         if (rtspM.Play(*uri)) {
            keepAliveM.Set(timeoutM);
@@ -384,6 +386,7 @@ bool cSatipTuner::SetPid(int pidP, int typeP, bool onP)
 bool cSatipTuner::UpdatePids(bool forceP)
 {
   debug16("%s (%d) tunerState=%s [device %d]", __PRETTY_FUNCTION__, forceP, TunerStateString(currentStateM), deviceIdM);
+  cMutexLock MutexLock(&mutexM);
   if (((forceP && pidsM.Size()) || (pidUpdateCacheM.TimedOut() && (addPidsM.Size() || delPidsM.Size()))) &&
       !isempty(*streamAddrM) && (streamIdM > 0)) {
      cString uri = cString::sprintf("rtsp://%s/stream=%d", *streamAddrM, streamIdM);
