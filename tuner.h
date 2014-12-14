@@ -42,13 +42,22 @@ public:
        Sort(PidCompare);
        }
   }
-
   void AddPid(int pidP)
   {
     if (PidIndex(pidP) < 0) {
        Append(pidP);
        Sort(PidCompare);
        }
+  }
+  cString ListPids(void)
+  {
+    cString list = "";
+    if (Size()) {
+       for (int i = 0; i < Size(); ++i)
+           list = cString::sprintf("%s%d,", *list, At(i));
+       list = list.Truncate(-1);
+       }
+    return list;
   }
 };
 
