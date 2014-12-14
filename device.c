@@ -28,7 +28,7 @@ cSatipDevice::cSatipDevice(unsigned int indexP)
   bufsize -= (bufsize % TS_SIZE);
   info("Creating SATIP device CardIndex=%d [device %u]", CardIndex(), deviceIndexM);
   tsBufferM = new cRingBufferLinear(bufsize + 1, TS_SIZE, false,
-                                   *cString::sprintf("SATIP %d TS", deviceIndexM));
+                                   *cString::sprintf("SATIP#%d TS", deviceIndexM));
   if (tsBufferM) {
      tsBufferM->SetTimeouts(10, 10);
      tsBufferM->SetIoThrottle();
