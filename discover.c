@@ -236,7 +236,7 @@ void cSatipDiscover::AddServer(const char *addrP, const char *modelP, const char
   cSatipServer *tmp = new cSatipServer(addrP, modelP, descP);
   // Validate against existing servers
   if (!serversM.Update(tmp)) {
-     info("Adding device '%s|%s|%s'",  tmp->Address(), tmp->Model(), tmp->Description());
+     info("Adding server '%s|%s|%s'",  tmp->Address(), tmp->Model(), tmp->Description());
      serversM.Add(tmp);
      }
   else

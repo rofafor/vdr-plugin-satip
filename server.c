@@ -191,7 +191,7 @@ void cSatipServers::Cleanup(uint64_t intervalMsP)
 {
   for (cSatipServer *s = First(); s; s = Next(s)) {
       if (!intervalMsP || (s->LastSeen() > intervalMsP)) {
-         info("Removing device %s (%s %s)", s->Description(), s->Address(), s->Model());
+         info("Removing server %s (%s %s)", s->Description(), s->Address(), s->Model());
          Del(s);
          }
       }
