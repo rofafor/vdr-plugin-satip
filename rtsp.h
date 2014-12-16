@@ -31,6 +31,8 @@ private:
   CURL *handleM;
   struct curl_slist *headerListM;
 
+  void Create(void);
+  void Destroy(void);
   bool ValidateLatestResponse(long *rcP);
 
   // to prevent copy constructor and assignment
@@ -42,6 +44,7 @@ public:
   virtual ~cSatipRtsp();
 
   cString RtspUnescapeString(const char *strP);
+  void Reset(void);
   bool Options(const char *uriP);
   bool Setup(const char *uriP, int rtpPortP, int rtcpPortP);
   bool SetSession(const char *sessionP);

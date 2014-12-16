@@ -15,45 +15,17 @@
 
 cSatipRtsp::cSatipRtsp(cSatipTunerIf &tunerP)
 : tunerM(tunerP),
-  handleM(curl_easy_init()),
+  handleM(NULL),
   headerListM(NULL)
 {
   debug1("%s [device %d]", __PRETTY_FUNCTION__, tunerM.GetId());
-
-  if (handleM) {
-     CURLcode res = CURLE_OK;
-
-     // Verbose output
-     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_VERBOSE, 1L);
-     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_DEBUGFUNCTION, cSatipRtsp::DebugCallback);
-     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_DEBUGDATA, this);
-
-     // No progress meter and no signaling
-     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_NOPROGRESS, 1L);
-     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_NOSIGNAL, 1L);
-
-     // Set timeouts
-     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_TIMEOUT_MS, (long)eConnectTimeoutMs);
-     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_CONNECTTIMEOUT_MS, (long)eConnectTimeoutMs);
-
-     // Set user-agent
-     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_USERAGENT, *cString::sprintf("vdr-%s/%s (device %d)", PLUGIN_NAME_I18N, VERSION, tunerM.GetId()));
-     }
+  Create();
 }
 
 cSatipRtsp::~cSatipRtsp()
 {
   debug1("%s [device %d]", __PRETTY_FUNCTION__, tunerM.GetId());
-
-  if (handleM) {
-     // Cleanup curl stuff
-     if (headerListM) {
-        curl_slist_free_all(headerListM);
-        headerListM = NULL;
-        }
-     curl_easy_cleanup(handleM);
-     handleM = NULL;
-     }
+  Destroy();
 }
 
 size_t cSatipRtsp::HeaderCallback(void *ptrP, size_t sizeP, size_t nmembP, void *dataP)
@@ -141,6 +113,54 @@ cString cSatipRtsp::RtspUnescapeString(const char *strP)
      }
 
   return cString(strP);
+}
+
+void cSatipRtsp::Create(void)
+{
+  debug1("%s [device %d]", __PRETTY_FUNCTION__, tunerM.GetId());
+  if (!handleM)
+     handleM = curl_easy_init();
+
+  if (handleM) {
+     CURLcode res = CURLE_OK;
+
+     // Verbose output
+     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_VERBOSE, 1L);
+     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_DEBUGFUNCTION, cSatipRtsp::DebugCallback);
+     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_DEBUGDATA, this);
+
+     // No progress meter and no signaling
+     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_NOPROGRESS, 1L);
+     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_NOSIGNAL, 1L);
+
+     // Set timeouts
+     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_TIMEOUT_MS, (long)eConnectTimeoutMs);
+     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_CONNECTTIMEOUT_MS, (long)eConnectTimeoutMs);
+
+     // Set user-agent
+     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_USERAGENT, *cString::sprintf("vdr-%s/%s (device %d)", PLUGIN_NAME_I18N, VERSION, tunerM.GetId()));
+     }
+}
+
+void cSatipRtsp::Destroy(void)
+{
+  debug1("%s [device %d]", __PRETTY_FUNCTION__, tunerM.GetId());
+  if (handleM) {
+     // Cleanup curl stuff
+     if (headerListM) {
+        curl_slist_free_all(headerListM);
+        headerListM = NULL;
+        }
+     curl_easy_cleanup(handleM);
+     handleM = NULL;
+     }
+}
+
+void cSatipRtsp::Reset(void)
+{
+  debug1("%s [device %d]", __PRETTY_FUNCTION__, tunerM.GetId());
+  Destroy();
+  Create();
 }
 
 bool cSatipRtsp::Options(const char *uriP)

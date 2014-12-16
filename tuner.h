@@ -68,7 +68,7 @@ private:
     eDummyPid               = 100,
     eDefaultSignalStrength  = 15,
     eDefaultSignalQuality   = 224,
-    eSleepTimeoutMs         = 500,   // in milliseconds
+    eSleepTimeoutMs         = 1000,  // in milliseconds
     eStatusUpdateTimeoutMs  = 1000,  // in milliseconds
     ePidUpdateIntervalMs    = 250,   // in milliseconds
     eConnectTimeoutMs       = 5000,  // in milliseconds

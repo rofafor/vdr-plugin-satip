@@ -104,15 +104,12 @@ void cSatipTuner::Action(void)
                break;
           case tsSet:
                debug4("%s: tsSet [device %d]", __PRETTY_FUNCTION__, deviceIdM);
-               reConnectM.Set(eConnectTimeoutMs);
                if (Connect()) {
                   RequestState(tsTuned, smInternal);
                   UpdatePids(true);
                   }
-               else {
-                  error("Tuning failed - retuning [device %d]", deviceIdM);
+               else
                   Disconnect();
-                  }
                break;
           case tsTuned:
                debug4("%s: tsTuned [device %d]", __PRETTY_FUNCTION__, deviceIdM);
@@ -212,6 +209,8 @@ bool cSatipTuner::Connect(void)
            return true;
            }
         }
+     else
+        rtspM.Reset();
      streamIdM = -1;
      error("Connect failed [device %d]", deviceIdM);
      }
