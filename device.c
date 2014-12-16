@@ -26,7 +26,7 @@ cSatipDevice::cSatipDevice(unsigned int indexP)
 {
   unsigned int bufsize = (unsigned int)SATIP_BUFFER_SIZE;
   bufsize -= (bufsize % TS_SIZE);
-  info("Creating SATIP device CardIndex=%d [device %u]", CardIndex(), deviceIndexM);
+  info("Creating device CardIndex=%d DeviceNumber=%d [device %u]", CardIndex(), DeviceNumber(), deviceIndexM);
   tsBufferM = new cRingBufferLinear(bufsize + 1, TS_SIZE, false,
                                    *cString::sprintf("SATIP#%d TS", deviceIndexM));
   if (tsBufferM) {
@@ -320,7 +320,7 @@ bool cSatipDevice::SetChannelDevice(const cChannel *channelP, bool liveViewP)
      cDvbTransponderParameters dtp(channelP->Parameters());
      cString params = GetTransponderUrlParameters(channelP);
      if (isempty(params)) {
-        error("Unrecognized SATIP channel parameters: %s [device %u]", channelP->Parameters(), deviceIndexM);
+        error("Unrecognized channel parameters: %s [device %u]", channelP->Parameters(), deviceIndexM);
         return false;
         }
      cString address;
