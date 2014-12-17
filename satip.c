@@ -315,6 +315,8 @@ const char **cPluginSatip::SVDRPHelpPages(void)
     "    Toggles between bit or byte information mode.\n",
     "LIST\n"
     "    Lists active SAT>IP servers.\n",
+    "SCAN\n"
+    "    Scans active SAT>IP servers.\n",
     "STAT\n"
     "    Lists status information of SAT>IP devices.\n",
     "CONT\n"
@@ -372,8 +374,12 @@ cString cPluginSatip::SVDRPCommand(const char *commandP, const char *optionP, in
         }
      else {
         replyCodeP = 550; // Requested action not taken
-        return cString("No SATIP devices detected!");
+        return cString("No SATIP servers detected!");
         }
+     }
+  else if (strcasecmp(commandP, "SCAN") == 0) {
+     cSatipDiscover::GetInstance()->TriggerScan();
+     return cString("SATIP server scan requested");
      }
   else if (strcasecmp(commandP, "STAT") == 0) {
      return cSatipDevice::GetSatipStatus();
