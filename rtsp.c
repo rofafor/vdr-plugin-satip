@@ -173,8 +173,7 @@ bool cSatipRtsp::Options(const char *uriP)
      cTimeMs processing(0);
      CURLcode res = CURLE_OK;
 
-     if (!strstr(uriP, "?"))
-        SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_URL, uriP);
+     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_URL, uriP);
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_STREAM_URI, uriP);
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_REQUEST, (long)CURL_RTSPREQ_OPTIONS);
      SATIP_CURL_EASY_PERFORM(handleM);
