@@ -43,6 +43,8 @@ cSatipServer::cSatipServer(const char *addressP, const char *modelP, const char 
      // These devices contain a frontend locking bug:
      if (strstr(*descriptionM, "fritzdvbc"))            // Fritz!WLAN Repeater DVB-C
         quirkM |= eSatipQuirkForceLock;
+     if (quirkM != eSatipQuirkNone)
+        info("Malfunctioning '%s' server detected! Please, fix the firmware.", *descriptionM);
   }
   char *s, *p = strdup(*modelM);
   char *r = strtok_r(p, ",", &s);
