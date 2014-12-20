@@ -70,20 +70,21 @@ VDR Plugin 'satip' Revision History
 - Fixed the cable only device detection.
 - Added support for blacklisted sources.
 - Fixed server reuse for active transponders.
-- Added support for Fritz!WLAN Repeater DVB-C
-  (Thanks to Christian Wick).
-- Added support for Telestar Digibit R1
-  (Thanks to Dirk Wagner).
+- Added a preliminary support for Fritz!WLAN
+  Repeater DVB-C (Thanks to Christian Wick).
+- Added a preliminary support for Telestar
+  Digibit R1 (Thanks to Dirk Wagner).
 - Added a new device status menu.
-- Added a command-line switch for manually defining
-  used SAT>IP servers.
 - Added support for SAT>IP frontend selection via
   Radio ID.
-- Fixed EIT scan (Thanks to Stefan Schallenberg).
-- Refactored input thread to increase performance.
-- Added new STAT command into the SVDRP interface.
-- Refactored tuner implementation.
+- Added command-line switches for manually defining
+  used SAT>IP servers and setting used logging mode.
+- Added new STAT and LOGG commands into the SVDRP
+  interface.
+- Refactored the tuner implementation.
 - Updated against SAT>IP protocol specification
   version 1.2.1.
+- Refactored input thread to increase performance.
 - Added plenty of performance tweaks (Thanks to
   Stefan Schallenberg).
+- Fixed EIT scan (Thanks to Stefan Schallenberg).
