@@ -26,8 +26,10 @@ private:
   enum {
     eConnectTimeoutMs = 1500,  // in milliseconds
   };
+  enum eCommunicationMode { cmUnicast, cmMulticast };
 
   cSatipTunerIf &tunerM;
+  eCommunicationMode modeM;
   CURL *handleM;
   struct curl_slist *headerListM;
 

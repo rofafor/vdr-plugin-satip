@@ -15,6 +15,7 @@
 
 cSatipRtsp::cSatipRtsp(cSatipTunerIf &tunerP)
 : tunerM(tunerP),
+  modeM(cmUnicast),
   handleM(NULL),
   headerListM(NULL)
 {
@@ -191,10 +192,22 @@ bool cSatipRtsp::Setup(const char *uriP, int rtpPortP, int rtcpPortP)
   bool result = false;
 
   if (handleM && !isempty(uriP)) {
+     cString transport;
      long rc = 0;
      cTimeMs processing(0);
      CURLcode res = CURLE_OK;
-     cString transport = cString::sprintf("RTP/AVP;unicast;client_port=%d-%d", rtpPortP, rtcpPortP);
+
+     switch (modeM) {
+       case cmMulticast:
+            // RTP/AVP;multicast;destination=<IP multicast address>;port=<RTP port>-<RTCP port>;ttl=<ttl>
+            transport = cString::sprintf("RTP/AVP;multicast;port=%d-%d", rtpPortP, rtcpPortP);
+            break;
+       default:
+       case cmUnicast:
+            // RTP/AVP;unicast;client_port=<client RTP port>-<client RTCP port>
+            transport = cString::sprintf("RTP/AVP;unicast;client_port=%d-%d", rtpPortP, rtcpPortP);
+            break;
+       }
 
      // Setup media stream
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_STREAM_URI, uriP);
