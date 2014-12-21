@@ -91,19 +91,19 @@ bool cPluginSatip::ProcessArgs(int argc, char *argv[])
   // Implement command line argument processing here if applicable.
   static const struct option long_options[] = {
     { "devices", required_argument, NULL, 'd' },
-    { "logging", required_argument, NULL, 'l' },
+    { "trace",   required_argument, NULL, 't' },
     { "server",  required_argument, NULL, 's' },
     { NULL,      no_argument,       NULL,  0  }
     };
 
   int c;
-  while ((c = getopt_long(argc, argv, "d:l:s:", long_options, NULL)) != -1) {
+  while ((c = getopt_long(argc, argv, "d:t:s:", long_options, NULL)) != -1) {
     switch (c) {
       case 'd':
            deviceCountM = strtol(optarg, NULL, 0);
            break;
-      case 'l':
-           SatipConfig.SetLoggingMode(strtol(optarg, NULL, 0));
+      case 't':
+           SatipConfig.SetTraceMode(strtol(optarg, NULL, 0));
            break;
       case 's':
            ParseServer(optarg);
@@ -323,8 +323,8 @@ const char **cPluginSatip::SVDRPHelpPages(void)
     "    Shows SAT>IP device count.\n",
     "OPER\n"
     "    Toggles operating mode of SAT>IP devices.\n",
-    "LOGG [ <mode> ]\n"
-    "    Gets and/or sets used logging mode.\n",
+    "TRAC [ <mode> ]\n"
+    "    Gets and/or sets used tracing mode.\n",
     NULL
     };
   return HelpPages;
@@ -409,10 +409,10 @@ cString cPluginSatip::SVDRPCommand(const char *commandP, const char *optionP, in
        }
      return cString::sprintf("SATIP operating mode: %s\n", *mode);
      }
-  else if (strcasecmp(commandP, "LOGG") == 0) {
+  else if (strcasecmp(commandP, "TRAC") == 0) {
      if (optionP && *optionP)
-        SatipConfig.SetLoggingMode(strtol(optionP, NULL, 0));
-     return cString::sprintf("SATIP logging mode: 0x%04X\n", SatipConfig.GetLoggingMode());
+        SatipConfig.SetTraceMode(strtol(optionP, NULL, 0));
+     return cString::sprintf("SATIP tracing mode: 0x%04X\n", SatipConfig.GetTraceMode());
      }
 
   return NULL;

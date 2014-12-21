@@ -116,6 +116,9 @@ Notes:
   direct access to any DVB card devices. The integrated CAM slot in
   Octopus Net devices isn't supported.
 
+- Tracing can be set on/off dynamically via command-line switch or
+  SVDRP command.
+
 Acknowledgements:
 
 - Big thanks to Digital Devices GmbH for providing the Octopus Net

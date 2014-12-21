@@ -78,8 +78,8 @@ VDR Plugin 'satip' Revision History
 - Added support for SAT>IP frontend selection via
   Radio ID.
 - Added command-line switches for manually defining
-  used SAT>IP servers and setting used logging mode.
-- Added new STAT and LOGG commands into the SVDRP
+  used SAT>IP servers and setting used tracing mode.
+- Added new STAT and TRAC commands into the SVDRP
   interface.
 - Refactored the tuner implementation.
 - Updated against SAT>IP protocol specification
