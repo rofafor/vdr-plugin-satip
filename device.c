@@ -488,8 +488,6 @@ bool cSatipDevice::GetTSPacket(uchar *&dataP)
      dataP = GetData();
      return true;
      }
-  // Reduce cpu load by preventing busylooping
-  cCondWait::SleepMs(10);
   dataP = NULL;
   return true;
 }
