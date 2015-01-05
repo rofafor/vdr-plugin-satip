@@ -27,7 +27,7 @@
 #define GITVERSION ""
 #endif
 
-       const char VERSION[]     = "1.0.0" GITVERSION;
+       const char VERSION[]     = "1.0.1" GITVERSION;
 static const char DESCRIPTION[] = trNOOP("SAT>IP Devices");
 
 class cPluginSatip : public cPlugin {
@@ -81,6 +81,7 @@ const char *cPluginSatip::CommandLineHelp(void)
   debug1("%s", __PRETTY_FUNCTION__);
   // Return a string that describes all known command line options.
   return "  -d <num>, --devices=<number>  set number of devices to be created\n"
+         "  -t <mode>, --trace=<mode>     set the tracing mode\n"
          "  -s <ipaddr>|<model>|<desc>, --server=<ipaddr1>|<model1>|<desc1>;<ipaddr2>|<model2>|<desc2>\n"
          "                                define hard-coded SAT>IP server(s)\n";
 }

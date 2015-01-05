@@ -88,3 +88,7 @@ VDR Plugin 'satip' Revision History
 - Added plenty of performance tweaks (Thanks to
   Stefan Schallenberg).
 - Fixed EIT scan (Thanks to Stefan Schallenberg).
+
+2015-01-10: Version 1.0.1
+
+- Updated the command-line help and README.

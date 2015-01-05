@@ -23,6 +23,9 @@ Requirements:
   TinyXML - a simple, small, C++ XML parser
   http://www.grinninglizard.com/tinyxml/
 
+- Glibc >= 2.12 - the GNU C library (recvmmsg)
+  http://www.gnu.org/software/libc/
+
 - VDR >= 2.1.4 for scrambled channels
 
 Description:
@@ -118,6 +121,8 @@ Notes:
 
 - Tracing can be set on/off dynamically via command-line switch or
   SVDRP command.
+
+- OctopusNet firmware 1.0.40 or greater recommended.
 
 Acknowledgements:
 
