@@ -93,3 +93,4 @@ VDR Plugin 'satip' Revision History
 
 - Updated the command-line help and README.
 - Fixed the server teardown.
+- Removed the unnecessary config directory definition.

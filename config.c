@@ -21,7 +21,6 @@ cSatipConfig::cSatipConfig(void)
       disabledSourcesM[i] = cSource::stNone;
   for (unsigned int i = 0; i < ARRAY_SIZE(disabledFiltersM); ++i)
       disabledFiltersM[i] = -1;
-  memset(configDirectoryM, 0, sizeof(configDirectoryM));
 }
 
 unsigned int cSatipConfig::GetDisabledSourcesCount(void) const
@@ -60,10 +59,4 @@ void cSatipConfig::SetDisabledFilters(unsigned int indexP, int numberP)
 {
   if (indexP < ARRAY_SIZE(disabledFiltersM))
      disabledFiltersM[indexP] = numberP;
-}
-
-void cSatipConfig::SetConfigDirectory(const char *directoryP)
-{
-  debug1("%s (%s)", __PRETTY_FUNCTION__, directoryP);
-  ERROR_IF(!realpath(directoryP, configDirectoryM), "Cannot canonicalize configuration directory");
 }

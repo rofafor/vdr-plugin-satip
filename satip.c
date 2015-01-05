@@ -122,7 +122,6 @@ bool cPluginSatip::Initialize(void)
   // Initialize any background activities the plugin shall perform.
   if (curl_global_init(CURL_GLOBAL_ALL) != CURLE_OK)
      error("Unable to initialize CURL");
-  SatipConfig.SetConfigDirectory(cPlugin::ResourceDirectory(PLUGIN_NAME_I18N));
   cSatipPoller::GetInstance()->Initialize();
   cSatipDiscover::GetInstance()->Initialize(serversM);
   return cSatipDevice::Initialize(deviceCountM);
