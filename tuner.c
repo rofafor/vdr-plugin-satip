@@ -226,6 +226,8 @@ bool cSatipTuner::Disconnect(void)
   if (!isempty(*streamAddrM) && (streamIdM >= 0)) {
      cString uri = cString::sprintf("rtsp://%s/stream=%d", *streamAddrM, streamIdM);
      rtspM.Teardown(*uri);
+     // some devices requires a teardown for TCP connection also
+     rtspM.Reset();
      streamIdM = -1;
      }
 

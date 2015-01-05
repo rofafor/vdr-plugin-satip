@@ -92,3 +92,4 @@ VDR Plugin 'satip' Revision History
 2015-01-10: Version 1.0.1
 
 - Updated the command-line help and README.
+- Fixed the server teardown.
