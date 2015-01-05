@@ -103,6 +103,15 @@ msgstr ""
 "Normal - Dispositius treballan en parametres normals\n"
 "Alta - Dispositius treballan a prioritat Alta"
 
+msgid "Enable CI extension"
+msgstr ""
+
+msgid ""
+"Define whether a CI extension shall be used.\n"
+"\n"
+"This setting enables integrated CI/CAM handling found in some SAT>IP hardware (e.g. Digital Devices OctopusNet)."
+msgstr ""
+
 msgid "Enable EPG scanning"
 msgstr "Activa Escanneig EPG"
 

@@ -18,6 +18,7 @@ private:
   int deviceCountM;
   int operatingModeM;
   const char *operatingModeTextsM[cSatipConfig::eOperatingModeCount];
+  int ciExtensionM;
   int eitScanM;
   int numDisabledSourcesM;
   int disabledSourcesM[MAX_DISABLED_SOURCES_COUNT];

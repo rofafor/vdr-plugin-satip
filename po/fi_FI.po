@@ -102,6 +102,18 @@ msgstr ""
 "normaali - laitteet toimivat normaalilla prioriteetilla\n"
 "korkea - laitteet toimivat korkealla prioriteetilla"
 
+msgid "Enable CI extension"
+msgstr "Käytä CI-laajennosta"
+
+msgid ""
+"Define whether a CI extension shall be used.\n"
+"\n"
+"This setting enables integrated CI/CAM handling found in some SAT>IP hardware (e.g. Digital Devices OctopusNet)."
+msgstr ""
+"Määrittele CI-laajennoksen käyttöönotto\n"
+"\n"
+"Tällä asetuksella saadaan otettua käyttöön SAT>IP-laitteiden sisäinen CI-paikka (esim. Digital Devices OctopusNet)."
+
 msgid "Enable EPG scanning"
 msgstr "Käytä ohjelmaoppaan taustapäivitystä"
 

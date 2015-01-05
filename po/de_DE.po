@@ -103,6 +103,18 @@ msgstr ""
 "normal - Geräte arbeiten innerhalb der gewöhnlichen Parameter\n"
 "hoch - Geräte arbeiten mit höchste Priorität"
 
+msgid "Enable CI extension"
+msgstr "Aktiviere CI Erweiterung"
+
+msgid ""
+"Define whether a CI extension shall be used.\n"
+"\n"
+"This setting enables integrated CI/CAM handling found in some SAT>IP hardware (e.g. Digital Devices OctopusNet)."
+msgstr ""
+"Legt fest ob eine CI Erweiterung genutzt werden soll.\n"
+"\n"
+"Diese Einstellung aktiviert die Nutzung des integrierten CI/CAM einiger SAT>IP Geräte (z.B. Digital Devices OctopusNet)."
+
 msgid "Enable EPG scanning"
 msgstr "Aktiviere EPG Aktualisierung"
 

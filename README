@@ -27,6 +27,7 @@ Requirements:
   http://www.gnu.org/software/libc/
 
 - VDR >= 2.1.4 for scrambled channels
+      >= 2.1.7 for Digital Devices CI extension
 
 Description:
 
@@ -79,6 +80,10 @@ Setup menu:
                              option to "low". Similarly, the "high"
                              value prefers the SAT>IP over the local
                              DVB cards when selecting available devices.
+- Use CI extension = no      If you want to use the CI extension found
+                             in some SAT>IP hardware (e.g. Digital
+                             Devices OctopusNet), set this option to
+                             "yes".
 - Enable EPG scanning = yes  If you want exclude all SAT>IP devices
                              from VDR's EIT background scanning, set
                              this option to "no".

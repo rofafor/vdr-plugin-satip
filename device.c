@@ -406,7 +406,7 @@ bool cSatipDevice::HasLock(int timeoutMsP) const
 bool cSatipDevice::HasInternalCam(void)
 {
   debug16("%s [device %u]", __PRETTY_FUNCTION__, deviceIndexM);
-  return false;
+  return SatipConfig.GetCIExtension();
 }
 
 void cSatipDevice::WriteData(uchar *bufferP, int lengthP)
@@ -426,6 +426,16 @@ void cSatipDevice::WriteData(uchar *bufferP, int lengthP)
 int cSatipDevice::GetId(void)
 {
   return deviceIndexM;
+}
+
+int cSatipDevice::GetPmtPid(void)
+{
+  int pid = 0;
+#if defined(APIVERSNUM) && APIVERSNUM >= 20107
+  pid = channelM.Ca() ? ::GetPmtPid(channelM.Source(), channelM.Transponder(), channelM.Sid()) : 0;
+#endif
+  debug16("%s pmtpid=%d source=%c transponder=%d sid=%d name=%s [device %u]", __PRETTY_FUNCTION__, pid, cSource::ToChar(channelM.Source()), channelM.Transponder(), channelM.Sid(), channelM.Name(), deviceIndexM);
+  return pid;
 }
 
 uchar *cSatipDevice::GetData(int *availableP)

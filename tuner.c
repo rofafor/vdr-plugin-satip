@@ -41,6 +41,7 @@ cSatipTuner::cSatipTuner(cSatipDeviceIf &deviceP, unsigned int packetLenP)
   signalStrengthM(-1),
   signalQualityM(-1),
   streamIdM(-1),
+  pmtPidM(-1),
   addPidsM(),
   delPidsM(),
   pidsM()
@@ -186,8 +187,6 @@ bool cSatipTuner::Connect(void)
      // Just retune
      if (streamIdM >= 0) {
         cString uri = cString::sprintf("%sstream=%d?%s", *connectionUri, streamIdM, *streamParamM);
-        //if (pidsM.Size())
-        //   uri = cString::sprintf("%s&pids=%s", *uri, *pidsM.ListPids());
         debug1("%s Retuning [device %d]", __PRETTY_FUNCTION__, deviceIdM);
         if (rtspM.Play(*uri)) {
            keepAliveM.Set(timeoutM);
@@ -240,6 +239,7 @@ bool cSatipTuner::Disconnect(void)
      cSatipDiscover::GetInstance()->UseServer(currentServerM, false);
   statusUpdateM.Set(0);
   timeoutM = eMinKeepAliveIntervalMs;
+  pmtPidM = -1;
   addPidsM.Clear();
   delPidsM.Clear();
 
@@ -391,6 +391,7 @@ bool cSatipTuner::UpdatePids(bool forceP)
   if (((forceP && pidsM.Size()) || (pidUpdateCacheM.TimedOut() && (addPidsM.Size() || delPidsM.Size()))) &&
       !isempty(*streamAddrM) && (streamIdM > 0)) {
      cString uri = cString::sprintf("rtsp://%s/stream=%d", *streamAddrM, streamIdM);
+     bool usexpmt = (SatipConfig.GetCIExtension() && !!(currentServerM && currentServerM->Quirk(cSatipServer::eSatipQuirkUseXPMT)));
      bool usedummy = !!(currentServerM && currentServerM->Quirk(cSatipServer::eSatipQuirkPlayPids));
      if (forceP || usedummy) {
         if (pidsM.Size())
@@ -403,6 +404,13 @@ bool cSatipTuner::UpdatePids(bool forceP)
            uri = cString::sprintf("%s?addpids=%s", *uri, *addPidsM.ListPids());
         if (delPidsM.Size())
            uri = cString::sprintf("%s%sdelpids=%s", *uri, addPidsM.Size() ? "&" : "?", *delPidsM.ListPids());
+        }
+     if (usexpmt) {
+        int pid = deviceM->GetPmtPid();
+        // issue TS rerouting only on pid changes
+        if ((pid > 0) && (pid != pmtPidM))
+           uri = cString::sprintf("%s&x_pmt=%d", *uri, pid);
+        pmtPidM = pid;
         }
      if (!rtspM.Play(*uri))
         return false;

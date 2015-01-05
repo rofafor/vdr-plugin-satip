@@ -45,6 +45,9 @@ cSatipServer::cSatipServer(const char *addressP, const char *modelP, const char 
         quirkM |= eSatipQuirkForceLock;
      if (quirkM != eSatipQuirkNone)
         info("Malfunctioning '%s' server detected! Please, fix the firmware.", *descriptionM);
+     // These devices support the X_PMT protocol extension
+     if (strstr(*descriptionM, "OctopusNet"))           // Digital Devices OctopusNet
+        quirkM |= eSatipQuirkUseXPMT;
   }
   char *s, *p = strdup(*modelM);
   char *r = strtok_r(p, ",", &s);

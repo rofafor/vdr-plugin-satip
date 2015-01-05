@@ -108,6 +108,7 @@ public:
 public:
   virtual void WriteData(u_char *bufferP, int lengthP);
   virtual int GetId(void);
+  virtual int GetPmtPid(void);
 };
 
 #endif // __SATIP_DEVICE_H

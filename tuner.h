@@ -101,6 +101,7 @@ private:
   int signalStrengthM;
   int signalQualityM;
   int streamIdM;
+  int pmtPidM;
   cSatipPid addPidsM;
   cSatipPid delPidsM;
   cSatipPid pidsM;

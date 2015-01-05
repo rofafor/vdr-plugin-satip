@@ -274,6 +274,8 @@ bool cPluginSatip::SetupParse(const char *nameP, const char *valueP)
   // Parse your own setup parameters and store their values.
   if (!strcasecmp(nameP, "OperatingMode"))
      SatipConfig.SetOperatingMode(atoi(valueP));
+  else if (!strcasecmp(nameP, "EnableCIExtension"))
+     SatipConfig.SetCIExtension(atoi(valueP));
   else if (!strcasecmp(nameP, "EnableEITScan"))
      SatipConfig.SetEITScan(atoi(valueP));
   else if (!strcasecmp(nameP, "DisabledSources")) {
