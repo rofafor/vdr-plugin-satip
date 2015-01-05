@@ -136,6 +136,7 @@ int cSatipSocket::Read(unsigned char *bufferAddrP, unsigned int bufferLenP)
 int cSatipSocket::ReadMulti(unsigned char *bufferAddrP, unsigned int *elementRecvSizeP, unsigned int elementCountP, unsigned int elementBufferSizeP)
 {
   debug16("%s (, , %d, %d)", __PRETTY_FUNCTION__, elementCountP, elementBufferSizeP);
+#if defined(__GLIBC_PREREQ) && __GLIBC_PREREQ(2,12)
   // Error out if socket not initialized
   if (socketDescM <= 0) {
      error("%s Invalid socket", __PRETTY_FUNCTION__);
@@ -159,6 +160,17 @@ int cSatipSocket::ReadMulti(unsigned char *bufferAddrP, unsigned int *elementRec
   ERROR_IF_RET(count < 0 && errno != EAGAIN && errno != EWOULDBLOCK, "recvmmsg()", return -1);
   for (int i = 0; i < count; ++i)
       elementRecvSizeP[i] = mmsgh[i].msg_len;
+#else
+  int count = 0;
+  while (count < (int)elementCountP) {
+        int len = Read(bufferAddrP + count * elementBufferSizeP, elementBufferSizeP);
+        if (len < 0)
+           return -1;
+        else if (len == 0)
+           break;
+        elementRecvSizeP[count++] = len;
+        }
+#endif
   debug16("%s Received %d packets size[0]=%d", __PRETTY_FUNCTION__, count, elementRecvSizeP[0]);
 
   return count;
