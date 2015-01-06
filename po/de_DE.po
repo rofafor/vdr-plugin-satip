@@ -86,7 +86,7 @@ msgid "high"
 msgstr "hoch"
 
 msgid "Button$Devices"
-msgstr ""
+msgstr "Geräte"
 
 msgid "Operating mode"
 msgstr "Betriebsmodus"
