@@ -49,6 +49,9 @@ msgstr "Modelo"
 msgid "Description"
 msgstr "Descripción"
 
+msgid "CI extension"
+msgstr ""
+
 msgid "Creation date"
 msgstr "Fecha creación"
 

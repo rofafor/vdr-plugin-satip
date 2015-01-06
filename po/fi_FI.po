@@ -49,6 +49,9 @@ msgstr "Malli"
 msgid "Description"
 msgstr "Kuvaus"
 
+msgid "CI extension"
+msgstr "CI-laajennos"
+
 msgid "Creation date"
 msgstr "Luontiajankohta"
 

@@ -89,6 +89,7 @@ private:
   cString addressM;
   cString modelM;
   cString descriptionM;
+  cString ciExtensionM;
   uint64_t createdM;
   void Setup(void);
 
@@ -103,6 +104,7 @@ cSatipServerInfo::cSatipServerInfo(cSatipServer *serverP)
   addressM(serverP ? serverP->Address() : "---"),
   modelM(serverP ? serverP->Model() : "---"),
   descriptionM(serverP ? serverP->Description() : "---"),
+  ciExtensionM(serverP && serverP->Quirk(cSatipServer::eSatipQuirkUseXPMT) ? trVDR("yes") : trVDR("no")),
   createdM(serverP ? serverP->Created() : 0)
 {
   SetMenuCategory(mcSetupPlugins);
@@ -119,6 +121,7 @@ void cSatipServerInfo::Setup(void)
   Add(new cOsdItem(cString::sprintf("%s:\t%s", tr("Address"),       *addressM),              osUnknown, false));
   Add(new cOsdItem(cString::sprintf("%s:\t%s", tr("Model"),         *modelM),                osUnknown, false));
   Add(new cOsdItem(cString::sprintf("%s:\t%s", tr("Description"),   *descriptionM),          osUnknown, false));
+  Add(new cOsdItem(cString::sprintf("%s:\t%s", tr("CI extension"),  *ciExtensionM),          osUnknown, false));
   Add(new cOsdItem(cString::sprintf("%s:\t%s", tr("Creation date"), *DayDateTime(createdM)), osUnknown, false));
 }
 
