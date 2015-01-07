@@ -406,8 +406,13 @@ bool cSatipTuner::UpdatePids(bool forceP)
            uri = cString::sprintf("%s%sdelpids=%s", *uri, addPidsM.Size() ? "&" : "?", *delPidsM.ListPids());
         }
      if (usexpmt) {
+        // CI extension parameters:
+        // - x_pmt : specifies the PMT of the service you want the CI to decode
+        // - x_ci  : specfies which CI slot (1..n) to use
+        //           value 0 releases the CI slot
+        //           CI slot released automatically if the stream is released,
+        //           but not when used retuning to another channel
         int pid = deviceM->GetPmtPid();
-        // issue TS rerouting only on pid changes
         if ((pid > 0) && (pid != pmtPidM))
            uri = cString::sprintf("%s&x_pmt=%d", *uri, pid);
         pmtPidM = pid;
