@@ -331,8 +331,8 @@ bool cSatipDevice::SetChannelDevice(const cChannel *channelP, bool liveViewP)
         }
      cSatipDiscover::GetInstance()->SetTransponder(server, channelP->Transponder());
      if (pTunerM && pTunerM->SetSource(server, *params, deviceIndexM)) {
-        deviceNameM = cString::sprintf("%s %d %s", *DeviceType(), deviceIndexM, *cSatipDiscover::GetInstance()->GetServerString(server));
         channelM = *channelP;
+        deviceNameM = cString::sprintf("%s %d %s", *DeviceType(), deviceIndexM, *cSatipDiscover::GetInstance()->GetServerString(server));
         return true;
         }
      }
@@ -436,6 +436,13 @@ int cSatipDevice::GetPmtPid(void)
 #endif
   debug11("%s pmtpid=%d source=%c transponder=%d sid=%d name=%s [device %u]", __PRETTY_FUNCTION__, pid, cSource::ToChar(channelM.Source()), channelM.Transponder(), channelM.Sid(), channelM.Name(), deviceIndexM);
   return pid;
+}
+
+int cSatipDevice::GetCISlot(void)
+{
+  int slot = channelM.Ca() ? (channelM.Rid() / 100) % 10 : 0;
+  debug11("%s slot=%d name=%s [device %u]", __PRETTY_FUNCTION__, slot, channelM.Name(), deviceIndexM);
+  return slot;
 }
 
 uchar *cSatipDevice::GetData(int *availableP)

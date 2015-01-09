@@ -391,7 +391,7 @@ bool cSatipTuner::UpdatePids(bool forceP)
   if (((forceP && pidsM.Size()) || (pidUpdateCacheM.TimedOut() && (addPidsM.Size() || delPidsM.Size()))) &&
       !isempty(*streamAddrM) && (streamIdM > 0)) {
      cString uri = cString::sprintf("rtsp://%s/stream=%d", *streamAddrM, streamIdM);
-     bool usexpmt = (SatipConfig.GetCIExtension() && !!(currentServerM && currentServerM->Quirk(cSatipServer::eSatipQuirkUseXPMT)));
+     bool useci = (SatipConfig.GetCIExtension() && !!(currentServerM && currentServerM->Quirk(cSatipServer::eSatipQuirkUseXCI)));
      bool usedummy = !!(currentServerM && currentServerM->Quirk(cSatipServer::eSatipQuirkPlayPids));
      if (forceP || usedummy) {
         if (pidsM.Size())
@@ -405,7 +405,7 @@ bool cSatipTuner::UpdatePids(bool forceP)
         if (delPidsM.Size())
            uri = cString::sprintf("%s%sdelpids=%s", *uri, addPidsM.Size() ? "&" : "?", *delPidsM.ListPids());
         }
-     if (usexpmt) {
+     if (useci) {
         // CI extension parameters:
         // - x_pmt : specifies the PMT of the service you want the CI to decode
         // - x_ci  : specfies which CI slot (1..n) to use
@@ -413,8 +413,12 @@ bool cSatipTuner::UpdatePids(bool forceP)
         //           CI slot released automatically if the stream is released,
         //           but not when used retuning to another channel
         int pid = deviceM->GetPmtPid();
-        if ((pid > 0) && (pid != pmtPidM))
+        if ((pid > 0) && (pid != pmtPidM)) {
+           int slot = deviceM->GetCISlot();
            uri = cString::sprintf("%s&x_pmt=%d", *uri, pid);
+           if (slot > 0)
+              uri = cString::sprintf("%s&x_ci=%d", *uri, slot);
+           }
         pmtPidM = pid;
         }
      if (!rtspM.Play(*uri))
