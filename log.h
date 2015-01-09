@@ -32,7 +32,7 @@
 #define debug9(x...)  void( SatipConfig.IsTraceMode(cSatipConfig::eTraceModeDebug9)  ? dsyslog("SATIP9: " x)  : void() )
 // 0x0200: RTCP packets
 #define debug10(x...) void( SatipConfig.IsTraceMode(cSatipConfig::eTraceModeDebug10) ? dsyslog("SATIP10: " x) : void() )
-// 0x0400: TBD
+// 0x0400: PMT
 #define debug11(x...) void( SatipConfig.IsTraceMode(cSatipConfig::eTraceModeDebug11) ? dsyslog("SATIP11: " x) : void() )
 // 0x0800: TBD
 #define debug12(x...) void( SatipConfig.IsTraceMode(cSatipConfig::eTraceModeDebug12) ? dsyslog("SATIP12: " x) : void() )
