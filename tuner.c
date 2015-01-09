@@ -378,7 +378,6 @@ bool cSatipTuner::SetPid(int pidP, int typeP, bool onP)
      addPidsM.RemovePid(pidP);
      }
   debug9("%s (%d, %d, %d) pids=%s [device %d]", __PRETTY_FUNCTION__, pidP, typeP, onP, *pidsM.ListPids(), deviceIdM);
-  pidUpdateCacheM.Set(ePidUpdateIntervalMs);
   sleepM.Signal();
 
   return true;
@@ -421,6 +420,7 @@ bool cSatipTuner::UpdatePids(bool forceP)
            }
         pmtPidM = pid;
         }
+     pidUpdateCacheM.Set(ePidUpdateIntervalMs);
      if (!rtspM.Play(*uri))
         return false;
      addPidsM.Clear();
