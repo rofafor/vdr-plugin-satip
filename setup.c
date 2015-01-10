@@ -368,7 +368,7 @@ void cSatipPluginSetup::Setup(void)
   helpM.Append(tr("Define the used operating mode for all SAT>IP devices:\n\noff - devices are disabled\nlow - devices are working at the lowest priority\nnormal - devices are working within normal parameters\nhigh - devices are working at the highest priority"));
 
   if (operatingModeM) {
-#if defined(APIVERSNUM) && APIVERSNUM >= 20107
+#ifdef XCI
      Add(new cMenuEditBoolItem(tr("Enable CI extension"), &ciExtensionM));
      helpM.Append(tr("Define whether a CI extension shall be used.\n\nThis setting enables integrated CI/CAM handling found in some SAT>IP hardware (e.g. Digital Devices OctopusNet)."));
 #endif

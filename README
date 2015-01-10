@@ -27,7 +27,6 @@ Requirements:
   http://www.gnu.org/software/libc/
 
 - VDR >= 2.1.4 for scrambled channels
-      >= 2.1.7 for Digital Devices CI extension
 
 Description:
 

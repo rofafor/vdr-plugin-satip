@@ -10,6 +10,10 @@
 
 #SATIP_USE_TINYXML = 1
 
+# Enable CI extension - requires VDR API implementing GetPmt(int, int, int)
+
+#SATIP_XCI = 1
+
 # Strip debug symbols?  Set eg. to /bin/true if not
 
 STRIP = strip
@@ -76,7 +80,15 @@ LIBS += -lpugixml
 endif
 
 ifdef SATIP_DEBUG
+ifeq ($(SATIP_DEBUG),1)
 DEFINES += -DDEBUG
+endif
+endif
+
+ifdef SATIP_XCI
+ifeq ($(SATIP_XCI),1)
+DEFINES += -DXCI
+endif
 endif
 
 ifneq ($(strip $(GITTAG)),)
