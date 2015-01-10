@@ -95,4 +95,5 @@ VDR Plugin 'satip' Revision History
 - Fixed the server teardown.
 - Removed the unnecessary config directory definition.
 - Added a fallback for older glibc libraries.
+- Improved pid selection performance.
 - Added support for Digital Devices CI extension.
