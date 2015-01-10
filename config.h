@@ -19,6 +19,7 @@ private:
   unsigned int ciExtensionM;
   unsigned int eitScanM;
   unsigned int useBytesM;
+  int cicamsM[MAX_CICAM_COUNT];
   int disabledSourcesM[MAX_DISABLED_SOURCES_COUNT];
   int disabledFiltersM[SECTION_FILTER_TABLE_SIZE];
 
@@ -60,6 +61,7 @@ public:
   unsigned int GetTraceMode(void) const { return traceModeM; }
   bool IsTraceMode(eTraceMode modeP) const { return (traceModeM & modeP); }
   unsigned int GetCIExtension(void) const { return ciExtensionM; }
+  int GetCICAM(unsigned int indexP) const;
   unsigned int GetEITScan(void) const { return eitScanM; }
   unsigned int GetUseBytes(void) const { return useBytesM; }
   unsigned int GetDisabledSourcesCount(void) const;
@@ -70,6 +72,7 @@ public:
   void SetOperatingMode(unsigned int operatingModeP) { operatingModeM = operatingModeP; }
   void SetTraceMode(unsigned int modeP) { traceModeM = (modeP & eTraceModeMask); }
   void SetCIExtension(unsigned int onOffP) { ciExtensionM = onOffP; }
+  void SetCICAM(unsigned int indexP, int cicamP);
   void SetEITScan(unsigned int onOffP) { eitScanM = onOffP; }
   void SetUseBytes(unsigned int onOffP) { useBytesM = onOffP; }
   void SetDisabledSources(unsigned int indexP, int sourceP);

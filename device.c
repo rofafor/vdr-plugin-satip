@@ -440,8 +440,21 @@ int cSatipDevice::GetPmtPid(void)
 
 int cSatipDevice::GetCISlot(void)
 {
-  int slot = channelM.Ca() ? (channelM.Rid() / 100) % 10 : 0;
-  debug11("%s slot=%d name=%s [device %u]", __PRETTY_FUNCTION__, slot, channelM.Name(), deviceIndexM);
+  int slot = 0;
+  int ca = 0;
+  for (const int *id = channelM.Caids(); *id; ++id) {
+      if (checkCASystem(SatipConfig.GetCICAM(0), *id)) {
+         ca = *id;
+         slot = 1;
+         break;
+         }
+      else if (checkCASystem(SatipConfig.GetCICAM(1), *id)) {
+         ca = *id;
+         slot = 2;
+         break;
+         }
+      }
+  debug11("%s slot=%d ca=%X name=%s [device %u]", __PRETTY_FUNCTION__, slot, ca, channelM.Name(), deviceIndexM);
   return slot;
 }
 

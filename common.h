@@ -13,8 +13,6 @@
 #include <vdr/config.h>
 #include <vdr/i18n.h>
 
-#define ELEMENTS(x)                      (sizeof(x) / sizeof(x[0]))
-
 #define SATIP_MAX_DEVICES                MAXDEVICES
 
 #define SATIP_BUFFER_SIZE                KILOBYTE(1024)
@@ -31,6 +29,9 @@
 
 #define MAX_DISABLED_SOURCES_COUNT       5
 #define SECTION_FILTER_TABLE_SIZE        5
+
+#define MAX_CICAM_COUNT                  2
+#define CA_SYSTEMS_TABLE_SIZE            47
 
 #define SATIP_CURL_EASY_GETINFO(X, Y, Z) \
   if ((res = curl_easy_getinfo((X), (Y), (Z))) != CURLE_OK) { \
@@ -81,7 +82,7 @@
         }                        \
   } while (0)
 
-#define ARRAY_SIZE(arr) (sizeof(arr) / sizeof(arr[0]))
+#define ELEMENTS(x) (sizeof(x) / sizeof(x[0]))
 
 uint16_t ts_pid(const uint8_t *bufP);
 uint8_t payload(const uint8_t *bufP);
@@ -99,6 +100,15 @@ struct section_filter_table_type {
 };
 
 extern const section_filter_table_type section_filter_table[SECTION_FILTER_TABLE_SIZE];
+
+struct ca_systems_table_type {
+  int start;
+  int end;
+  const char *description;
+};
+
+extern const ca_systems_table_type ca_systems_table[CA_SYSTEMS_TABLE_SIZE];
+extern bool checkCASystem(unsigned int cicamP, int caidP);
 
 extern const char VERSION[];
 

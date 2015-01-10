@@ -19,6 +19,8 @@ private:
   int operatingModeM;
   const char *operatingModeTextsM[cSatipConfig::eOperatingModeCount];
   int ciExtensionM;
+  int cicamsM[MAX_CICAM_COUNT];
+  const char *cicamTextsM[CA_SYSTEMS_TABLE_SIZE];
   int eitScanM;
   int numDisabledSourcesM;
   int disabledSourcesM[MAX_DISABLED_SOURCES_COUNT];
@@ -32,6 +34,7 @@ private:
   eOSState ShowDeviceStatus(void);
   eOSState ShowInfo(void);
   void Setup(void);
+  void StoreCicams(const char *nameP, int *cicamsP);
   void StoreSources(const char *nameP, int *sourcesP);
   void StoreFilters(const char *nameP, int *valuesP);
 

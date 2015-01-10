@@ -18,46 +18,59 @@ cSatipConfig::cSatipConfig(void)
   eitScanM(1),
   useBytesM(1)
 {
-  for (unsigned int i = 0; i < ARRAY_SIZE(disabledSourcesM); ++i)
+  for (unsigned int i = 0; i < ELEMENTS(cicamsM); ++i)
+      cicamsM[i] = 0;
+  for (unsigned int i = 0; i < ELEMENTS(disabledSourcesM); ++i)
       disabledSourcesM[i] = cSource::stNone;
-  for (unsigned int i = 0; i < ARRAY_SIZE(disabledFiltersM); ++i)
+  for (unsigned int i = 0; i < ELEMENTS(disabledFiltersM); ++i)
       disabledFiltersM[i] = -1;
+}
+
+int cSatipConfig::GetCICAM(unsigned int indexP) const
+{
+  return (indexP < ELEMENTS(cicamsM)) ? cicamsM[indexP] : -1;
+}
+
+void cSatipConfig::SetCICAM(unsigned int indexP, int cicamP)
+{
+  if (indexP < ELEMENTS(cicamsM))
+     cicamsM[indexP] = cicamP;
 }
 
 unsigned int cSatipConfig::GetDisabledSourcesCount(void) const
 {
   unsigned int n = 0;
-  while ((n < ARRAY_SIZE(disabledSourcesM) && (disabledSourcesM[n] != cSource::stNone)))
+  while ((n < ELEMENTS(disabledSourcesM) && (disabledSourcesM[n] != cSource::stNone)))
         n++;
   return n;
 }
 
 int cSatipConfig::GetDisabledSources(unsigned int indexP) const
 {
-  return (indexP < ARRAY_SIZE(disabledSourcesM)) ? disabledSourcesM[indexP] : cSource::stNone;
+  return (indexP < ELEMENTS(disabledSourcesM)) ? disabledSourcesM[indexP] : cSource::stNone;
 }
 
 void cSatipConfig::SetDisabledSources(unsigned int indexP, int sourceP)
 {
-  if (indexP < ARRAY_SIZE(disabledSourcesM))
+  if (indexP < ELEMENTS(disabledSourcesM))
      disabledSourcesM[indexP] = sourceP;
 }
 
 unsigned int cSatipConfig::GetDisabledFiltersCount(void) const
 {
   unsigned int n = 0;
-  while ((n < ARRAY_SIZE(disabledFiltersM) && (disabledFiltersM[n] != -1)))
+  while ((n < ELEMENTS(disabledFiltersM) && (disabledFiltersM[n] != -1)))
         n++;
   return n;
 }
 
 int cSatipConfig::GetDisabledFilters(unsigned int indexP) const
 {
-  return (indexP < ARRAY_SIZE(disabledFiltersM)) ? disabledFiltersM[indexP] : -1;
+  return (indexP < ELEMENTS(disabledFiltersM)) ? disabledFiltersM[indexP] : -1;
 }
 
 void cSatipConfig::SetDisabledFilters(unsigned int indexP, int numberP)
 {
-  if (indexP < ARRAY_SIZE(disabledFiltersM))
+  if (indexP < ELEMENTS(disabledFiltersM))
      disabledFiltersM[indexP] = numberP;
 }

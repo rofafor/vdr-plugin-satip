@@ -70,11 +70,6 @@ identifier number in RID field of a channels.conf entry:
 FE = RID % 100
 Valid range: 1 ... 99
 
-A channel can be assigned into a specific integrated CI slot by giving
-the identifier number in RID field of a channels.conf entry:
-CI# = (RID / 100) % 10
-Valid range: 1 ... 9
-
 Setup menu:
 
 - Operating mode = off       If you want exclude all SAT>IP devices
@@ -89,6 +84,9 @@ Setup menu:
                              in some SAT>IP hardware (e.g. Digital
                              Devices OctopusNet), set this option to
                              "yes".
+- CICAM #<slot> = <system>   If you want to assign a CA system into
+                             a specific CI slot, set this option to
+                             a named one. Use "---" for autoselection.
 - Enable EPG scanning = yes  If you want exclude all SAT>IP devices
                              from VDR's EIT background scanning, set
                              this option to "no".

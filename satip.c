@@ -35,6 +35,7 @@ private:
   unsigned int deviceCountM;
   cSatipDiscoverServers *serversM;
   void ParseServer(const char *paramP);
+  int ParseCicams(const char *valueP, int *cicamsP);
   int ParseSources(const char *valueP, int *sourcesP);
   int ParseFilters(const char *valueP, int *filtersP);
 public:
@@ -234,6 +235,23 @@ void cPluginSatip::ParseServer(const char *paramP)
         }
 }
 
+int cPluginSatip::ParseCicams(const char *valueP, int *cicamsP)
+{
+  debug1("%s (%s,)", __PRETTY_FUNCTION__, valueP);
+  int n = 0;
+  char *s, *p = (char *)valueP;
+  char *r = strtok_r(p, " ", &s);
+  while (r) {
+        r = skipspace(r);
+        debug3("%s cicams[%d]=%s", __PRETTY_FUNCTION__, n, r);
+        if (n < MAX_CICAM_COUNT) {
+           cicamsP[n++] = atoi(r);
+           }
+        r = strtok_r(NULL, " \n", &s);
+        }
+  return n;
+}
+
 int cPluginSatip::ParseSources(const char *valueP, int *sourcesP)
 {
   debug1("%s (%s,)", __PRETTY_FUNCTION__, valueP);
@@ -276,11 +294,19 @@ bool cPluginSatip::SetupParse(const char *nameP, const char *valueP)
      SatipConfig.SetOperatingMode(atoi(valueP));
   else if (!strcasecmp(nameP, "EnableCIExtension"))
      SatipConfig.SetCIExtension(atoi(valueP));
+  else if (!strcasecmp(nameP, "CICAM")) {
+     int Cicams[MAX_CICAM_COUNT];
+     for (unsigned int i = 0; i < ELEMENTS(Cicams); ++i)
+         Cicams[i] = 0;
+     unsigned int CicamsCount = ParseCicams(valueP, Cicams);
+     for (unsigned int i = 0; i < CicamsCount; ++i)
+         SatipConfig.SetCICAM(i, Cicams[i]);
+     }
   else if (!strcasecmp(nameP, "EnableEITScan"))
      SatipConfig.SetEITScan(atoi(valueP));
   else if (!strcasecmp(nameP, "DisabledSources")) {
      int DisabledSources[MAX_DISABLED_SOURCES_COUNT];
-     for (unsigned int i = 0; i < ARRAY_SIZE(DisabledSources); ++i)
+     for (unsigned int i = 0; i < ELEMENTS(DisabledSources); ++i)
          DisabledSources[i] = cSource::stNone;
      unsigned int DisabledSourcesCount = ParseSources(valueP, DisabledSources);
      for (unsigned int i = 0; i < DisabledSourcesCount; ++i)
@@ -288,7 +314,7 @@ bool cPluginSatip::SetupParse(const char *nameP, const char *valueP)
      }
   else if (!strcasecmp(nameP, "DisabledFilters")) {
      int DisabledFilters[SECTION_FILTER_TABLE_SIZE];
-     for (unsigned int i = 0; i < ARRAY_SIZE(DisabledFilters); ++i)
+     for (unsigned int i = 0; i < ELEMENTS(DisabledFilters); ++i)
          DisabledFilters[i] = -1;
      unsigned int DisabledFiltersCount = ParseFilters(valueP, DisabledFilters);
      for (unsigned int i = 0; i < DisabledFiltersCount; ++i)

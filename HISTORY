@@ -99,3 +99,5 @@ VDR Plugin 'satip' Revision History
 - Added support for Digital Devices CI extension.
 
 2015-01-18: Version 1.0.2
+
+- Added configurable CI slots.
