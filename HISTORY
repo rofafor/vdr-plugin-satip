@@ -97,3 +97,5 @@ VDR Plugin 'satip' Revision History
 - Added a fallback for older glibc libraries.
 - Improved pid selection performance.
 - Added support for Digital Devices CI extension.
+
+2015-01-18: Version 1.0.2
