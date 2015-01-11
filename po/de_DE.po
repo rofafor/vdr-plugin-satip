@@ -118,6 +118,15 @@ msgstr ""
 "\n"
 "Diese Einstellung aktiviert die Nutzung des integrierten CI/CAM einiger SAT>IP Geräte (z.B. Digital Devices OctopusNet)."
 
+msgid "CI/CAM"
+msgstr "CI/CAM"
+
+msgid ""
+"Define a desired CAM type for the CI slot.\n"
+"\n"
+"The '---' option lets SAT>IP hardware do the auto-selection."
+msgstr ""
+
 msgid "Enable EPG scanning"
 msgstr "Aktiviere EPG Aktualisierung"
 

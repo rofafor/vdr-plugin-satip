@@ -377,8 +377,8 @@ void cSatipPluginSetup::Setup(void)
      helpM.Append(tr("Define whether a CI extension shall be used.\n\nThis setting enables integrated CI/CAM handling found in some SAT>IP hardware (e.g. Digital Devices OctopusNet)."));
 
      for (unsigned int i = 0; ciExtensionM && i < ELEMENTS(cicamsM); ++i) {
-         Add(new cMenuEditStraItem(*cString::sprintf(" %s #%d", "CI/CAM", i + 1), &cicamsM[i], ELEMENTS(cicamTextsM), cicamTextsM));
-         helpM.Append("Define the used CI/CAM type for CI slot.");
+         Add(new cMenuEditStraItem(*cString::sprintf(" %s #%d", tr("CI/CAM"), i + 1), &cicamsM[i], ELEMENTS(cicamTextsM), cicamTextsM));
+         helpM.Append(tr("Define a desired CAM type for the CI slot.\n\nThe '---' option lets SAT>IP hardware do the auto-selection."));
          }
 #endif
      Add(new cMenuEditBoolItem(tr("Enable EPG scanning"), &eitScanM));

@@ -117,6 +117,18 @@ msgstr ""
 "\n"
 "Tällä asetuksella saadaan otettua käyttöön SAT>IP-laitteiden sisäinen CI-paikka (esim. Digital Devices OctopusNet)."
 
+msgid "CI/CAM"
+msgstr "CI/CAM"
+
+msgid ""
+"Define a desired CAM type for the CI slot.\n"
+"\n"
+"The '---' option lets SAT>IP hardware do the auto-selection."
+msgstr ""
+"Määrittele haluttu CAM-tyyppi CI-paikalle.\n"
+"\n"
+"Vaihtoehto '---' antaa SAT>IP-laitteen valita automaattisesti käytetyn CI-paikan."
+
 msgid "Enable EPG scanning"
 msgstr "Käytä ohjelmaoppaan taustapäivitystä"
 
