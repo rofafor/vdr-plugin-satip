@@ -292,7 +292,7 @@ void cSatipTuner::ProcessApplicationData(u_char *bufferP, int lengthP)
         // -65dBm corresponds to 32
         // No signal corresponds to 0
         c = strstr(c, ",");
-        value = atoi(++c);
+        value = min(atoi(++c), 255);
         // Scale value to 0-100
         signalStrengthM = (value >= 0) ? (value * 100 / 255) : -1;
 
@@ -310,7 +310,7 @@ void cSatipTuner::ProcessApplicationData(u_char *bufferP, int lengthP)
         // -a BER lower than 2x10-4 after Viterbi for DVB-S
         // -a PER lower than 10-7 for DVB-S2
         c = strstr(c, ",");
-        value = atoi(++c);
+        value = min(atoi(++c), 15);
         // Scale value to 0-100
         signalQualityM = (hasLockM && (value >= 0)) ? (value * 100 / 15) : 0;
         }
