@@ -49,7 +49,14 @@ be received, if there are available SAT>IP tuners.
 
 The plugin accepts also a "--server" (-s) command-line parameter, that
 can be used to manually configure static SAT>IP servers if autodetection
-via UPnP somehow can't be used.
+via UPnP somehow can't be used. The parameter string is a semicolon
+separated list of "<ipaddress>|<model>|<description>" entries. The model
+consists of a DVB system (DVBS2,DVBT2,DVBT,DVBC) and number of available
+frontends separated by a hyphen:
+
+vdr -P 'satip -s <ipaddress>|<model>|<description>;...'
+vdr -P 'satip -s 192.168.0.1|DVBS2-2,DVBT2-2|Octo1'
+vdr -P 'satip -s 192.168.0.1|DVBS2-4|Octo1;192.168.0.2|DVBT2-4|Octo2'
 
 SAT>IP satellite positions (aka. signal sources) shall be defined via
 sources.conf. If the source description begins with a number, it's used
