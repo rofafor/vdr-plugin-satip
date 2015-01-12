@@ -1,7 +1,7 @@
 # VDR plugin language source file.
-# Copyright (C) 2007-2014 Rolf Ahrenberg
+# Copyright (C) 2007-2015 Rolf Ahrenberg
 # This file is distributed under the same license as the satip package.
-# Rolf Ahrenberg, 2014
+# Rolf Ahrenberg, 2015
 #
 msgid ""
 msgstr ""

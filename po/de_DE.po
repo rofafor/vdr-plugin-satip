@@ -1,7 +1,7 @@
 # VDR plugin language source file.
-# Copyright (C) 2007-2014 Rolf Ahrenberg
+# Copyright (C) 2007-2015 Rolf Ahrenberg
 # This file is distributed under the same license as the satip package.
-# Frank Neumann, 2014
+# Frank Neumann, 2015
 #
 msgid ""
 msgstr ""
@@ -126,6 +126,9 @@ msgid ""
 "\n"
 "The '---' option lets SAT>IP hardware do the auto-selection."
 msgstr ""
+"Bestimmt welcher CI Einschub für ein CAM genutzt werden soll.\n"
+"\n"
+"Die Option '---' überlässt der SAT>IP Hardware die automatische Auswahl."
 
 msgid "Enable EPG scanning"
 msgstr "Aktiviere EPG Aktualisierung"
@@ -135,7 +138,7 @@ msgid ""
 "\n"
 "This setting disables the automatic EIT scanning functionality for all SAT>IP devices."
 msgstr ""
-"Definiert ob EPG im Hintergrund aktualisiert werden soll oder nicht.\n"
+"Legt fest ob EPG im Hintergrund aktualisiert werden soll oder nicht.\n"
 "\n"
 "Diese Einstellung schaltet die automatische EIT Aktualisierung für alle SAT>IP Geräte."
 
@@ -150,7 +153,7 @@ msgid ""
 "\n"
 "SAT>IP servers might not have all satellite positions available and such sources can be blacklisted here."
 msgstr ""
-"Definiert die Anzahl der deaktivierten Quellen.\n"
+"Legt die Anzahl der deaktivierten Quellen fest.\n"
 "\n"
 "Für einige SAT>IP server sind nicht alle Satellitenpositionen verfügbar, nicht verfügbare Quellen können hier ausgeblendet werden"
 
@@ -176,7 +179,7 @@ msgid "Define an ill-behaving filter to be blacklisted."
 msgstr "Bestimme einen fehlerhaften Filter der ausgeblendet werden soll."
 
 msgid "Active SAT>IP servers:"
-msgstr "Aktive SAT>IP Server"
+msgstr "Aktive SAT>IP Server:"
 
 msgid "Help"
 msgstr "Hilfe"
