@@ -14,6 +14,10 @@
 
 #SATIP_XCI = 1
 
+# Split any mixed model server into several single ones
+
+#SATIP_USE_SINGLE_MODEL_SERVERS_ONLY = 1
+
 # Strip debug symbols?  Set eg. to /bin/true if not
 
 STRIP = strip
@@ -88,6 +92,12 @@ endif
 ifdef SATIP_XCI
 ifeq ($(SATIP_XCI),1)
 DEFINES += -DXCI
+endif
+endif
+
+ifdef SATIP_USE_SINGLE_MODEL_SERVERS_ONLY
+ifeq ($(SATIP_USE_SINGLE_MODEL_SERVERS_ONLY),1)
+DEFINES += -DUSE_SINGLE_MODEL_SERVERS_ONLY
 endif
 endif
 

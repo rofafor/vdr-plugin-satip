@@ -99,7 +99,13 @@ cSatipServer::~cSatipServer()
 int cSatipServer::Compare(const cListObject &listObjectP) const
 {
   const cSatipServer *s = (const cSatipServer *)&listObjectP;
-  return strcasecmp(*addressM, *s->addressM);
+  int result = strcasecmp(*addressM, *s->addressM);
+  if (!result) {
+     result = strcasecmp(*modelM, *s->modelM);
+     if (!result)
+        result = strcasecmp(*descriptionM, *s->descriptionM);
+     }
+  return result;
 }
 
 void cSatipServer::Use(bool onOffP)
