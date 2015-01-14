@@ -25,7 +25,7 @@ private:
   time_t lastErrorReportM;
   int packetErrorsM;
   int sequenceNumberM;
-  int GetHeaderLenght(unsigned char *bufferP, unsigned int lengthP);
+  int GetHeaderLength(unsigned char *bufferP, unsigned int lengthP);
 
 public:
   cSatipRtp(cSatipTunerIf &tunerP);

@@ -51,7 +51,7 @@ void cSatipRtp::Close(void)
      }
 }
 
-int cSatipRtp::GetHeaderLenght(unsigned char *bufferP, unsigned int lengthP)
+int cSatipRtp::GetHeaderLength(unsigned char *bufferP, unsigned int lengthP)
 {
   debug16("%s (, %d) [device %d]", __PRETTY_FUNCTION__, lengthP, tunerM.GetId());
   unsigned int headerlen = 0;
@@ -88,7 +88,7 @@ int cSatipRtp::GetHeaderLenght(unsigned char *bufferP, unsigned int lengthP)
            }
         else
            sequenceNumberM = seq;
-        // Header lenght
+        // Header length
         headerlen = (3 + cc) * (unsigned int)sizeof(uint32_t);
         // Check if extension
         if (x) {
@@ -130,7 +130,7 @@ void cSatipRtp::Process(void)
        count = ReadMulti(bufferM, lenMsg, eRtpPacketReadCount, eMaxUdpPacketSizeB);
        for (int i = 0; i < count; ++i) {
            unsigned char *p = &bufferM[i * eMaxUdpPacketSizeB];
-           int headerlen = GetHeaderLenght(p, lenMsg[i]);
+           int headerlen = GetHeaderLength(p, lenMsg[i]);
            if ((headerlen >= 0) && (headerlen < (int)lenMsg[i]))
               tunerM.ProcessVideoData(p + headerlen, lenMsg[i] - headerlen);
            }

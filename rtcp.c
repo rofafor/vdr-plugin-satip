@@ -50,7 +50,7 @@ int cSatipRtcp::GetApplicationOffset(int *lengthP)
         //unsigned int st = bufferM[offset] & 0x1F;
         // Payload type
         unsigned int pt = bufferM[offset + 1] & 0xFF;
-        // Lenght
+        // Length
         unsigned int length = ((bufferM[offset + 2] & 0xFF) << 8) | (bufferM[offset + 3] & 0xFF);
         // Convert it to bytes
         length = (length + 1) * 4;

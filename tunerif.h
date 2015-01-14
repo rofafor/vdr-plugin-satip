@@ -12,8 +12,8 @@ class cSatipTunerIf {
 public:
   cSatipTunerIf() {}
   virtual ~cSatipTunerIf() {}
-  virtual void ProcessVideoData(u_char *bufferP, int lenghtP) = 0;
-  virtual void ProcessApplicationData(u_char *bufferP, int lenghtP) = 0;
+  virtual void ProcessVideoData(u_char *bufferP, int lengthP) = 0;
+  virtual void ProcessApplicationData(u_char *bufferP, int lengthP) = 0;
   virtual void SetStreamId(int streamIdP) = 0;
   virtual void SetSessionTimeout(const char *sessionP, int timeoutP) = 0;
   virtual int GetId(void) = 0;
