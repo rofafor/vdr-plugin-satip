@@ -52,40 +52,34 @@ cSatipServer::cSatipServer(const char *addressP, const char *modelP, const char 
   char *s, *p = strdup(*modelM);
   char *r = strtok_r(p, ",", &s);
   while (r) {
-        if (strstr(r, "DVBS2")) {
-           modelTypeM |= cSatipServer::eSatipModelTypeDVBS2;
+        if (strstr(r, "DVBS2-")) {
+           modelTypeM |= eSatipModelTypeDVBS2;
            if (char *c = strstr(r, "-"))
               modelCountM[eSatipModuleDVBS2] = atoi(++c);
-           else
-              modelCountM[eSatipModuleDVBS2] = 1;
            }
-        if (strstr(r, "DVBT2")) {
-           modelTypeM |= cSatipServer::eSatipModelTypeDVBT2;
+        else if (strstr(r, "DVBT2-")) {
+           modelTypeM |= eSatipModelTypeDVBT2;
            if (char *c = strstr(r, "-"))
               modelCountM[eSatipModuleDVBT2] = atoi(++c);
-           else
-              modelCountM[eSatipModuleDVBT2] = 1;
+           modelTypeM |= eSatipModelTypeDVBT;
+           modelCountM[eSatipModuleDVBT] = modelCountM[eSatipModuleDVBT2];
            }
-        if (strstr(r, "DVBT")) {
-           modelTypeM |= cSatipServer::eSatipModelTypeDVBT;
+        else if (strstr(r, "DVBT-")) {
+           modelTypeM |= eSatipModelTypeDVBT;
            if (char *c = strstr(r, "-"))
               modelCountM[eSatipModuleDVBT] = atoi(++c);
-           else
-              modelCountM[eSatipModuleDVBT] = 1;
            }
-        if (strstr(r, "DVBC2")) {
-           modelTypeM |= cSatipServer::eSatipModelTypeDVBC2;
+        else if (strstr(r, "DVBC2-")) {
+           modelTypeM |= eSatipModelTypeDVBC2;
            if (char *c = strstr(r, "-"))
               modelCountM[eSatipModuleDVBC2] = atoi(++c);
-           else
-              modelCountM[eSatipModuleDVBC2] = 1;
+           modelTypeM |= eSatipModelTypeDVBC;
+           modelCountM[eSatipModuleDVBC] = modelCountM[eSatipModuleDVBC2];
            }
-        if (strstr(r, "DVBC")) {
-           modelTypeM |= cSatipServer::eSatipModelTypeDVBC;
+        else if (strstr(r, "DVBC-")) {
+           modelTypeM |= eSatipModelTypeDVBC;
            if (char *c = strstr(r, "-"))
               modelCountM[eSatipModuleDVBC] = atoi(++c);
-           else
-              modelCountM[eSatipModuleDVBC] = 1;
            }
         r = strtok_r(NULL, ",", &s);
         }
