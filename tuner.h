@@ -8,6 +8,7 @@
 #ifndef __SATIP_TUNER_H
 #define __SATIP_TUNER_H
 
+#include <vdr/config.h> // APIVERSNUM
 #include <vdr/thread.h>
 #include <vdr/tools.h>
 
@@ -20,7 +21,14 @@
 
 class cSatipPid : public cVector<int> {
 private:
-  int PidIndex(const int &pidP)
+  static int PidCompare(const void *aPidP, const void *bPidP)
+  {
+    return (*(int*)aPidP - *(int*)bPidP);
+  }
+
+public:
+#if defined(APIVERSNUM) && APIVERSNUM < 20107
+  int IndexOf(const int &pidP)
   {
     for (int i = 0; i < Size(); ++i) {
         if (pidP == At(i))
@@ -28,26 +36,33 @@ private:
         }
     return -1;
   }
-  static int PidCompare(const void *aPidP, const void *bPidP)
+  bool RemoveElement(const int &pidP)
   {
-    return (*(int*)aPidP - *(int*)bPidP);
-  }
-
-public:
-  void RemovePid(const int &pidP)
-  {
-    int i = PidIndex(pidP);
+    int i = IndexOf(pidP);
     if (i >= 0) {
        Remove(i);
-       Sort(PidCompare);
+       return true;
        }
+    return false;
+  }
+  bool AppendUnique(int pidP)
+  {
+    if (IndexOf(pidP) < 0) {
+       Append(pidP);
+       return true;
+       }
+    return false;
+  }
+#endif
+  void RemovePid(const int &pidP)
+  {
+    if (RemoveElement(pidP))
+       Sort(PidCompare);
   }
   void AddPid(int pidP)
   {
-    if (PidIndex(pidP) < 0) {
-       Append(pidP);
+    if (AppendUnique(pidP))
        Sort(PidCompare);
-       }
   }
   cString ListPids(void)
   {
