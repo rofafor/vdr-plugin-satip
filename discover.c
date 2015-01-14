@@ -235,7 +235,7 @@ void cSatipDiscover::AddServer(const char *addrP, const char *modelP, const char
   cMutexLock MutexLock(&mutexM);
 #ifdef USE_SINGLE_MODEL_SERVERS_ONLY
   int n = 0;
-  char *s, *p = (char *)modelP;
+  char *s, *p = strdup(modelP);
   char *r = strtok_r(p, ",", &s);
   while (r) {
         r = skipspace(r);
@@ -249,6 +249,7 @@ void cSatipDiscover::AddServer(const char *addrP, const char *modelP, const char
            DELETENULL(tmp);
         r = strtok_r(NULL, ",\n", &s);
         }
+  FREE_POINTER(p);
 #else
   cSatipServer *tmp = new cSatipServer(addrP, modelP, descP);
   // Validate against existing servers

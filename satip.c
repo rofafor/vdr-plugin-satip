@@ -198,7 +198,7 @@ void cPluginSatip::ParseServer(const char *paramP)
 {
   debug1("%s (%s)", __PRETTY_FUNCTION__, paramP);
   int n = 0;
-  char *s, *p = (char *)paramP;
+  char *s, *p = strdup(paramP);
   char *r = strtok_r(p, ";", &s);
   while (r) {
         r = skipspace(r);
@@ -233,13 +233,14 @@ void cPluginSatip::ParseServer(const char *paramP)
         ++n;
         r = strtok_r(NULL, ";", &s);
         }
+  FREE_POINTER(p);
 }
 
 int cPluginSatip::ParseCicams(const char *valueP, int *cicamsP)
 {
   debug1("%s (%s,)", __PRETTY_FUNCTION__, valueP);
   int n = 0;
-  char *s, *p = (char *)valueP;
+  char *s, *p = strdup(valueP);
   char *r = strtok_r(p, " ", &s);
   while (r) {
         r = skipspace(r);
@@ -247,8 +248,9 @@ int cPluginSatip::ParseCicams(const char *valueP, int *cicamsP)
         if (n < MAX_CICAM_COUNT) {
            cicamsP[n++] = atoi(r);
            }
-        r = strtok_r(NULL, " \n", &s);
+        r = strtok_r(NULL, " ", &s);
         }
+  FREE_POINTER(p);
   return n;
 }
 
@@ -256,7 +258,7 @@ int cPluginSatip::ParseSources(const char *valueP, int *sourcesP)
 {
   debug1("%s (%s,)", __PRETTY_FUNCTION__, valueP);
   int n = 0;
-  char *s, *p = (char *)valueP;
+  char *s, *p = strdup(valueP);
   char *r = strtok_r(p, " ", &s);
   while (r) {
         r = skipspace(r);
@@ -264,8 +266,9 @@ int cPluginSatip::ParseSources(const char *valueP, int *sourcesP)
         if (n < MAX_DISABLED_SOURCES_COUNT) {
            sourcesP[n++] = cSource::FromString(r);
            }
-        r = strtok_r(NULL, " \n", &s);
+        r = strtok_r(NULL, " ", &s);
         }
+  FREE_POINTER(p);
   return n;
 }
 

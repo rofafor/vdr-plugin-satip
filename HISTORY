@@ -101,3 +101,4 @@ VDR Plugin 'satip' Revision History
 2015-01-18: Version 1.0.2
 
 - Added configurable CI slots.
+- Fixed parsing of the setup values.
