@@ -277,7 +277,7 @@ int cPluginSatip::ParseFilters(const char *valueP, int *filtersP)
   while (valueP && *valueP && (n < SECTION_FILTER_TABLE_SIZE)) {
     strn0cpy(buffer, valueP, sizeof(buffer));
     int i = atoi(buffer);
-    debug3(":%s filters[%d]=%d", __PRETTY_FUNCTION__, n, i);
+    debug3("%s filters[%d]=%d", __PRETTY_FUNCTION__, n, i);
     if (i >= 0)
        filtersP[n++] = i;
     if ((valueP = strchr(valueP, ' ')) != NULL)

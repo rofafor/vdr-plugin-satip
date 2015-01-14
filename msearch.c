@@ -59,12 +59,12 @@ void cSatipMsearch::Process(void)
      int length;
      while ((length = Read(bufferM, bufferLenM)) > 0) {
            bufferM[min(length, int(bufferLenM - 1))] = 0;
-           debug3("%s len=%d buf=%s", __PRETTY_FUNCTION__, length, bufferM);
+           debug12("%s len=%d buf=%s", __PRETTY_FUNCTION__, length, bufferM);
            bool status = false, valid = false;
            char *s, *p = reinterpret_cast<char *>(bufferM), *location = NULL;
            char *r = strtok_r(p, "\r\n", &s);
            while (r) {
-                 debug3("%s r=%s", __PRETTY_FUNCTION__, r);
+                 debug12("%s r=%s", __PRETTY_FUNCTION__, r);
                  // Check the status code
                  // HTTP/1.1 200 OK
                  if (!status && startswith(r, "HTTP/1.1 200 OK"))
