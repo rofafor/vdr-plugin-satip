@@ -150,7 +150,7 @@ cSatipServer *cSatipServers::Find(int sourceP, int transponderP, int systemP)
   return result;
 }
 
-void cSatipServers::SetTransponder(cSatipServer *serverP, bool transponderP)
+void cSatipServers::SetTransponder(cSatipServer *serverP, int transponderP)
 {
   for (cSatipServer *s = First(); s; s = Next(s)) {
       if (s == serverP) {

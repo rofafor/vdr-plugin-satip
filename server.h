@@ -78,7 +78,7 @@ class cSatipServers : public cList<cSatipServer> {
 public:
   cSatipServer *Find(cSatipServer *serverP);
   cSatipServer *Find(int sourceP, int transponderP, int systemP);
-  void SetTransponder(cSatipServer *serverP, bool transponderP);
+  void SetTransponder(cSatipServer *serverP, int transponderP);
   cSatipServer *Update(cSatipServer *serverP);
   void Use(cSatipServer *serverP, bool onOffP);
   void Cleanup(uint64_t intervalMsP = 0);
