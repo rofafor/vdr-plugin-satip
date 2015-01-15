@@ -345,7 +345,7 @@ bool cSatipDevice::SetChannelDevice(const cChannel *channelP, bool liveViewP)
 
 bool cSatipDevice::SetPid(cPidHandle *handleP, int typeP, bool onP)
 {
-  debug9("%s (%d, %d, %d) [device %u]", __PRETTY_FUNCTION__, handleP->pid, typeP, onP, deviceIndexM);
+  debug12("%s (%d, %d, %d) [device %u]", __PRETTY_FUNCTION__, handleP->pid, typeP, onP, deviceIndexM);
   if (pTunerM && handleP && handleP->pid >= 0) {
      if (onP)
         return pTunerM->SetPid(handleP->pid, typeP, true);
@@ -357,7 +357,7 @@ bool cSatipDevice::SetPid(cPidHandle *handleP, int typeP, bool onP)
 
 int cSatipDevice::OpenFilter(u_short pidP, u_char tidP, u_char maskP)
 {
-  debug9("%s (%d, %02X, %02X) [device %d]", __PRETTY_FUNCTION__, pidP, tidP, maskP, deviceIndexM);
+  debug12("%s (%d, %02X, %02X) [device %d]", __PRETTY_FUNCTION__, pidP, tidP, maskP, deviceIndexM);
   if (pSectionFilterHandlerM) {
      int handle = pSectionFilterHandlerM->Open(pidP, tidP, maskP);
      if (pTunerM && (handle >= 0))
@@ -371,7 +371,7 @@ void cSatipDevice::CloseFilter(int handleP)
 {
   if (pSectionFilterHandlerM) {
      int pid = pSectionFilterHandlerM->GetPid(handleP);
-     debug9("%s (%d) [device %u]", __PRETTY_FUNCTION__, pid, deviceIndexM);
+     debug12("%s (%d) [device %u]", __PRETTY_FUNCTION__, pid, deviceIndexM);
      if (pTunerM)
         pTunerM->SetPid(pid, ptOther, false);
      pSectionFilterHandlerM->Close(handleP);

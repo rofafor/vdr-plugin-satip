@@ -377,7 +377,7 @@ bool cSatipTuner::SetPid(int pidP, int typeP, bool onP)
      delPidsM.AddPid(pidP);
      addPidsM.RemovePid(pidP);
      }
-  debug9("%s (%d, %d, %d) pids=%s [device %d]", __PRETTY_FUNCTION__, pidP, typeP, onP, *pidsM.ListPids(), deviceIdM);
+  debug12("%s (%d, %d, %d) pids=%s [device %d]", __PRETTY_FUNCTION__, pidP, typeP, onP, *pidsM.ListPids(), deviceIdM);
   sleepM.Signal();
 
   return true;
