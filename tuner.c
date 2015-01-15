@@ -25,8 +25,8 @@ cSatipTuner::cSatipTuner(cSatipDeviceIf &deviceP, unsigned int packetLenP)
   rtcpM(*this),
   streamAddrM(""),
   streamParamM(""),
-  currentServerM(NULL),
-  nextServerM(NULL),
+  currentServerM(NULL, 0),
+  nextServerM(NULL, 0),
   mutexM(),
   reConnectM(),
   keepAliveM(),
@@ -119,7 +119,7 @@ void cSatipTuner::Action(void)
                // Read reception statistics via DESCRIBE and RTCP
                if (hasLockM || ReadReceptionStatus()) {
                   // Quirk for devices without valid reception data
-                  if (currentServerM && currentServerM->Quirk(cSatipServer::eSatipQuirkForceLock)) {
+                  if (currentServerM.IsQuirk(cSatipServer::eSatipQuirkForceLock)) {
                      hasLockM = true;
                      signalStrengthM = eDefaultSignalStrength;
                      signalQualityM = eDefaultSignalQuality;
@@ -201,11 +201,11 @@ bool cSatipTuner::Connect(void)
         rtcpM.Flush();
         if (rtspM.Setup(*uri, rtpM.Port(), rtcpM.Port())) {
            keepAliveM.Set(timeoutM);
-           if (nextServerM) {
-              cSatipDiscover::GetInstance()->UseServer(nextServerM, true);
+           if (nextServerM.IsValid()) {
               currentServerM = nextServerM;
-              nextServerM = NULL;
+              nextServerM.Reset();
               }
+           currentServerM.Use(true);
            return true;
            }
         }
@@ -237,8 +237,7 @@ bool cSatipTuner::Disconnect(void)
   signalQualityM = -1;
   frontendIdM = -1;
 
-  if (currentServerM)
-     cSatipDiscover::GetInstance()->UseServer(currentServerM, false);
+  currentServerM.Use(false);
   statusUpdateM.Set(0);
   timeoutM = eMinKeepAliveIntervalMs;
   pmtPidM = -1;
@@ -335,7 +334,7 @@ void cSatipTuner::SetSessionTimeout(const char *sessionP, int timeoutP)
   cMutexLock MutexLock(&mutexM);
   debug1("%s (%s, %d) [device %d]", __PRETTY_FUNCTION__, sessionP, timeoutP, deviceIdM);
   sessionM = sessionP;
-  if (nextServerM && nextServerM->Quirk(cSatipServer::eSatipQuirkSessionId) && !isempty(*sessionM) && startswith(*sessionM, "0"))
+  if (nextServerM.IsQuirk(cSatipServer::eSatipQuirkSessionId) && !isempty(*sessionM) && startswith(*sessionM, "0"))
      rtspM.SetSession(SkipZeroes(*sessionM));
   timeoutM = (timeoutP > eMinKeepAliveIntervalMs) ? timeoutP : eMinKeepAliveIntervalMs;
 }
@@ -346,15 +345,15 @@ int cSatipTuner::GetId(void)
   return deviceIdM;
 }
 
-bool cSatipTuner::SetSource(cSatipServer *serverP, const char *parameterP, const int indexP)
+bool cSatipTuner::SetSource(cSatipServer *serverP, const int transponderP, const char *parameterP, const int indexP)
 {
-  debug1("%s (%s, %d) [device %d]", __PRETTY_FUNCTION__, parameterP, indexP, deviceIdM);
+  debug1("%s (%d, %s, %d) [device %d]", __PRETTY_FUNCTION__, transponderP, parameterP, indexP, deviceIdM);
   cMutexLock MutexLock(&mutexM);
   if (serverP) {
-     nextServerM = cSatipDiscover::GetInstance()->GetServer(serverP);
-     if (nextServerM && !isempty(nextServerM->Address()) && !isempty(parameterP)) {
+     nextServerM.Set(serverP, transponderP);
+     if (!isempty(*nextServerM.GetAddress()) && !isempty(parameterP)) {
         // Update stream address and parameter
-        streamAddrM = rtspM.RtspUnescapeString(nextServerM->Address());
+        streamAddrM = rtspM.RtspUnescapeString(*nextServerM.GetAddress());
         streamParamM = rtspM.RtspUnescapeString(parameterP);
         // Reconnect
         RequestState(tsSet, smExternal);
@@ -395,8 +394,8 @@ bool cSatipTuner::UpdatePids(bool forceP)
   if (((forceP && pidsM.Size()) || (pidUpdateCacheM.TimedOut() && (addPidsM.Size() || delPidsM.Size()))) &&
       !isempty(*streamAddrM) && (streamIdM > 0)) {
      cString uri = cString::sprintf("rtsp://%s/stream=%d", *streamAddrM, streamIdM);
-     bool useci = (SatipConfig.GetCIExtension() && !!(currentServerM && currentServerM->Quirk(cSatipServer::eSatipQuirkUseXCI)));
-     bool usedummy = !!(currentServerM && currentServerM->Quirk(cSatipServer::eSatipQuirkPlayPids));
+     bool useci = (SatipConfig.GetCIExtension() && currentServerM.IsQuirk(cSatipServer::eSatipQuirkUseXCI));
+     bool usedummy = currentServerM.IsQuirk(cSatipServer::eSatipQuirkPlayPids);
      if (forceP || usedummy) {
         if (pidsM.Size())
            uri = cString::sprintf("%s?pids=%s", *uri, *pidsM.ListPids());

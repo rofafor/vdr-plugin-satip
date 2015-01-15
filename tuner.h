@@ -13,6 +13,7 @@
 #include <vdr/tools.h>
 
 #include "deviceif.h"
+#include "discover.h"
 #include "rtp.h"
 #include "rtcp.h"
 #include "rtsp.h"
@@ -76,6 +77,26 @@ public:
   }
 };
 
+class cSatipTunerServer
+{
+private:
+  cSatipServer *serverM;
+  int transponderM;
+
+public:
+  cSatipTunerServer(cSatipServer *serverP, const int transponderP) : serverM(serverP), transponderM(transponderP) {}
+  ~cSatipTunerServer() {}
+  cSatipTunerServer(const cSatipTunerServer &objP) { serverM = NULL; transponderM = 0; }
+  cSatipTunerServer& operator= (const cSatipTunerServer &objP) { serverM = objP.serverM; transponderM = objP.transponderM; return *this; }
+  bool IsValid(void) { return !!serverM; }
+  bool IsQuirk(int quirkP) { return (serverM && cSatipDiscover::GetInstance()->IsServerQuirk(serverM, quirkP)); }
+  void Use(bool onOffP) { if (serverM) cSatipDiscover::GetInstance()->UseServer(serverM, transponderM, onOffP); }
+  void Set(cSatipServer *serverP, const int transponderP) { serverM = serverP; transponderM = transponderP; }
+  void Reset(void) { serverM = NULL; transponderM = 0; }
+  cString GetAddress(void) { return serverM ? cSatipDiscover::GetInstance()->GetServerAddress(serverM) : ""; }
+  cString GetInfo(void) { return cString::sprintf("server=%s transponder=%d", serverM ? "assigned" : "null", transponderM); }
+};
+
 class cSatipTuner : public cThread, public cSatipTunerStatistics, public cSatipTunerIf
 {
 private:
@@ -100,8 +121,8 @@ private:
   cSatipRtcp rtcpM;
   cString streamAddrM;
   cString streamParamM;
-  cSatipServer *currentServerM;
-  cSatipServer *nextServerM;
+  cSatipTunerServer currentServerM;
+  cSatipTunerServer nextServerM;
   cMutex mutexM;
   cTimeMs reConnectM;
   cTimeMs keepAliveM;
@@ -140,7 +161,7 @@ public:
   cSatipTuner(cSatipDeviceIf &deviceP, unsigned int packetLenP);
   virtual ~cSatipTuner();
   bool IsTuned(void) const { return (currentStateM >= tsTuned); }
-  bool SetSource(cSatipServer *serverP, const char *parameterP, const int indexP);
+  bool SetSource(cSatipServer *serverP, const int transponderP, const char *parameterP, const int indexP);
   bool SetPid(int pidP, int typeP, bool onP);
   bool Open(void);
   bool Close(void);
