@@ -14,10 +14,6 @@
 
 #SATIP_XCI = 1
 
-# Split any mixed model server into several single ones
-
-#SATIP_USE_SINGLE_MODEL_SERVERS_ONLY = 1
-
 # Strip debug symbols?  Set eg. to /bin/true if not
 
 STRIP = strip

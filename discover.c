@@ -233,33 +233,33 @@ void cSatipDiscover::AddServer(const char *addrP, const char *modelP, const char
 {
   debug1("%s (%s, %s, %s)", __PRETTY_FUNCTION__, addrP, modelP, descP);
   cMutexLock MutexLock(&mutexM);
-#ifdef USE_SINGLE_MODEL_SERVERS_ONLY
-  int n = 0;
-  char *s, *p = strdup(modelP);
-  char *r = strtok_r(p, ",", &s);
-  while (r) {
-        r = skipspace(r);
-        cString desc = cString::sprintf("%s #%d", descP, n++);
-        cSatipServer *tmp = new cSatipServer(addrP, r, desc);
-        if (!serversM.Update(tmp)) {
-           info("Adding server '%s|%s|%s'",  tmp->Address(), tmp->Model(), tmp->Description());
-           serversM.Add(tmp);
+  if (SatipConfig.GetUseSingleModelServers()) {
+     int n = 0;
+     char *s, *p = strdup(modelP);
+     char *r = strtok_r(p, ",", &s);
+     while (r) {
+           r = skipspace(r);
+           cString desc = cString::sprintf("%s #%d", descP, n++);
+           cSatipServer *tmp = new cSatipServer(addrP, r, desc);
+           if (!serversM.Update(tmp)) {
+              info("Adding server '%s|%s|%s'",  tmp->Address(), tmp->Model(), tmp->Description());
+              serversM.Add(tmp);
+              }
+           else
+              DELETENULL(tmp);
+           r = strtok_r(NULL, ",\n", &s);
            }
-        else
-           DELETENULL(tmp);
-        r = strtok_r(NULL, ",\n", &s);
-        }
-  FREE_POINTER(p);
-#else
-  cSatipServer *tmp = new cSatipServer(addrP, modelP, descP);
-  // Validate against existing servers
-  if (!serversM.Update(tmp)) {
-     info("Adding server '%s|%s|%s'",  tmp->Address(), tmp->Model(), tmp->Description());
-     serversM.Add(tmp);
+     FREE_POINTER(p);
      }
-  else
-     DELETENULL(tmp);
-#endif
+  else {
+     cSatipServer *tmp = new cSatipServer(addrP, modelP, descP);
+     if (!serversM.Update(tmp)) {
+        info("Adding server '%s|%s|%s'",  tmp->Address(), tmp->Model(), tmp->Description());
+        serversM.Add(tmp);
+        }
+     else
+        DELETENULL(tmp);
+     }
 }
 
 int cSatipDiscover::GetServerCount(void)

@@ -16,7 +16,8 @@ cSatipConfig::cSatipConfig(void)
   traceModeM(eTraceModeNormal),
   ciExtensionM(0),
   eitScanM(1),
-  useBytesM(1)
+  useBytesM(1),
+  useSingleModelServersM(false)
 {
   for (unsigned int i = 0; i < ELEMENTS(cicamsM); ++i)
       cicamsM[i] = 0;

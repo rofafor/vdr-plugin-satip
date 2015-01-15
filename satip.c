@@ -84,7 +84,8 @@ const char *cPluginSatip::CommandLineHelp(void)
   return "  -d <num>, --devices=<number>  set number of devices to be created\n"
          "  -t <mode>, --trace=<mode>     set the tracing mode\n"
          "  -s <ipaddr>|<model>|<desc>, --server=<ipaddr1>|<model1>|<desc1>;<ipaddr2>|<model2>|<desc2>\n"
-         "                                define hard-coded SAT>IP server(s)\n";
+         "                                define hard-coded SAT>IP server(s)"
+         "  -S, --single                  set the single model server mode on/off\n";
 }
 
 bool cPluginSatip::ProcessArgs(int argc, char *argv[])
@@ -95,11 +96,12 @@ bool cPluginSatip::ProcessArgs(int argc, char *argv[])
     { "devices", required_argument, NULL, 'd' },
     { "trace",   required_argument, NULL, 't' },
     { "server",  required_argument, NULL, 's' },
+    { "single",  no_argument,       NULL, 'S' },
     { NULL,      no_argument,       NULL,  0  }
     };
 
   int c;
-  while ((c = getopt_long(argc, argv, "d:t:s:", long_options, NULL)) != -1) {
+  while ((c = getopt_long(argc, argv, "d:t:s:S", long_options, NULL)) != -1) {
     switch (c) {
       case 'd':
            deviceCountM = strtol(optarg, NULL, 0);
@@ -109,6 +111,9 @@ bool cPluginSatip::ProcessArgs(int argc, char *argv[])
            break;
       case 's':
            ParseServer(optarg);
+           break;
+      case 'S':
+           SatipConfig.SetUseSingleModelServers(true);
            break;
       default:
            return false;
