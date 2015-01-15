@@ -242,7 +242,7 @@ void cSatipDiscover::AddServer(const char *addrP, const char *modelP, const char
            cString desc = cString::sprintf("%s #%d", descP, n++);
            cSatipServer *tmp = new cSatipServer(addrP, r, desc);
            if (!serversM.Update(tmp)) {
-              info("Adding server '%s|%s|%s'",  tmp->Address(), tmp->Model(), tmp->Description());
+              info("Adding server '%s|%s|%s'", tmp->Address(), tmp->Model(), tmp->Description());
               serversM.Add(tmp);
               }
            else
@@ -254,7 +254,7 @@ void cSatipDiscover::AddServer(const char *addrP, const char *modelP, const char
   else {
      cSatipServer *tmp = new cSatipServer(addrP, modelP, descP);
      if (!serversM.Update(tmp)) {
-        info("Adding server '%s|%s|%s'",  tmp->Address(), tmp->Model(), tmp->Description());
+        info("Adding server '%s|%s|%s'", tmp->Address(), tmp->Model(), tmp->Description());
         serversM.Add(tmp);
         }
      else
