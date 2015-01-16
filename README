@@ -60,8 +60,8 @@ vdr -P 'satip -s 192.168.0.1|DVBS2-4|Octo1;192.168.0.2|DVBT2-4|Octo2'
 
 SAT>IP satellite positions (aka. signal sources) shall be defined via
 sources.conf. If the source description begins with a number, it's used
-as SAT>IP signal source selection parameter. Otherwise, the default
-parameter is one:
+as SAT>IP signal source selection parameter. A special number zero can
+be used to disable the source. Otherwise, the default parameter is one:
 
 S19.2E  Astra 1KR/1L/1M/2C
 => Signal source = 1
@@ -71,6 +71,9 @@ S19.2E  2
 
 S19.2E  3 Astra 1KR/1L/1M/2C
 => Signal source = 3
+
+S19.2E 0 Astra 1KR/1L/1M/2C
+=> Source is disabled
 
 A channel can be assigned into a specific SAT>IP frontend by giving the
 identifier number in RID field of a channels.conf entry:

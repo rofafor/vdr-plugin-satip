@@ -217,7 +217,11 @@ int cSatipDevice::SignalQuality(void) const
 
 bool cSatipDevice::ProvidesSource(int sourceP) const
 {
-  debug9("%s (%c) [device %u]", __PRETTY_FUNCTION__, cSource::ToChar(sourceP), deviceIndexM);
+  cSource *s = Sources.Get(sourceP);
+  debug9("%s (%c) desc='%s' [device %u]", __PRETTY_FUNCTION__, cSource::ToChar(sourceP), s ? s->Description() : "", deviceIndexM);
+  // source descriptions starting with '0' are disabled
+  if (s && s->Description() && (*(s->Description()) == '0'))
+     return false;
   if (!SatipConfig.IsOperatingModeOff() && !!cSatipDiscover::GetInstance()->GetServer(sourceP)) {
      int numDisabledSourcesM = SatipConfig.GetDisabledSourcesCount();
      for (int i = 0; i < numDisabledSourcesM; ++i) {
