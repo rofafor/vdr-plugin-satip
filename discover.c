@@ -239,7 +239,7 @@ void cSatipDiscover::AddServer(const char *addrP, const char *modelP, const char
      char *r = strtok_r(p, ",", &s);
      while (r) {
            r = skipspace(r);
-           cString desc = cString::sprintf("%s #%d", descP, n++);
+           cString desc = cString::sprintf("%s #%d", !isempty(descP) ? descP : "MyBrokenHardware", n++);
            cSatipServer *tmp = new cSatipServer(addrP, r, desc);
            if (!serversM.Update(tmp)) {
               info("Adding server '%s|%s|%s'", tmp->Address(), tmp->Model(), tmp->Description());
@@ -247,7 +247,7 @@ void cSatipDiscover::AddServer(const char *addrP, const char *modelP, const char
               }
            else
               DELETENULL(tmp);
-           r = strtok_r(NULL, ",\n", &s);
+           r = strtok_r(NULL, ",", &s);
            }
      FREE_POINTER(p);
      }

@@ -15,9 +15,9 @@
 // --- cSatipServer -----------------------------------------------------------
 
 cSatipServer::cSatipServer(const char *addressP, const char *modelP, const char *descriptionP)
-: addressM(addressP),
-  modelM(modelP),
-  descriptionM(descriptionP),
+: addressM((addressP && *addressP) ? addressP : "0.0.0.0"),
+  modelM((modelP && *modelP) ? modelP : "DVBS-1"),
+  descriptionM(!isempty(descriptionP) ? descriptionP : "MyBrokenHardware"),
   modelTypeM(eSatipModelTypeNone),
   quirkM(eSatipQuirkNone),
   useCountM(0),
@@ -26,29 +26,25 @@ cSatipServer::cSatipServer(const char *addressP, const char *modelP, const char 
   lastSeenM(0)
 {
   memset(modelCountM, 0, sizeof(modelCountM));
-  if (isempty(*modelM))
-     modelM = "DVBS-1";
-  if (!isempty(*descriptionM)) {
-     // These devices contain a session id bug:
-     // Inverto Airscreen Server IDL 400 ?
-     // Elgato EyeTV Netstream 4Sat ?
-     if (strstr(*descriptionM, "GSSBOX") ||             // Grundig Sat Systems GSS.box DSI 400
-         strstr(*descriptionM, "DIGIBIT") ||            // Telestar Digibit R1
-         strstr(*descriptionM, "Triax SatIP Converter") // Triax TSS 400
-        )
-        quirkM |= eSatipQuirkSessionId;
-     // These devices contain a play (add/delpids) parameter bug:
-     if (strstr(*descriptionM, "fritzdvbc"))            // Fritz!WLAN Repeater DVB-C
-        quirkM |= eSatipQuirkPlayPids;
-     // These devices contain a frontend locking bug:
-     if (strstr(*descriptionM, "fritzdvbc"))            // Fritz!WLAN Repeater DVB-C
-        quirkM |= eSatipQuirkForceLock;
-     if (quirkM != eSatipQuirkNone)
-        info("Malfunctioning '%s' server detected! Please, fix the firmware.", *descriptionM);
-     // These devices support the X_PMT protocol extension
-     if (strstr(*descriptionM, "OctopusNet"))           // Digital Devices OctopusNet
-        quirkM |= eSatipQuirkUseXCI;
-  }
+  // These devices contain a session id bug:
+  // Inverto Airscreen Server IDL 400 ?
+  // Elgato EyeTV Netstream 4Sat ?
+  if (strstr(*descriptionM, "GSSBOX") ||             // Grundig Sat Systems GSS.box DSI 400
+      strstr(*descriptionM, "DIGIBIT") ||            // Telestar Digibit R1
+      strstr(*descriptionM, "Triax SatIP Converter") // Triax TSS 400
+     )
+     quirkM |= eSatipQuirkSessionId;
+  // These devices contain a play (add/delpids) parameter bug:
+  if (strstr(*descriptionM, "fritzdvbc"))            // Fritz!WLAN Repeater DVB-C
+     quirkM |= eSatipQuirkPlayPids;
+  // These devices contain a frontend locking bug:
+  if (strstr(*descriptionM, "fritzdvbc"))            // Fritz!WLAN Repeater DVB-C
+     quirkM |= eSatipQuirkForceLock;
+  if (quirkM != eSatipQuirkNone)
+     info("Malfunctioning '%s' server detected! Please, fix the firmware.", *descriptionM);
+  // These devices support the X_PMT protocol extension
+  if (strstr(*descriptionM, "OctopusNet"))           // Digital Devices OctopusNet
+     quirkM |= eSatipQuirkUseXCI;
   char *s, *p = strdup(*modelM);
   char *r = strtok_r(p, ",", &s);
   while (r) {
