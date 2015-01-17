@@ -124,10 +124,10 @@ bool cPluginSatip::ProcessArgs(int argc, char *argv[])
       default:
            return false;
       }
-    // this must be done after all parameters are parsed
-    if (!isempty(*server))
-       ParseServer(*server);
     }
+  // this must be done after all parameters are parsed
+  if (!isempty(*server))
+     ParseServer(*server);
   return true;
 }
 
