@@ -100,6 +100,7 @@ bool cPluginSatip::ProcessArgs(int argc, char *argv[])
     { NULL,      no_argument,       NULL,  0  }
     };
 
+  cString server;
   int c;
   while ((c = getopt_long(argc, argv, "d:t:s:S", long_options, NULL)) != -1) {
     switch (c) {
@@ -110,7 +111,7 @@ bool cPluginSatip::ProcessArgs(int argc, char *argv[])
            SatipConfig.SetTraceMode(strtol(optarg, NULL, 0));
            break;
       case 's':
-           ParseServer(optarg);
+           server = optarg;
            break;
       case 'S':
            SatipConfig.SetUseSingleModelServers(true);
@@ -118,6 +119,9 @@ bool cPluginSatip::ProcessArgs(int argc, char *argv[])
       default:
            return false;
       }
+    // this must be done after all parameters are parsed
+    if (!isempty(*server))
+       ParseServer(*server);
     }
   return true;
 }
