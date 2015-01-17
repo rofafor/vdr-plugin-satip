@@ -1,7 +1,7 @@
 # VDR plugin language source file.
 # Copyright (C) 2007-2015 Rolf Ahrenberg
 # This file is distributed under the same license as the satip package.
-# Gabriel Bonich, 2014
+# Gabriel Bonich, 2014-2015
 #
 msgid ""
 msgstr ""
@@ -38,7 +38,7 @@ msgid "SAT>IP Devices"
 msgstr "SAT>IP Dispositivos"
 
 msgid "SAT>IP Server"
-msgstr ""
+msgstr "SAT>IP Server"
 
 msgid "Address"
 msgstr "Dirección"
@@ -50,13 +50,13 @@ msgid "Description"
 msgstr "Descripción"
 
 msgid "CI extension"
-msgstr ""
+msgstr "Extensión CI"
 
 msgid "Creation date"
 msgstr "Fecha creación"
 
 msgid "SAT>IP Device Status"
-msgstr ""
+msgstr "SAT>IP Estado del Dispositivo"
 
 msgid "SAT>IP Information"
 msgstr "SAT>IP Información"
@@ -86,7 +86,7 @@ msgid "high"
 msgstr "Alto"
 
 msgid "Button$Devices"
-msgstr ""
+msgstr "Dispositivos"
 
 msgid "Operating mode"
 msgstr "Modo de operación"
@@ -107,13 +107,16 @@ msgstr ""
 "Alta - Dispositivos trabajando con prioridad Alta"
 
 msgid "Enable CI extension"
-msgstr ""
+msgstr "Habilitar extensión CI"
 
 msgid ""
 "Define whether a CI extension shall be used.\n"
 "\n"
 "This setting enables integrated CI/CAM handling found in some SAT>IP hardware (e.g. Digital Devices OctopusNet)."
 msgstr ""
+"Definir si se utilizará una extensión de CI.\n"
+"\n"
+"Esto permite la configuración CI/CAM integrado que se encuentra en algunos equipos SAT>IP (ej. Digital Devices OctopusNet)."
 
 msgid "CI/CAM"
 msgstr "CI/CAM"
@@ -123,6 +126,9 @@ msgid ""
 "\n"
 "The '---' option lets SAT>IP hardware do the auto-selection."
 msgstr ""
+"Definir el tipo de CAM para la ranura CI.\n"
+"\n"
+"La opción '---' permite al equipo SAT>IP hacer la selección automática."
 
 msgid "Enable EPG scanning"
 msgstr "Activa Escaneo EPG"
@@ -137,7 +143,7 @@ msgstr ""
 "Esta configuración desactiva la funcionalidad del escaneo EIT automática para todos los Dispositivos SAT>IP."
 
 msgid "Disabled sources"
-msgstr ""
+msgstr "Desactiva fuentes"
 
 msgid "none"
 msgstr "no"
@@ -147,9 +153,12 @@ msgid ""
 "\n"
 "SAT>IP servers might not have all satellite positions available and such sources can be blacklisted here."
 msgstr ""
+"Definir número de fuentes desactivadas.\n"
+"\n"
+"SAT>IP servidores que no tenga todas las posiciones de los satélites disponibles y estas se ponen en la lista negra."
 
 msgid "Define a source to be blacklisted."
-msgstr ""
+msgstr "Define fuentes de la lista negra"
 
 msgid "Disabled filters"
 msgstr "Desactiva filtros"
@@ -170,7 +179,7 @@ msgid "Define an ill-behaving filter to be blacklisted."
 msgstr "Define un filtro para poner en la lista negra."
 
 msgid "Active SAT>IP servers:"
-msgstr ""
+msgstr "Activa SAT>IP servers:"
 
 msgid "Help"
 msgstr "Ayuda"

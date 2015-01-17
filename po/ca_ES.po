@@ -1,7 +1,7 @@
 # VDR plugin language source file.
 # Copyright (C) 2007-2015 Rolf Ahrenberg
 # This file is distributed under the same license as the satip package.
-# Gabriel Bonich, 2014
+# Gabriel Bonich, 2014-2015
 #
 msgid ""
 msgstr ""
@@ -38,7 +38,7 @@ msgid "SAT>IP Devices"
 msgstr "SAT>IP Dispositius"
 
 msgid "SAT>IP Server"
-msgstr ""
+msgstr "SAT>IP Server"
 
 msgid "Address"
 msgstr "Adressa"
@@ -50,13 +50,13 @@ msgid "Description"
 msgstr "Descripció"
 
 msgid "CI extension"
-msgstr ""
+msgstr "Extensió CI"
 
 msgid "Creation date"
 msgstr "Creació de data"
 
 msgid "SAT>IP Device Status"
-msgstr ""
+msgstr "SAT>IP Estat Dispositiu"
 
 msgid "SAT>IP Information"
 msgstr "SAT>IP Informació"
@@ -86,7 +86,7 @@ msgid "high"
 msgstr "Alt"
 
 msgid "Button$Devices"
-msgstr ""
+msgstr "Dispositius"
 
 msgid "Operating mode"
 msgstr "Mode de operació"
@@ -99,7 +99,7 @@ msgid ""
 "normal - devices are working within normal parameters\n"
 "high - devices are working at the highest priority"
 msgstr ""
-"Defineig la manera de operar els Disposituis SAT>IP:\n"
+"Defineig la manera de operar els Dispositius SAT>IP:\n"
 "\n"
 "Apagat - Dispositius desactivats\n"
 "Baix - Dispositius treballan a baixa prioritat\n"
@@ -107,13 +107,16 @@ msgstr ""
 "Alta - Dispositius treballan a prioritat Alta"
 
 msgid "Enable CI extension"
-msgstr ""
+msgstr "Habilita la extenció CI"
 
 msgid ""
 "Define whether a CI extension shall be used.\n"
 "\n"
 "This setting enables integrated CI/CAM handling found in some SAT>IP hardware (e.g. Digital Devices OctopusNet)."
 msgstr ""
+"Definir si s'utilitzarà una extensió de CI.\n"
+"\n"
+"Aquesta configuració permet utilitzar CI/CAM integrat que es troba en alguns equips SAT>IP (ex. Digital Devices OctopusNet)."
 
 msgid "CI/CAM"
 msgstr "CI/CAM"
@@ -123,6 +126,9 @@ msgid ""
 "\n"
 "The '---' option lets SAT>IP hardware do the auto-selection."
 msgstr ""
+"Definir quin tipus de CAM vols per a la ranura CI.\n"
+"\n"
+"L'opció '---' permet l'equip SAT>IP fer la selecció automàtica."
 
 msgid "Enable EPG scanning"
 msgstr "Activa Escanneig EPG"
@@ -137,7 +143,7 @@ msgstr ""
 "Aquesta configuració desactiva la funcionalitat d'escaneig EIT automàtica per a tots els dispositius SAT>IP."
 
 msgid "Disabled sources"
-msgstr ""
+msgstr "Desactiva entrades"
 
 msgid "none"
 msgstr "no"
@@ -147,9 +153,12 @@ msgid ""
 "\n"
 "SAT>IP servers might not have all satellite positions available and such sources can be blacklisted here."
 msgstr ""
+"Definir nombre de entrades que es desactiven.\n"
+"\n"
+"SAT>IP els servidors podrien no tenir totes les posicions dels satèl·lits disponibles i aquestes entrades poden ser la llista negra."
 
 msgid "Define a source to be blacklisted."
-msgstr ""
+msgstr "Definir una entrada a la llista negra"
 
 msgid "Disabled filters"
 msgstr "Desactiva filtres"
@@ -170,7 +179,7 @@ msgid "Define an ill-behaving filter to be blacklisted."
 msgstr "Definir un filtre mal comportar a la llista negra."
 
 msgid "Active SAT>IP servers:"
-msgstr ""
+msgstr "Activa SAT>IP servers:"
 
 msgid "Help"
 msgstr "Ajuda"

@@ -105,3 +105,6 @@ VDR Plugin 'satip' Revision History
 - Added an option to disable sources via sources.conf.
 - Added a command-line option to disable all the
   SAT>IP server quirks.
+- Updated Spanish and Catalan translations (Thanks to
+  Gabriel Bonich).
+- Updated German translations (Thanks to Frank Neumann).
