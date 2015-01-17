@@ -19,6 +19,7 @@ private:
   unsigned int ciExtensionM;
   unsigned int eitScanM;
   unsigned int useBytesM;
+  bool disableServerQuirksM;
   bool useSingleModelServersM;
   int cicamsM[MAX_CICAM_COUNT];
   int disabledSourcesM[MAX_DISABLED_SOURCES_COUNT];
@@ -65,6 +66,7 @@ public:
   int GetCICAM(unsigned int indexP) const;
   unsigned int GetEITScan(void) const { return eitScanM; }
   unsigned int GetUseBytes(void) const { return useBytesM; }
+  bool GetDisableServerQuirks(void) const { return disableServerQuirksM; }
   bool GetUseSingleModelServers(void) const { return useSingleModelServersM; }
   unsigned int GetDisabledSourcesCount(void) const;
   int GetDisabledSources(unsigned int indexP) const;
@@ -77,6 +79,7 @@ public:
   void SetCICAM(unsigned int indexP, int cicamP);
   void SetEITScan(unsigned int onOffP) { eitScanM = onOffP; }
   void SetUseBytes(unsigned int onOffP) { useBytesM = onOffP; }
+  void SetDisableServerQuirks(bool onOffP) { disableServerQuirksM = onOffP; }
   void SetUseSingleModelServers(bool onOffP) { useSingleModelServersM = onOffP; }
   void SetDisabledSources(unsigned int indexP, int sourceP);
   void SetDisabledFilters(unsigned int indexP, int numberP);

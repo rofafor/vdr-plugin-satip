@@ -26,22 +26,25 @@ cSatipServer::cSatipServer(const char *addressP, const char *modelP, const char 
   lastSeenM(0)
 {
   memset(modelCountM, 0, sizeof(modelCountM));
-  // These devices contain a session id bug:
-  // Inverto Airscreen Server IDL 400 ?
-  // Elgato EyeTV Netstream 4Sat ?
-  if (strstr(*descriptionM, "GSSBOX") ||             // Grundig Sat Systems GSS.box DSI 400
-      strstr(*descriptionM, "DIGIBIT") ||            // Telestar Digibit R1
-      strstr(*descriptionM, "Triax SatIP Converter") // Triax TSS 400
-     )
-     quirkM |= eSatipQuirkSessionId;
-  // These devices contain a play (add/delpids) parameter bug:
-  if (strstr(*descriptionM, "fritzdvbc"))            // Fritz!WLAN Repeater DVB-C
-     quirkM |= eSatipQuirkPlayPids;
-  // These devices contain a frontend locking bug:
-  if (strstr(*descriptionM, "fritzdvbc"))            // Fritz!WLAN Repeater DVB-C
-     quirkM |= eSatipQuirkForceLock;
-  if (quirkM != eSatipQuirkNone)
-     info("Malfunctioning '%s' server detected! Please, fix the firmware.", *descriptionM);
+  if (!SatipConfig.GetDisableServerQuirks()) {
+     debug3("%s quirks=%s", __PRETTY_FUNCTION__, *descriptionM);
+     // These devices contain a session id bug:
+     // Inverto Airscreen Server IDL 400 ?
+     // Elgato EyeTV Netstream 4Sat ?
+     if (strstr(*descriptionM, "GSSBOX") ||             // Grundig Sat Systems GSS.box DSI 400
+         strstr(*descriptionM, "DIGIBIT") ||            // Telestar Digibit R1
+         strstr(*descriptionM, "Triax SatIP Converter") // Triax TSS 400
+        )
+        quirkM |= eSatipQuirkSessionId;
+     // These devices contain a play (add/delpids) parameter bug:
+     if (strstr(*descriptionM, "fritzdvbc"))            // Fritz!WLAN Repeater DVB-C
+        quirkM |= eSatipQuirkPlayPids;
+     // These devices contain a frontend locking bug:
+     if (strstr(*descriptionM, "fritzdvbc"))            // Fritz!WLAN Repeater DVB-C
+        quirkM |= eSatipQuirkForceLock;
+     if (quirkM != eSatipQuirkNone)
+        info("Malfunctioning '%s' server detected! Please, fix the firmware.", *descriptionM);
+     }
   // These devices support the X_PMT protocol extension
   if (strstr(*descriptionM, "OctopusNet"))           // Digital Devices OctopusNet
      quirkM |= eSatipQuirkUseXCI;

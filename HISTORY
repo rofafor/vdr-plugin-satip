@@ -103,3 +103,5 @@ VDR Plugin 'satip' Revision History
 - Added configurable CI slots.
 - Fixed parsing of the setup values.
 - Added an option to disable sources via sources.conf.
+- Added a command-line option to disable all the
+  SAT>IP server quirks.

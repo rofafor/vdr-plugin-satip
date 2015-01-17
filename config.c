@@ -17,6 +17,7 @@ cSatipConfig::cSatipConfig(void)
   ciExtensionM(0),
   eitScanM(1),
   useBytesM(1),
+  disableServerQuirksM(false),
   useSingleModelServersM(false)
 {
   for (unsigned int i = 0; i < ELEMENTS(cicamsM); ++i)

@@ -85,7 +85,8 @@ const char *cPluginSatip::CommandLineHelp(void)
          "  -t <mode>, --trace=<mode>     set the tracing mode\n"
          "  -s <ipaddr>|<model>|<desc>, --server=<ipaddr1>|<model1>|<desc1>;<ipaddr2>|<model2>|<desc2>\n"
          "                                define hard-coded SAT>IP server(s)"
-         "  -S, --single                  set the single model server mode on/off\n";
+         "  -S, --single                  set the single model server mode on\n"
+         "  -n, --noquirks                disable all the server quirks\n";
 }
 
 bool cPluginSatip::ProcessArgs(int argc, char *argv[])
@@ -93,16 +94,17 @@ bool cPluginSatip::ProcessArgs(int argc, char *argv[])
   debug1("%s", __PRETTY_FUNCTION__);
   // Implement command line argument processing here if applicable.
   static const struct option long_options[] = {
-    { "devices", required_argument, NULL, 'd' },
-    { "trace",   required_argument, NULL, 't' },
-    { "server",  required_argument, NULL, 's' },
-    { "single",  no_argument,       NULL, 'S' },
-    { NULL,      no_argument,       NULL,  0  }
+    { "devices",  required_argument, NULL, 'd' },
+    { "trace",    required_argument, NULL, 't' },
+    { "server",   required_argument, NULL, 's' },
+    { "single",   no_argument,       NULL, 'S' },
+    { "noquirks", no_argument,       NULL, 'n' },
+    { NULL,       no_argument,       NULL,  0  }
     };
 
   cString server;
   int c;
-  while ((c = getopt_long(argc, argv, "d:t:s:S", long_options, NULL)) != -1) {
+  while ((c = getopt_long(argc, argv, "d:t:s:Sn", long_options, NULL)) != -1) {
     switch (c) {
       case 'd':
            deviceCountM = strtol(optarg, NULL, 0);
@@ -115,6 +117,9 @@ bool cPluginSatip::ProcessArgs(int argc, char *argv[])
            break;
       case 'S':
            SatipConfig.SetUseSingleModelServers(true);
+           break;
+      case 'n':
+           SatipConfig.SetDisableServerQuirks(true);
            break;
       default:
            return false;
