@@ -28,6 +28,8 @@ Requirements:
 
 - VDR >= 2.1.4 for scrambled channels
 
+- VDR >= 2.1.7 for external CI
+
 Description:
 
 This plugin integrates SAT>IP network devices seamlessly into VDR.

@@ -435,7 +435,7 @@ int cSatipDevice::GetId(void)
 int cSatipDevice::GetPmtPid(void)
 {
   int pid = 0;
-#ifdef XCI
+#if defined(APIVERSNUM) && APIVERSNUM >= 20107
   pid = channelM.Ca() ? ::GetPmtPid(channelM.Source(), channelM.Transponder(), channelM.Sid()) : 0;
 #endif
   debug11("%s pmtpid=%d source=%c transponder=%d sid=%d name=%s [device %u]", __PRETTY_FUNCTION__, pid, cSource::ToChar(channelM.Source()), channelM.Transponder(), channelM.Sid(), channelM.Name(), deviceIndexM);

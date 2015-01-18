@@ -372,7 +372,6 @@ void cSatipPluginSetup::Setup(void)
   helpM.Append(tr("Define the used operating mode for all SAT>IP devices:\n\noff - devices are disabled\nlow - devices are working at the lowest priority\nnormal - devices are working within normal parameters\nhigh - devices are working at the highest priority"));
 
   if (operatingModeM) {
-#ifdef XCI
      Add(new cMenuEditBoolItem(tr("Enable CI extension"), &ciExtensionM));
      helpM.Append(tr("Define whether a CI extension shall be used.\n\nThis setting enables integrated CI/CAM handling found in some SAT>IP hardware (e.g. Digital Devices OctopusNet)."));
 
@@ -380,7 +379,7 @@ void cSatipPluginSetup::Setup(void)
          Add(new cMenuEditStraItem(*cString::sprintf(" %s #%d", tr("CI/CAM"), i + 1), &cicamsM[i], ELEMENTS(cicamTextsM), cicamTextsM));
          helpM.Append(tr("Define a desired CAM type for the CI slot.\n\nThe '---' option lets SAT>IP hardware do the auto-selection."));
          }
-#endif
+
      Add(new cMenuEditBoolItem(tr("Enable EPG scanning"), &eitScanM));
      helpM.Append(tr("Define whether the EPG background scanning shall be used.\n\nThis setting disables the automatic EIT scanning functionality for all SAT>IP devices."));
 
