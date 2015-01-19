@@ -40,6 +40,7 @@ cSatipTuner::cSatipTuner(cSatipDeviceIf &deviceP, unsigned int packetLenP)
   hasLockM(false),
   signalStrengthM(-1),
   signalQualityM(-1),
+  frontendIdM(-1),
   streamIdM(-1),
   pmtPidM(-1),
   addPidsM(),
@@ -234,6 +235,7 @@ bool cSatipTuner::Disconnect(void)
   hasLockM = false;
   signalStrengthM = -1;
   signalQualityM = -1;
+  frontendIdM = -1;
 
   if (currentServerM)
      cSatipDiscover::GetInstance()->UseServer(currentServerM, false);
@@ -284,6 +286,9 @@ void cSatipTuner::ProcessApplicationData(u_char *bufferP, int lengthP)
      char *c = strstr(s, ";tuner=");
      if (c)  {
         int value;
+
+        // feID:
+        frontendIdM = atoi(c + 7);
 
         // level:
         // Numerical value between 0 and 255
@@ -558,6 +563,12 @@ const char *cSatipTuner::TunerStateString(eTunerState stateP)
   return "---";
 }
 
+int cSatipTuner::FrontendId(void)
+{
+  debug16("%s [device %d]", __PRETTY_FUNCTION__, deviceIdM);
+  return frontendIdM;
+}
+
 int cSatipTuner::SignalStrength(void)
 {
   debug16("%s [device %d]", __PRETTY_FUNCTION__, deviceIdM);
@@ -579,7 +590,7 @@ bool cSatipTuner::HasLock(void)
 cString cSatipTuner::GetSignalStatus(void)
 {
   debug16("%s [device %d]", __PRETTY_FUNCTION__, deviceIdM);
-  return cString::sprintf("lock=%d strength=%d quality=%d", HasLock(), SignalStrength(), SignalQuality());
+  return cString::sprintf("lock=%d strength=%d quality=%d frontend=%d", HasLock(), SignalStrength(), SignalQuality(), FrontendId());
 }
 
 cString cSatipTuner::GetInformation(void)

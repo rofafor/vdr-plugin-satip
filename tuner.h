@@ -115,6 +115,7 @@ private:
   bool hasLockM;
   int signalStrengthM;
   int signalQualityM;
+  int frontendIdM;
   int streamIdM;
   int pmtPidM;
   cSatipPid addPidsM;
@@ -143,6 +144,7 @@ public:
   bool SetPid(int pidP, int typeP, bool onP);
   bool Open(void);
   bool Close(void);
+  int FrontendId(void);
   int SignalStrength(void);
   int SignalQuality(void);
   bool HasLock(void);
