@@ -25,7 +25,7 @@ cSatipRtcp::cSatipRtcp(cSatipTunerIf &tunerP)
 cSatipRtcp::~cSatipRtcp()
 {
   debug1("%s [device %d]", __PRETTY_FUNCTION__, tunerM.GetId());
-  DELETE_POINTER(bufferM);
+  FREE_POINTER(bufferM);
 }
 
 int cSatipRtcp::GetFd(void)

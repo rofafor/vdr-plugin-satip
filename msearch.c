@@ -35,6 +35,7 @@ cSatipMsearch::cSatipMsearch(cSatipDiscoverIf &discoverP)
 
 cSatipMsearch::~cSatipMsearch()
 {
+  FREE_POINTER(bufferM);
 }
 
 void cSatipMsearch::Probe(void)

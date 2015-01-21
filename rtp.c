@@ -29,7 +29,7 @@ cSatipRtp::cSatipRtp(cSatipTunerIf &tunerP)
 cSatipRtp::~cSatipRtp()
 {
   debug1("%s [device %d]", __PRETTY_FUNCTION__, tunerM.GetId());
-  DELETE_POINTER(bufferM);
+  FREE_POINTER(bufferM);
 }
 
 int cSatipRtp::GetFd(void)
