@@ -136,12 +136,17 @@ int cSatipSocket::Read(unsigned char *bufferAddrP, unsigned int bufferLenP)
 int cSatipSocket::ReadMulti(unsigned char *bufferAddrP, unsigned int *elementRecvSizeP, unsigned int elementCountP, unsigned int elementBufferSizeP)
 {
   debug16("%s (, , %d, %d)", __PRETTY_FUNCTION__, elementCountP, elementBufferSizeP);
-#if defined(__GLIBC_PREREQ) && __GLIBC_PREREQ(2,12)
+  int count = -1;
   // Error out if socket not initialized
   if (socketDescM <= 0) {
      error("%s Invalid socket", __PRETTY_FUNCTION__);
      return -1;
      }
+  if (!bufferAddrP || !elementRecvSizeP || !elementCountP || !elementBufferSizeP) {
+     error("%s Invalid parameter(s)", __PRETTY_FUNCTION__);
+     return -1;
+     }
+#if defined(__GLIBC_PREREQ) && __GLIBC_PREREQ(2,12)
   // Initialize iov and msgh structures
   struct mmsghdr mmsgh[elementCountP];
   struct iovec iov[elementCountP];
@@ -154,14 +159,12 @@ int cSatipSocket::ReadMulti(unsigned char *bufferAddrP, unsigned int *elementRec
       }
 
   // Read data from socket as a set
-  int count = -1;
-  if (socketDescM && bufferAddrP && elementRecvSizeP && (elementCountP > 0) && (elementBufferSizeP > 0))
-     count = (int)recvmmsg(socketDescM, mmsgh, elementCountP, MSG_DONTWAIT, NULL);
+  count = (int)recvmmsg(socketDescM, mmsgh, elementCountP, MSG_DONTWAIT, NULL);
   ERROR_IF_RET(count < 0 && errno != EAGAIN && errno != EWOULDBLOCK, "recvmmsg()", return -1);
   for (int i = 0; i < count; ++i)
       elementRecvSizeP[i] = mmsgh[i].msg_len;
 #else
-  int count = 0;
+  count = 0;
   while (count < (int)elementCountP) {
         int len = Read(bufferAddrP + count * elementBufferSizeP, elementBufferSizeP);
         if (len < 0)

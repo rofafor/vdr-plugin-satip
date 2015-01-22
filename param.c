@@ -192,7 +192,7 @@ cString GetTransponderUrlParameters(const cChannel *channelP)
      ST("  T*") q += PrintUrlString(q, STBUFLEFT, dtp.System(),       SatipSystemValuesTerrestrial);
      ST("  T*") q += PrintUrlString(q, STBUFLEFT, dtp.Transmission(), SatipTransmissionValues);
      if ((channelP->Rid() % 100) > 0)
-                q += snprintf(q,       STBUFLEFT, "&fe=%d",           channelP->Rid() % 100);
+                snprintf(q,            STBUFLEFT, "&fe=%d",           channelP->Rid() % 100);
 #undef ST
      return buffer;
      }

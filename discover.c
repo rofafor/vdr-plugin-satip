@@ -233,7 +233,7 @@ void cSatipDiscover::AddServer(const char *addrP, const char *modelP, const char
 {
   debug1("%s (%s, %s, %s)", __PRETTY_FUNCTION__, addrP, modelP, descP);
   cMutexLock MutexLock(&mutexM);
-  if (SatipConfig.GetUseSingleModelServers()) {
+  if (SatipConfig.GetUseSingleModelServers() && modelP && !isempty(modelP)) {
      int n = 0;
      char *s, *p = strdup(modelP);
      char *r = strtok_r(p, ",", &s);
