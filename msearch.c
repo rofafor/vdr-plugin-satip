@@ -94,8 +94,6 @@ void cSatipMsearch::Process(void)
                  r = strtok_r(NULL, "\r\n", &s);
                  }
            }
-     if (errno != EAGAIN && errno != EWOULDBLOCK)
-        error("Error %d reading in %s", errno, *ToString());
      }
 }
 

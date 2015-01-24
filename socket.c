@@ -129,7 +129,7 @@ int cSatipSocket::Read(unsigned char *bufferAddrP, unsigned int bufferLenP)
     if (len > 0)
        return len;
     } while (len > 0);
-  ERROR_IF_RET(len < 0 && errno != EAGAIN, "recvmsg()", return -1);
+  ERROR_IF_RET(len < 0 && errno != EAGAIN && errno != EWOULDBLOCK, "recvmsg()", return -1);
   return 0;
 }
 

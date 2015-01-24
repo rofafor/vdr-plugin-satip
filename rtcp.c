@@ -89,8 +89,6 @@ void cSatipRtcp::Process(void)
            if (offset >= 0)
               tunerM.ProcessApplicationData(bufferM + offset, length);
            }
-     if (errno != EAGAIN && errno != EWOULDBLOCK)
-        error("Error %d reading in %s", errno, *ToString());
      }
 }
 

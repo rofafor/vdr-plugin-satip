@@ -136,9 +136,6 @@ void cSatipRtp::Process(void)
            }
        } while (count >= eRtpPacketReadCount);
 
-     if (errno != EAGAIN && errno != EWOULDBLOCK)
-        error("Error %d reading in %s [device %d]", errno, *ToString(), tunerM.GetId());
-
      elapsed = processing.Elapsed();
      if (elapsed > 1)
         debug6("%s %d read(s) took %" PRIu64 " ms [device %d]", __PRETTY_FUNCTION__, count, elapsed, tunerM.GetId());
