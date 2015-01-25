@@ -81,6 +81,7 @@ public:
   cString GetServerString(cSatipServer *serverP);
   void UseServer(cSatipServer *serverP, int transponderP, bool onOffP);
   bool IsServerQuirk(cSatipServer *serverP, int quirkP);
+  bool HasServerCI(cSatipServer *serverP);
   cString GetServerAddress(cSatipServer *serverP);
   cString GetServerList(void);
   int NumProvidedSystems(void);

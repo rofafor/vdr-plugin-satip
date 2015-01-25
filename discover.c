@@ -242,7 +242,7 @@ void cSatipDiscover::AddServer(const char *addrP, const char *modelP, const char
            cString desc = cString::sprintf("%s #%d", !isempty(descP) ? descP : "MyBrokenHardware", n++);
            cSatipServer *tmp = new cSatipServer(addrP, r, desc);
            if (!serversM.Update(tmp)) {
-              info("Adding server '%s|%s|%s'", tmp->Address(), tmp->Model(), tmp->Description());
+              info("Adding server '%s|%s|%s'%s%s", tmp->Address(), tmp->Model(), tmp->Description(), tmp->HasCI() ? " providing CI" : "", tmp->HasQuirk() ? " (malfunctioning firmware!)" : "");
               serversM.Add(tmp);
               }
            else
@@ -254,7 +254,7 @@ void cSatipDiscover::AddServer(const char *addrP, const char *modelP, const char
   else {
      cSatipServer *tmp = new cSatipServer(addrP, modelP, descP);
      if (!serversM.Update(tmp)) {
-        info("Adding server '%s|%s|%s'", tmp->Address(), tmp->Model(), tmp->Description());
+        info("Adding server '%s|%s|%s'%s%s", tmp->Address(), tmp->Model(), tmp->Description(), tmp->HasCI() ? " providing CI" : "", tmp->HasQuirk() ? " (malfunctioning firmware!)" : "");
         serversM.Add(tmp);
         }
      else
@@ -323,6 +323,13 @@ bool cSatipDiscover::IsServerQuirk(cSatipServer *serverP, int quirkP)
   debug16("%s (, %d)", __PRETTY_FUNCTION__, quirkP);
   cMutexLock MutexLock(&mutexM);
   return serversM.IsQuirk(serverP, quirkP);
+}
+
+bool cSatipDiscover::HasServerCI(cSatipServer *serverP)
+{
+  debug16("%s", __PRETTY_FUNCTION__);
+  cMutexLock MutexLock(&mutexM);
+  return serversM.HasCI(serverP);
 }
 
 cString cSatipDiscover::GetServerAddress(cSatipServer *serverP)

@@ -104,7 +104,7 @@ cSatipServerInfo::cSatipServerInfo(cSatipServer *serverP)
   addressM(serverP ? serverP->Address() : "---"),
   modelM(serverP ? serverP->Model() : "---"),
   descriptionM(serverP ? serverP->Description() : "---"),
-  ciExtensionM(serverP && serverP->Quirk(cSatipServer::eSatipQuirkUseXCI) ? trVDR("yes") : trVDR("no")),
+  ciExtensionM(serverP && serverP->HasCI() ? trVDR("yes") : trVDR("no")),
   createdM(serverP ? serverP->Created() : 0)
 {
   SetMenuCategory(mcSetupPlugins);

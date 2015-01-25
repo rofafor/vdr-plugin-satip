@@ -394,7 +394,7 @@ bool cSatipTuner::UpdatePids(bool forceP)
   if (((forceP && pidsM.Size()) || (pidUpdateCacheM.TimedOut() && (addPidsM.Size() || delPidsM.Size()))) &&
       !isempty(*streamAddrM) && (streamIdM > 0)) {
      cString uri = cString::sprintf("rtsp://%s/stream=%d", *streamAddrM, streamIdM);
-     bool useci = (SatipConfig.GetCIExtension() && currentServerM.IsQuirk(cSatipServer::eSatipQuirkUseXCI));
+     bool useci = (SatipConfig.GetCIExtension() && currentServerM.HasCI());
      bool usedummy = currentServerM.IsQuirk(cSatipServer::eSatipQuirkPlayPids);
      if (forceP || usedummy) {
         if (pidsM.Size())

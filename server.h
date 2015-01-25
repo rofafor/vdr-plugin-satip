@@ -56,6 +56,7 @@ private:
   cString descriptionM;
   cSatipFrontends frontendsM[eSatipFrontendCount];
   int quirkM;
+  bool hasCiM;
   time_t createdM;
   cTimeMs lastSeenM;
 
@@ -65,7 +66,6 @@ public:
     eSatipQuirkSessionId = 0x01,
     eSatipQuirkPlayPids  = 0x02,
     eSatipQuirkForceLock = 0x04,
-    eSatipQuirkUseXCI    = 0x08,
     eSatipQuirkMask      = 0x0F
   };
   cSatipServer(const char *addressP, const char *modelP, const char *descriptionP);
@@ -84,6 +84,8 @@ public:
   const char *Model(void)   { return *modelM; }
   const char *Description() { return *descriptionM; }
   bool Quirk(int quirkP)    { return ((quirkP & eSatipQuirkMask) & quirkM); }
+  bool HasQuirk(void)       { return !!quirkM; }
+  bool HasCI(void)          { return hasCiM; }
   void Update(void)         { lastSeenM.Set(); }
   uint64_t LastSeen(void)   { return lastSeenM.Elapsed(); }
   time_t Created(void)      { return createdM; }
@@ -99,6 +101,7 @@ public:
   cSatipServer *Update(cSatipServer *serverP);
   void Use(cSatipServer *serverP, int transponderP, bool onOffP);
   bool IsQuirk(cSatipServer *serverP, int quirkP);
+  bool HasCI(cSatipServer *serverP);
   void Cleanup(uint64_t intervalMsP = 0);
   cString GetAddress(cSatipServer *serverP);
   cString GetString(cSatipServer *serverP);

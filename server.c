@@ -73,6 +73,7 @@ cSatipServer::cSatipServer(const char *addressP, const char *modelP, const char 
   modelM((modelP && *modelP) ? modelP : "DVBS-1"),
   descriptionM(!isempty(descriptionP) ? descriptionP : "MyBrokenHardware"),
   quirkM(eSatipQuirkNone),
+  hasCiM(false),
   createdM(time(NULL)),
   lastSeenM(0)
 {
@@ -94,12 +95,10 @@ cSatipServer::cSatipServer(const char *addressP, const char *modelP, const char 
          strstr(*descriptionM, "Triax SatIP Converter") // Triax TSS 400
         )
         quirkM |= eSatipQuirkForceLock;
-     if (quirkM != eSatipQuirkNone)
-        info("Malfunctioning '%s' server detected! Please, fix the firmware.", *descriptionM);
      }
   // These devices support the X_PMT protocol extension
   if (strstr(*descriptionM, "OctopusNet"))           // Digital Devices OctopusNet
-     quirkM |= eSatipQuirkUseXCI;
+     hasCiM = true;
   char *s, *p = strdup(*modelM);
   char *r = strtok_r(p, ",", &s);
   while (r) {
@@ -294,6 +293,18 @@ bool cSatipServers::IsQuirk(cSatipServer *serverP, int quirkP)
   for (cSatipServer *s = First(); s; s = Next(s)) {
       if (s == serverP) {
          result = s->Quirk(quirkP);
+         break;
+         }
+      }
+  return result;
+}
+
+bool cSatipServers::HasCI(cSatipServer *serverP)
+{
+  bool result = false;
+  for (cSatipServer *s = First(); s; s = Next(s)) {
+      if (s == serverP) {
+         result = s->HasCI();
          break;
          }
       }

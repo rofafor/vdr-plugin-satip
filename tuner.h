@@ -90,6 +90,7 @@ public:
   cSatipTunerServer& operator= (const cSatipTunerServer &objP) { serverM = objP.serverM; transponderM = objP.transponderM; return *this; }
   bool IsValid(void) { return !!serverM; }
   bool IsQuirk(int quirkP) { return (serverM && cSatipDiscover::GetInstance()->IsServerQuirk(serverM, quirkP)); }
+  bool HasCI(void) { return (serverM && cSatipDiscover::GetInstance()->HasServerCI(serverM)); }
   void Use(bool onOffP) { if (serverM) cSatipDiscover::GetInstance()->UseServer(serverM, transponderM, onOffP); }
   void Set(cSatipServer *serverP, const int transponderP) { serverM = serverP; transponderM = transponderP; }
   void Reset(void) { serverM = NULL; transponderM = 0; }
