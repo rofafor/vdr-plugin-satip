@@ -114,3 +114,4 @@ VDR Plugin 'satip' Revision History
 - Fixed memory deallocation errors.
 - Cleaned up all scan-build warnings.
 - Refactored the frontend handling.
+- Added the force locking quirk for Triax TSS 400.
