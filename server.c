@@ -72,29 +72,37 @@ cSatipServer::cSatipServer(const char *addressP, const char *modelP, const char 
 : addressM((addressP && *addressP) ? addressP : "0.0.0.0"),
   modelM((modelP && *modelP) ? modelP : "DVBS-1"),
   descriptionM(!isempty(descriptionP) ? descriptionP : "MyBrokenHardware"),
+  quirksM(""),
   quirkM(eSatipQuirkNone),
   hasCiM(false),
   createdM(time(NULL)),
   lastSeenM(0)
 {
   if (!SatipConfig.GetDisableServerQuirks()) {
-     debug3("%s quirks=%s", __PRETTY_FUNCTION__, *descriptionM);
      // These devices contain a session id bug:
      // Inverto Airscreen Server IDL 400 ?
      // Elgato EyeTV Netstream 4Sat ?
      if (strstr(*descriptionM, "GSSBOX") ||             // Grundig Sat Systems GSS.box DSI 400
          strstr(*descriptionM, "DIGIBIT") ||            // Telestar Digibit R1
          strstr(*descriptionM, "Triax SatIP Converter") // Triax TSS 400
-        )
+        ) {
         quirkM |= eSatipQuirkSessionId;
+        quirksM = cString::sprintf("%s%sSessionId", *quirksM, isempty(*quirksM) ? "" : ",");
+        }
      // These devices contain a play (add/delpids) parameter bug:
-     if (strstr(*descriptionM, "fritzdvbc"))            // Fritz!WLAN Repeater DVB-C
+     if (strstr(*descriptionM, "fritzdvbc")             // Fritz!WLAN Repeater DVB-C
+        ) {
         quirkM |= eSatipQuirkPlayPids;
+        quirksM = cString::sprintf("%s%sPlayPids", *quirksM, isempty(*quirksM) ? "" : ",");
+        }
      // These devices contain a frontend locking bug:
      if (strstr(*descriptionM, "fritzdvbc") ||          // Fritz!WLAN Repeater DVB-C
          strstr(*descriptionM, "Triax SatIP Converter") // Triax TSS 400
-        )
+        ) {
         quirkM |= eSatipQuirkForceLock;
+        quirksM = cString::sprintf("%s%sForceLock", *quirksM, isempty(*quirksM) ? "" : ",");
+        }
+     debug3("%s description=%s quirks=%s", __PRETTY_FUNCTION__, *descriptionM, *quirksM);
      }
   // These devices support the X_PMT protocol extension
   if (strstr(*descriptionM, "OctopusNet"))           // Digital Devices OctopusNet

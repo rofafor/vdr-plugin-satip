@@ -54,6 +54,7 @@ private:
   cString addressM;
   cString modelM;
   cString descriptionM;
+  cString quirksM;
   cSatipFrontends frontendsM[eSatipFrontendCount];
   int quirkM;
   bool hasCiM;
@@ -80,15 +81,16 @@ public:
   int GetModulesDVBT2(void);
   int GetModulesDVBC(void);
   int GetModulesDVBC2(void);
-  const char *Address()     { return *addressM; }
-  const char *Model(void)   { return *modelM; }
-  const char *Description() { return *descriptionM; }
-  bool Quirk(int quirkP)    { return ((quirkP & eSatipQuirkMask) & quirkM); }
-  bool HasQuirk(void)       { return !!quirkM; }
-  bool HasCI(void)          { return hasCiM; }
-  void Update(void)         { lastSeenM.Set(); }
-  uint64_t LastSeen(void)   { return lastSeenM.Elapsed(); }
-  time_t Created(void)      { return createdM; }
+  const char *Address(void)     { return *addressM; }
+  const char *Model(void)       { return *modelM; }
+  const char *Description(void) { return *descriptionM; }
+  const char *Quirks(void)      { return *quirksM; }
+  bool Quirk(int quirkP)        { return ((quirkP & eSatipQuirkMask) & quirkM); }
+  bool HasQuirk(void)           { return (quirkM != eSatipQuirkNone); }
+  bool HasCI(void)              { return hasCiM; }
+  void Update(void)             { lastSeenM.Set(); }
+  uint64_t LastSeen(void)       { return lastSeenM.Elapsed(); }
+  time_t Created(void)          { return createdM; }
 };
 
 // --- cSatipServers ----------------------------------------------------------
