@@ -96,8 +96,7 @@ cSatipServer::cSatipServer(const char *addressP, const char *modelP, const char 
         quirksM = cString::sprintf("%s%sPlayPids", *quirksM, isempty(*quirksM) ? "" : ",");
         }
      // These devices contain a frontend locking bug:
-     if (strstr(*descriptionM, "fritzdvbc") ||          // Fritz!WLAN Repeater DVB-C
-         strstr(*descriptionM, "Triax SatIP Converter") // Triax TSS 400
+     if (strstr(*descriptionM, "fritzdvbc")             // Fritz!WLAN Repeater DVB-C
         ) {
         quirkM |= eSatipQuirkForceLock;
         quirksM = cString::sprintf("%s%sForceLock", *quirksM, isempty(*quirksM) ? "" : ",");
@@ -105,7 +104,7 @@ cSatipServer::cSatipServer(const char *addressP, const char *modelP, const char 
      debug3("%s description=%s quirks=%s", __PRETTY_FUNCTION__, *descriptionM, *quirksM);
      }
   // These devices support the X_PMT protocol extension
-  if (strstr(*descriptionM, "OctopusNet"))           // Digital Devices OctopusNet
+  if (strstr(*descriptionM, "OctopusNet"))              // Digital Devices OctopusNet
      hasCiM = true;
   char *s, *p = strdup(*modelM);
   char *r = strtok_r(p, ",", &s);
