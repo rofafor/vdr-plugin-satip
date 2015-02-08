@@ -8,7 +8,6 @@
 #ifndef __SATIP_TUNER_H
 #define __SATIP_TUNER_H
 
-#include <vdr/config.h> // APIVERSNUM
 #include <vdr/thread.h>
 #include <vdr/tools.h>
 
@@ -28,33 +27,6 @@ private:
   }
 
 public:
-#if defined(APIVERSNUM) && APIVERSNUM < 20107
-  int IndexOf(const int &pidP)
-  {
-    for (int i = 0; i < Size(); ++i) {
-        if (pidP == At(i))
-           return i;
-        }
-    return -1;
-  }
-  bool RemoveElement(const int &pidP)
-  {
-    int i = IndexOf(pidP);
-    if (i >= 0) {
-       Remove(i);
-       return true;
-       }
-    return false;
-  }
-  bool AppendUnique(int pidP)
-  {
-    if (IndexOf(pidP) < 0) {
-       Append(pidP);
-       return true;
-       }
-    return false;
-  }
-#endif
   void RemovePid(const int &pidP)
   {
     if (RemoveElement(pidP))

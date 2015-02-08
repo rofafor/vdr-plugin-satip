@@ -147,15 +147,9 @@ cString GetTransponderUrlParameters(const cChannel *channelP)
      cDvbTransponderParameters dtp(channelP->Parameters());
      int DataSlice = 0;
      int C2TuningFrequencyType = 0;
-#if defined(APIVERSNUM) && APIVERSNUM < 20106
-     int Pilot = PILOT_AUTO;
-     int T2SystemId = 0;
-     int SisoMiso = 0;
-#else
      int Pilot = dtp.Pilot();
      int T2SystemId = dtp.T2SystemId();
      int SisoMiso = dtp.SisoMiso();
-#endif
      float freq = channelP->Frequency();
      char type = cSource::ToChar(channelP->Source());
      cSource *source = Sources.Get(channelP->Source());

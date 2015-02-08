@@ -433,10 +433,7 @@ int cSatipDevice::GetId(void)
 
 int cSatipDevice::GetPmtPid(void)
 {
-  int pid = 0;
-#if defined(APIVERSNUM) && APIVERSNUM >= 20107
-  pid = channelM.Ca() ? ::GetPmtPid(channelM.Source(), channelM.Transponder(), channelM.Sid()) : 0;
-#endif
+  int pid = channelM.Ca() ? ::GetPmtPid(channelM.Source(), channelM.Transponder(), channelM.Sid()) : 0;
   debug11("%s pmtpid=%d source=%c transponder=%d sid=%d name=%s [device %u]", __PRETTY_FUNCTION__, pid, cSource::ToChar(channelM.Source()), channelM.Transponder(), channelM.Sid(), channelM.Name(), deviceIndexM);
   return pid;
 }
@@ -505,7 +502,6 @@ bool cSatipDevice::GetTSPacket(uchar *&dataP)
 {
   debug16("%s [device %u]", __PRETTY_FUNCTION__, deviceIndexM);
   if (tsBufferM) {
-#if defined(APIVERSNUM) && APIVERSNUM >= 20104
      if (cCamSlot *cs = CamSlot()) {
         if (cs->WantsTsData()) {
            int available;
@@ -517,7 +513,6 @@ bool cSatipDevice::GetTSPacket(uchar *&dataP)
            return true;
            }
         }
-#endif
      dataP = GetData();
      return true;
      }
