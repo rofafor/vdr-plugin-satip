@@ -28,6 +28,7 @@ public:
   bool Attached(void) { return (deviceIdM >= 0); }
   int Index(void) { return indexM; }
   int Transponder(void) { return transponderM; }
+  int DeviceId(void) { return deviceIdM; }
   void SetTransponder(int transponderP) { transponderM = transponderP; }
 };
 

@@ -31,7 +31,7 @@ cSatipFrontend::~cSatipFrontend()
 bool cSatipFrontends::Matches(int deviceIdP, int transponderP)
 {
   for (cSatipFrontend *f = First(); f; f = Next(f)) {
-      if (f->Attached() && (f->Transponder() == transponderP))
+      if (f->Attached() && (f->DeviceId() == deviceIdP) && (f->Transponder() == transponderP))
          return true;
       }
   return false;
@@ -39,10 +39,10 @@ bool cSatipFrontends::Matches(int deviceIdP, int transponderP)
 
 bool cSatipFrontends::Assign(int deviceIdP, int transponderP)
 {
-  cSatipFrontend *tmp = First();
+  cSatipFrontend *tmp = NULL;
   // Prefer any unused one
   for (cSatipFrontend *f = First(); f; f = Next(f)) {
-      if (!f->Attached()) {
+      if (!f->Attached() || (f->DeviceId() == deviceIdP)) {
          tmp = f;
          break;
          }
