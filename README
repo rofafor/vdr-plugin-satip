@@ -134,8 +134,8 @@ Notes:
   your setup doesn't have firewalled the UDP port 1900.
 
 - Stream decryption requires a separate CAM plugin that works without
-  direct access to any DVB card devices. The integrated CAM slot in
-  Octopus Net devices isn't supported.
+  direct access to any DVB card devices. Also the integrated CAM slots
+  in Octopus Net devices are supported.
 
 - Tracing can be set on/off dynamically via command-line switch or
   SVDRP command.
