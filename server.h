@@ -16,15 +16,16 @@ class cSatipFrontend : public cListObject {
 private:
   int indexM;
   int transponderM;
+  int deviceIdM;
   cString descriptionM;
-  bool usedM;
 
 public:
   cSatipFrontend(const int indexP, const char *descriptionP);
   virtual ~cSatipFrontend();
-  void Use(bool onOffP) { usedM = onOffP; }
+  void Attach(int deviceIdP) { deviceIdM = deviceIdP; }
+  void Detach(int deviceIdP) { if (deviceIdP == deviceIdM) deviceIdM = -1; }
   cString Description(void) { return descriptionM; }
-  bool IsUsed(void) { return usedM; }
+  bool Attached(void) { return (deviceIdM >= 0); }
   int Index(void) { return indexM; }
   int Transponder(void) { return transponderM; }
   void SetTransponder(int transponderP) { transponderM = transponderP; }
@@ -34,9 +35,10 @@ public:
 
 class cSatipFrontends : public cList<cSatipFrontend> {
 public:
-  bool Matches(int transponderP);
-  bool Assign(int transponderP);
-  bool Use(int transponderP, bool onOffP);
+  bool Matches(int deviceIdP, int transponderP);
+  bool Assign(int deviceIdP, int transponderP);
+  bool Attach(int deviceIdP, int transponderP);
+  bool Detach(int deviceIdP, int transponderP);
 };
 
 // --- cSatipServer -----------------------------------------------------------
@@ -72,10 +74,11 @@ public:
   cSatipServer(const char *addressP, const char *modelP, const char *descriptionP);
   virtual ~cSatipServer();
   virtual int Compare(const cListObject &listObjectP) const;
-  bool Assign(int sourceP, int systemP, int transponderP);
+  bool Assign(int deviceIdP, int sourceP, int systemP, int transponderP);
   bool Matches(int sourceP);
-  bool Matches(int sourceP, int systemP, int transponderP);
-  void Use(int transponderP, bool onOffP);
+  bool Matches(int deviceIdP, int sourceP, int systemP, int transponderP);
+  void Attach(int deviceIdP, int transponderP);
+  void Detach(int deviceIdP, int transponderP);
   int GetModulesDVBS2(void);
   int GetModulesDVBT(void);
   int GetModulesDVBT2(void);
@@ -99,9 +102,10 @@ class cSatipServers : public cList<cSatipServer> {
 public:
   cSatipServer *Find(cSatipServer *serverP);
   cSatipServer *Find(int sourceP);
-  cSatipServer *Assign(int sourceP, int transponderP, int systemP);
+  cSatipServer *Assign(int deviceIdP, int sourceP, int transponderP, int systemP);
   cSatipServer *Update(cSatipServer *serverP);
-  void Use(cSatipServer *serverP, int transponderP, bool onOffP);
+  void Attach(cSatipServer *serverP, int deviceIdP, int transponderP);
+  void Detach(cSatipServer *serverP, int deviceIdP, int transponderP);
   bool IsQuirk(cSatipServer *serverP, int quirkP);
   bool HasCI(cSatipServer *serverP);
   void Cleanup(uint64_t intervalMsP = 0);

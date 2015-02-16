@@ -328,7 +328,7 @@ bool cSatipDevice::SetChannelDevice(const cChannel *channelP, bool liveViewP)
         return false;
         }
      cString address;
-     cSatipServer *server = cSatipDiscover::GetInstance()->AssignServer(channelP->Source(), channelP->Transponder(), dtp.System());
+     cSatipServer *server = cSatipDiscover::GetInstance()->AssignServer(deviceIndexM, channelP->Source(), channelP->Transponder(), dtp.System());
      if (!server) {
         debug9("%s No suitable server found [device %u]", __PRETTY_FUNCTION__, deviceIndexM);
         return false;

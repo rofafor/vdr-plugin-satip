@@ -53,21 +53,23 @@ class cSatipTunerServer
 {
 private:
   cSatipServer *serverM;
+  int deviceIdM;
   int transponderM;
 
 public:
-  cSatipTunerServer(cSatipServer *serverP, const int transponderP) : serverM(serverP), transponderM(transponderP) {}
+  cSatipTunerServer(cSatipServer *serverP, const int deviceIdP, const int transponderP) : serverM(serverP), deviceIdM(deviceIdP), transponderM(transponderP) {}
   ~cSatipTunerServer() {}
-  cSatipTunerServer(const cSatipTunerServer &objP) { serverM = NULL; transponderM = 0; }
-  cSatipTunerServer& operator= (const cSatipTunerServer &objP) { serverM = objP.serverM; transponderM = objP.transponderM; return *this; }
+  cSatipTunerServer(const cSatipTunerServer &objP) { serverM = NULL; deviceIdM = -1; transponderM = 0; }
+  cSatipTunerServer& operator= (const cSatipTunerServer &objP) { serverM = objP.serverM; deviceIdM = objP.deviceIdM; transponderM = objP.transponderM; return *this; }
   bool IsValid(void) { return !!serverM; }
   bool IsQuirk(int quirkP) { return (serverM && cSatipDiscover::GetInstance()->IsServerQuirk(serverM, quirkP)); }
   bool HasCI(void) { return (serverM && cSatipDiscover::GetInstance()->HasServerCI(serverM)); }
-  void Use(bool onOffP) { if (serverM) cSatipDiscover::GetInstance()->UseServer(serverM, transponderM, onOffP); }
+  void Attach(void) { if (serverM) cSatipDiscover::GetInstance()->AttachServer(serverM, deviceIdM, transponderM); }
+  void Detach(void) { if (serverM) cSatipDiscover::GetInstance()->DetachServer(serverM, deviceIdM, transponderM); }
   void Set(cSatipServer *serverP, const int transponderP) { serverM = serverP; transponderM = transponderP; }
   void Reset(void) { serverM = NULL; transponderM = 0; }
   cString GetAddress(void) { return serverM ? cSatipDiscover::GetInstance()->GetServerAddress(serverM) : ""; }
-  cString GetInfo(void) { return cString::sprintf("server=%s transponder=%d", serverM ? "assigned" : "null", transponderM); }
+  cString GetInfo(void) { return cString::sprintf("server=%s deviceid=%d transponder=%d", serverM ? "assigned" : "null", deviceIdM, transponderM); }
 };
 
 class cSatipTuner : public cThread, public cSatipTunerStatistics, public cSatipTunerIf

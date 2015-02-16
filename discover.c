@@ -269,11 +269,11 @@ int cSatipDiscover::GetServerCount(void)
   return serversM.Count();
 }
 
-cSatipServer *cSatipDiscover::AssignServer(int sourceP, int transponderP, int systemP)
+cSatipServer *cSatipDiscover::AssignServer(int deviceIdP, int sourceP, int transponderP, int systemP)
 {
-  debug16("%s (%d, %d, %d)", __PRETTY_FUNCTION__, sourceP, transponderP, systemP);
+  debug16("%s (%d, %d, %d, %d)", __PRETTY_FUNCTION__, deviceIdP, sourceP, transponderP, systemP);
   cMutexLock MutexLock(&mutexM);
-  return serversM.Assign(sourceP, transponderP, systemP);
+  return serversM.Assign(deviceIdP, sourceP, transponderP, systemP);
 }
 
 cSatipServer *cSatipDiscover::GetServer(int sourceP)
@@ -311,11 +311,18 @@ cString cSatipDiscover::GetServerList(void)
   return serversM.List();
 }
 
-void cSatipDiscover::UseServer(cSatipServer *serverP, int transponderP, bool onOffP)
+void cSatipDiscover::AttachServer(cSatipServer *serverP, int deviceIdP, int transponderP)
 {
-  debug16("%s (, %d, %d)", __PRETTY_FUNCTION__, transponderP, onOffP);
+  debug16("%s (, %d, %d)", __PRETTY_FUNCTION__, deviceIdP, transponderP);
   cMutexLock MutexLock(&mutexM);
-  serversM.Use(serverP, transponderP, onOffP);
+  serversM.Attach(serverP, deviceIdP, transponderP);
+}
+
+void cSatipDiscover::DetachServer(cSatipServer *serverP, int deviceIdP, int transponderP)
+{
+  debug16("%s (, %d, %d)", __PRETTY_FUNCTION__, deviceIdP, transponderP);
+  cMutexLock MutexLock(&mutexM);
+  serversM.Detach(serverP, deviceIdP, transponderP);
 }
 
 bool cSatipDiscover::IsServerQuirk(cSatipServer *serverP, int quirkP)

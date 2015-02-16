@@ -74,12 +74,13 @@ public:
   virtual ~cSatipDiscover();
   void TriggerScan(void) { probeIntervalM.Set(0); }
   int GetServerCount(void);
-  cSatipServer *AssignServer(int sourceP, int transponderP, int systemP);
+  cSatipServer *AssignServer(int deviceIdP, int sourceP, int transponderP, int systemP);
   cSatipServer *GetServer(int sourceP);
   cSatipServer *GetServer(cSatipServer *serverP);
   cSatipServers *GetServers(void);
   cString GetServerString(cSatipServer *serverP);
-  void UseServer(cSatipServer *serverP, int transponderP, bool onOffP);
+  void AttachServer(cSatipServer *serverP, int deviceIdP, int transponderP);
+  void DetachServer(cSatipServer *serverP, int deviceIdP, int transponderP);
   bool IsServerQuirk(cSatipServer *serverP, int quirkP);
   bool HasServerCI(cSatipServer *serverP);
   cString GetServerAddress(cSatipServer *serverP);

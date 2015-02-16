@@ -25,8 +25,8 @@ cSatipTuner::cSatipTuner(cSatipDeviceIf &deviceP, unsigned int packetLenP)
   rtcpM(*this),
   streamAddrM(""),
   streamParamM(""),
-  currentServerM(NULL, 0),
-  nextServerM(NULL, 0),
+  currentServerM(NULL, deviceP.GetId(), 0),
+  nextServerM(NULL, deviceP.GetId(), 0),
   mutexM(),
   reConnectM(),
   keepAliveM(),
@@ -205,7 +205,7 @@ bool cSatipTuner::Connect(void)
               currentServerM = nextServerM;
               nextServerM.Reset();
               }
-           currentServerM.Use(true);
+           currentServerM.Attach();
            return true;
            }
         }
@@ -237,7 +237,7 @@ bool cSatipTuner::Disconnect(void)
   signalQualityM = -1;
   frontendIdM = -1;
 
-  currentServerM.Use(false);
+  currentServerM.Detach();
   statusUpdateM.Set(0);
   timeoutM = eMinKeepAliveIntervalMs;
   pmtPidM = -1;
