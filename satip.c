@@ -84,7 +84,7 @@ const char *cPluginSatip::CommandLineHelp(void)
   return "  -d <num>, --devices=<number>  set number of devices to be created\n"
          "  -t <mode>, --trace=<mode>     set the tracing mode\n"
          "  -s <ipaddr>|<model>|<desc>, --server=<ipaddr1>|<model1>|<desc1>;<ipaddr2>|<model2>|<desc2>\n"
-         "                                define hard-coded SAT>IP server(s)"
+         "                                define hard-coded SAT>IP server(s)\n"
          "  -S, --single                  set the single model server mode on\n"
          "  -n, --noquirks                disable all the server quirks\n";
 }
