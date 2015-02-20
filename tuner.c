@@ -197,8 +197,8 @@ bool cSatipTuner::Connect(void)
      else if (rtspM.Options(*connectionUri)) {
         cString uri = cString::sprintf("%s?%s", *connectionUri, *streamParamM);
         // Flush any old content
-        rtpM.Flush();
-        rtcpM.Flush();
+        //rtpM.Flush();
+        //rtcpM.Flush();
         if (rtspM.Setup(*uri, rtpM.Port(), rtcpM.Port())) {
            keepAliveM.Set(timeoutM);
            if (nextServerM.IsValid()) {
