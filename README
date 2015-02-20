@@ -26,8 +26,6 @@ Requirements:
 - Glibc >= 2.12 - the GNU C library (recvmmsg)
   http://www.gnu.org/software/libc/
 
-- VDR >= 2.1.7
-
 Description:
 
 This plugin integrates SAT>IP network devices seamlessly into VDR.
