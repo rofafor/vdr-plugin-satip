@@ -27,7 +27,7 @@
 #define GITVERSION ""
 #endif
 
-       const char VERSION[]     = "2.2.0" GITVERSION;
+       const char VERSION[]     = "2.2.1" GITVERSION;
 static const char DESCRIPTION[] = trNOOP("SAT>IP Devices");
 
 class cPluginSatip : public cPlugin {

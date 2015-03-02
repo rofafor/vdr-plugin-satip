@@ -120,3 +120,7 @@ VDR Plugin 'satip' Revision History
 - Fixed memory deallocation errors.
 - Cleaned up all scan-build warnings.
 - Refactored the frontend handling.
+
+2015-XX-XX: Version 2.2.1
+
+- Robustify the server discovery.

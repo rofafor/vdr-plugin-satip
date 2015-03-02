@@ -45,6 +45,9 @@ void cSatipMsearch::Probe(void)
      cSatipPoller::GetInstance()->Register(*this);
      registeredM = true;
      }
+  // Send two queries with one second interval
+  Write(bcastAddressS, reinterpret_cast<const unsigned char *>(bcastMessageS), strlen(bcastMessageS));
+  cCondWait::SleepMs(1000);
   Write(bcastAddressS, reinterpret_cast<const unsigned char *>(bcastMessageS), strlen(bcastMessageS));
 }
 
