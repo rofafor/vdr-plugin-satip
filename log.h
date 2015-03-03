@@ -34,9 +34,9 @@
 #define debug10(x...) void( SatipConfig.IsTraceMode(cSatipConfig::eTraceModeDebug10) ? dsyslog("SATIP10: " x) : void() )
 // 0x0400: CI
 #define debug11(x...) void( SatipConfig.IsTraceMode(cSatipConfig::eTraceModeDebug11) ? dsyslog("SATIP11: " x) : void() )
-// 0x0800: Discovery
+// 0x0800: Pids
 #define debug12(x...) void( SatipConfig.IsTraceMode(cSatipConfig::eTraceModeDebug12) ? dsyslog("SATIP12: " x) : void() )
-// 0x1000: Pids
+// 0x1000: Discovery
 #define debug13(x...) void( SatipConfig.IsTraceMode(cSatipConfig::eTraceModeDebug13) ? dsyslog("SATIP13: " x) : void() )
 // 0x2000: TBD
 #define debug14(x...) void( SatipConfig.IsTraceMode(cSatipConfig::eTraceModeDebug14) ? dsyslog("SATIP14: " x) : void() )
