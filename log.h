@@ -46,4 +46,3 @@
 #define debug16(x...) void( SatipConfig.IsTraceMode(cSatipConfig::eTraceModeDebug16) ? dsyslog("SATIP16: " x) : void() )
 
 #endif // __SATIP_LOG_H
-

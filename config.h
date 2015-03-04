@@ -34,24 +34,24 @@ public:
     eOperatingModeCount
   };
   enum eTraceMode {
-   eTraceModeNormal  = 0x0000,
-   eTraceModeDebug1  = 0x0001,
-   eTraceModeDebug2  = 0x0002,
-   eTraceModeDebug3  = 0x0004,
-   eTraceModeDebug4  = 0x0008,
-   eTraceModeDebug5  = 0x0010,
-   eTraceModeDebug6  = 0x0020,
-   eTraceModeDebug7  = 0x0040,
-   eTraceModeDebug8  = 0x0080,
-   eTraceModeDebug9  = 0x0100,
-   eTraceModeDebug10 = 0x0200,
-   eTraceModeDebug11 = 0x0400,
-   eTraceModeDebug12 = 0x0800,
-   eTraceModeDebug13 = 0x1000,
-   eTraceModeDebug14 = 0x2000,
-   eTraceModeDebug15 = 0x4000,
-   eTraceModeDebug16 = 0x8000,
-   eTraceModeMask    = 0xFFFF
+    eTraceModeNormal  = 0x0000,
+    eTraceModeDebug1  = 0x0001,
+    eTraceModeDebug2  = 0x0002,
+    eTraceModeDebug3  = 0x0004,
+    eTraceModeDebug4  = 0x0008,
+    eTraceModeDebug5  = 0x0010,
+    eTraceModeDebug6  = 0x0020,
+    eTraceModeDebug7  = 0x0040,
+    eTraceModeDebug8  = 0x0080,
+    eTraceModeDebug9  = 0x0100,
+    eTraceModeDebug10 = 0x0200,
+    eTraceModeDebug11 = 0x0400,
+    eTraceModeDebug12 = 0x0800,
+    eTraceModeDebug13 = 0x1000,
+    eTraceModeDebug14 = 0x2000,
+    eTraceModeDebug15 = 0x4000,
+    eTraceModeDebug16 = 0x8000,
+    eTraceModeMask    = 0xFFFF
   };
   cSatipConfig();
   unsigned int GetOperatingMode(void) const { return operatingModeM; }
