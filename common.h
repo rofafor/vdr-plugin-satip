@@ -35,7 +35,7 @@
 
 #define SATIP_CURL_EASY_GETINFO(X, Y, Z) \
   if ((res = curl_easy_getinfo((X), (Y), (Z))) != CURLE_OK) { \
-     error("curl_easy_getinfo(%s) [%s,%d] failed: %s (%d)", #Y,  __FILE__, __LINE__, curl_easy_strerror(res), res); \
+     esyslog("curl_easy_getinfo(%s) [%s,%d] failed: %s (%d)", #Y,  __FILE__, __LINE__, curl_easy_strerror(res), res); \
      }
 
 #define SATIP_CURL_EASY_SETOPT(X, Y, Z) \
@@ -48,15 +48,15 @@
      esyslog("curl_easy_perform() [%s,%d] failed: %s (%d)",  __FILE__, __LINE__, curl_easy_strerror(res), res); \
      }
 
-#define ERROR_IF_FUNC(exp, errstr, func, ret)              \
-  do {                                                     \
-     if (exp) {                                            \
-        char tmp[64];                                      \
+#define ERROR_IF_FUNC(exp, errstr, func, ret)                \
+  do {                                                       \
+     if (exp) {                                              \
+        char tmp[64];                                        \
         esyslog("[%s,%d]: "errstr": %s", __FILE__, __LINE__, \
-              strerror_r(errno, tmp, sizeof(tmp)));        \
-        func;                                              \
-        ret;                                               \
-        }                                                  \
+                strerror_r(errno, tmp, sizeof(tmp)));        \
+        func;                                                \
+        ret;                                                 \
+        }                                                    \
   } while (0)
 
 
