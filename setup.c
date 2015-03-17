@@ -330,7 +330,8 @@ eOSState cSatipMenuInfo::ProcessKey(eKeys keyP)
 // --- cSatipPluginSetup ------------------------------------------------------
 
 cSatipPluginSetup::cSatipPluginSetup()
-: deviceCountM(0),
+: detachedModeM(SatipConfig.GetDetachedMode()),
+  deviceCountM(0),
   operatingModeM(SatipConfig.GetOperatingMode()),
   ciExtensionM(SatipConfig.GetCIExtension()),
   eitScanM(SatipConfig.GetEITScan()),
@@ -402,12 +403,15 @@ void cSatipPluginSetup::Setup(void)
   Add(new cOsdItem(tr("Active SAT>IP servers:"), osUnknown, false));
   helpM.Append("");
 
-  cSatipServers *servers = cSatipDiscover::GetInstance()->GetServers();
-  deviceCountM = servers->Count();
-  for (cSatipServer *s = servers->First(); s; s = servers->Next(s)) {
-      Add(new cSatipServerItem(s));
-      helpM.Append("");
-      }
+  detachedModeM = SatipConfig.GetDetachedMode();
+  if (!detachedModeM) {
+     cSatipServers *servers = cSatipDiscover::GetInstance()->GetServers();
+     deviceCountM = servers->Count();
+     for (cSatipServer *s = servers->First(); s; s = servers->Next(s)) {
+         Add(new cSatipServerItem(s));
+         helpM.Append("");
+         }
+     }
 
   SetCurrent(Get(current));
   Display();
@@ -480,7 +484,7 @@ eOSState cSatipPluginSetup::ProcessKey(eKeys keyP)
   if ((keyP == kNone) && (cSatipDiscover::GetInstance()->GetServers()->Count() != deviceCountM))
      Setup();
 
-  if ((keyP != kNone) && ((numDisabledSourcesM != oldNumDisabledSources) || (numDisabledFiltersM != oldNumDisabledFilters) || (operatingModeM != oldOperatingMode) || (ciExtensionM != oldCiExtension))) {
+  if ((keyP != kNone) && ((numDisabledSourcesM != oldNumDisabledSources) || (numDisabledFiltersM != oldNumDisabledFilters) || (operatingModeM != oldOperatingMode) || (ciExtensionM != oldCiExtension) || (detachedModeM != SatipConfig.GetDetachedMode()))) {
      while ((numDisabledSourcesM < oldNumDisabledSources) && (oldNumDisabledSources > 0))
            disabledSourcesM[--oldNumDisabledSources] = cSource::stNone;
      while ((numDisabledFiltersM < oldNumDisabledFilters) && (oldNumDisabledFilters > 0))

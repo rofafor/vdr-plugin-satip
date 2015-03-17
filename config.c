@@ -17,6 +17,7 @@ cSatipConfig::cSatipConfig(void)
   ciExtensionM(0),
   eitScanM(1),
   useBytesM(1),
+  detachedModeM(false),
   disableServerQuirksM(false),
   useSingleModelServersM(false)
 {

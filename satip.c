@@ -85,6 +85,7 @@ const char *cPluginSatip::CommandLineHelp(void)
          "  -t <mode>, --trace=<mode>     set the tracing mode\n"
          "  -s <ipaddr>|<model>|<desc>, --server=<ipaddr1>|<model1>|<desc1>;<ipaddr2>|<model2>|<desc2>\n"
          "                                define hard-coded SAT>IP server(s)\n"
+         "  -D, --detach                  set the detached mode on\n"
          "  -S, --single                  set the single model server mode on\n"
          "  -n, --noquirks                disable all the server quirks\n";
 }
@@ -97,6 +98,7 @@ bool cPluginSatip::ProcessArgs(int argc, char *argv[])
     { "devices",  required_argument, NULL, 'd' },
     { "trace",    required_argument, NULL, 't' },
     { "server",   required_argument, NULL, 's' },
+    { "detach",   no_argument,       NULL, 'D' },
     { "single",   no_argument,       NULL, 'S' },
     { "noquirks", no_argument,       NULL, 'n' },
     { NULL,       no_argument,       NULL,  0  }
@@ -104,7 +106,7 @@ bool cPluginSatip::ProcessArgs(int argc, char *argv[])
 
   cString server;
   int c;
-  while ((c = getopt_long(argc, argv, "d:t:s:Sn", long_options, NULL)) != -1) {
+  while ((c = getopt_long(argc, argv, "d:t:s:DSn", long_options, NULL)) != -1) {
     switch (c) {
       case 'd':
            deviceCountM = strtol(optarg, NULL, 0);
@@ -114,6 +116,9 @@ bool cPluginSatip::ProcessArgs(int argc, char *argv[])
            break;
       case 's':
            server = optarg;
+           break;
+      case 'D':
+           SatipConfig.SetDetachedMode(true);
            break;
       case 'S':
            SatipConfig.SetUseSingleModelServers(true);
@@ -368,6 +373,10 @@ const char **cPluginSatip::SVDRPHelpPages(void)
     "    Shows SAT>IP device count.\n",
     "OPER [ off | low | normal | high ]\n"
     "    Gets and(or sets operating mode of SAT>IP devices.\n",
+    "ATTA\n"
+    "    Attach active SAT>IP servers.\n",
+    "DETA\n"
+    "    Detachs active SAT>IP servers.\n",
     "TRAC [ <mode> ]\n"
     "    Gets and/or sets used tracing mode.\n",
     NULL
@@ -464,6 +473,16 @@ cString cPluginSatip::SVDRPCommand(const char *commandP, const char *optionP, in
             break;
        }
      return cString::sprintf("SATIP operating mode: %s\n", *mode);
+     }
+  else if (strcasecmp(commandP, "ATTA") == 0) {
+     SatipConfig.SetDetachedMode(false);
+     info("SATIP servers attached");
+     return cString("SATIP servers attached");
+     }
+  else if (strcasecmp(commandP, "DETA") == 0) {
+     SatipConfig.SetDetachedMode(true);
+     info("SATIP servers detached");
+     return cString("SATIP servers detached");
      }
   else if (strcasecmp(commandP, "TRAC") == 0) {
      if (optionP && *optionP)

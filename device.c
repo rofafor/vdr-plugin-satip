@@ -219,6 +219,8 @@ bool cSatipDevice::ProvidesSource(int sourceP) const
 {
   cSource *s = Sources.Get(sourceP);
   debug9("%s (%c) desc='%s' [device %u]", __PRETTY_FUNCTION__, cSource::ToChar(sourceP), s ? s->Description() : "", deviceIndexM);
+  if (SatipConfig.GetDetachedMode())
+     return false;
   // source descriptions starting with '0' are disabled
   if (s && s->Description() && (*(s->Description()) == '0'))
      return false;
@@ -501,6 +503,8 @@ void cSatipDevice::SkipData(int countP)
 bool cSatipDevice::GetTSPacket(uchar *&dataP)
 {
   debug16("%s [device %u]", __PRETTY_FUNCTION__, deviceIndexM);
+  if (SatipConfig.GetDetachedMode())
+     return false;
   if (tsBufferM) {
      if (cCamSlot *cs = CamSlot()) {
         if (cs->WantsTsData()) {
