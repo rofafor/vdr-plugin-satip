@@ -20,7 +20,8 @@
 class cSatipRtsp {
 private:
   static size_t HeaderCallback(void *ptrP, size_t sizeP, size_t nmembP, void *dataP);
-  static size_t WriteCallback(void *ptrP, size_t sizeP, size_t nmembP, void *dataP);
+  static size_t DescribeCallback(void *ptrP, size_t sizeP, size_t nmembP, void *dataP);
+  static size_t SetupPlayCallback(void *ptrP, size_t sizeP, size_t nmembP, void *dataP);
   static int    DebugCallback(CURL *handleP, curl_infotype typeP, char *dataP, size_t sizeP, void *userPtrP);
 
   enum {
@@ -32,9 +33,15 @@ private:
   eCommunicationMode modeM;
   CURL *handleM;
   struct curl_slist *headerListM;
+  cString errorNoMore;
+  cString errorOutOfRange;
+  cString errorCheckSyntax;
 
   void Create(void);
   void Destroy(void);
+  void SetErrorNoMore(const char *strP);
+  void SetErrorOutOfRange(const char *strP);
+  void SetErrorCheckSyntax(const char *strP);
   bool ValidateLatestResponse(long *rcP);
 
   // to prevent copy constructor and assignment
