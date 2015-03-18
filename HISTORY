@@ -124,3 +124,5 @@ VDR Plugin 'satip' Revision History
 2015-XX-XX: Version 2.2.1
 
 - Robustify the server discovery.
+- Fixed a memory leak in TinyXML implementation
+  (Thanks to Oliver Endriss).

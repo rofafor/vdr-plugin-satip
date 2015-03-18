@@ -56,11 +56,12 @@ size_t cSatipDiscover::WriteCallback(char *ptrP, size_t sizeP, size_t nmembP, vo
   if (obj) {
      CURLcode res = CURLE_OK;
      const char *desc = NULL, *model = NULL, *addr = NULL;
+     SATIP_CURL_EASY_GETINFO(obj->handleM, CURLINFO_PRIMARY_IP, &addr);
 #ifdef USE_TINYXML
      TiXmlDocument doc;
      char *xml = MALLOC(char, len + 1);
      memcpy(xml, ptrP, len);
-     *(xml + len + 1) = 0;
+     *(xml + len) = 0;
      doc.Parse((const char *)xml);
      TiXmlHandle docHandle(&doc);
      TiXmlElement *descElement = docHandle.FirstChild("root").FirstChild("device").FirstChild("friendlyName").ToElement();
@@ -69,6 +70,8 @@ size_t cSatipDiscover::WriteCallback(char *ptrP, size_t sizeP, size_t nmembP, vo
      TiXmlElement *modelElement = docHandle.FirstChild("root").FirstChild("device").FirstChild("satip:X_SATIPCAP").ToElement();
      if (modelElement)
         model = modelElement->GetText() ? modelElement->GetText() : "DVBS2-1";
+     obj->AddServer(addr, model, desc);
+     FREE_POINTER(xml);
 #else
      pugi::xml_document doc;
      pugi::xml_parse_result result = doc.load_buffer(ptrP, len);
@@ -80,9 +83,8 @@ size_t cSatipDiscover::WriteCallback(char *ptrP, size_t sizeP, size_t nmembP, vo
         if (modelNode)
            model = modelNode.text().as_string("DVBS2-1");
         }
-#endif
-     SATIP_CURL_EASY_GETINFO(obj->handleM, CURLINFO_PRIMARY_IP, &addr);
      obj->AddServer(addr, model, desc);
+#endif
      }
 
   return len;
