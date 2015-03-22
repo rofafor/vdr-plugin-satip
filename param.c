@@ -158,6 +158,11 @@ cString GetTransponderUrlParameters(const cChannel *channelP)
            freq /= 1000L;
 #define ST(s) if (strchr(s, type) && (strchr(s, '0' + dtp.System() + 1) || strchr(s, '*')))
 #define STBUFLEFT (sizeof(buffer) - (q - buffer))
+     ST(" S 1") { // to comply with SAT>IP protocol specification 1.2.2
+       dtp.SetPilot(PILOT_OFF);
+       dtp.SetModulation(QPSK);
+       dtp.SetRollOff(ROLLOFF_35);
+       }
                 q += snprintf(q,       STBUFLEFT, "freq=%s",          *dtoa(freq, "%lg"));
      ST(" S *") q += snprintf(q,       STBUFLEFT, "&src=%d",          ((src > 0) && (src <= 255)) ? src : 1);
      ST(" S *") q += snprintf(q,       STBUFLEFT, "&sr=%d",           channelP->Srate());
@@ -173,14 +178,11 @@ cString GetTransponderUrlParameters(const cChannel *channelP)
      ST("C  2") q += PrintUrlString(q, STBUFLEFT, dtp.Bandwidth(),    SatipBandwidthValues);
      ST("  T*") q += PrintUrlString(q, STBUFLEFT, dtp.Guard(),        SatipGuardValues);
      ST("CST*") q += PrintUrlString(q, STBUFLEFT, dtp.CoderateH(),    SatipCodeRateValues);
-     ST(" S 1") q += snprintf(q,       STBUFLEFT, "&plts=off");       // SAT>IP protocol specification 1.2.2
-     ST(" S 2") q += PrintUrlString(q, STBUFLEFT, dtp.Pilot(),        SatipPilotValues);
-     ST(" S 1") q += snprintf(q,       STBUFLEFT, "&mtype=qpsk");     // SAT>IP protocol specification 1.2.2
-     ST(" S 2") q += PrintUrlString(q, STBUFLEFT, dtp.Modulation(),   SatipModulationValues);
+     ST(" S *") q += PrintUrlString(q, STBUFLEFT, dtp.Pilot(),        SatipPilotValues);
+     ST(" S *") q += PrintUrlString(q, STBUFLEFT, dtp.Modulation(),   SatipModulationValues);
      ST("  T*") q += PrintUrlString(q, STBUFLEFT, dtp.Modulation(),   SatipModulationValues);
      ST("C  1") q += PrintUrlString(q, STBUFLEFT, dtp.Modulation(),   SatipModulationValues);
-     ST(" S 1") q += snprintf(q,       STBUFLEFT, "&ro=0.35");        // SAT>IP protocol specification 1.2.2
-     ST(" S 2") q += PrintUrlString(q, STBUFLEFT, dtp.RollOff(),      SatipRollOffValues);
+     ST(" S *") q += PrintUrlString(q, STBUFLEFT, dtp.RollOff(),      SatipRollOffValues);
      ST(" S *") q += PrintUrlString(q, STBUFLEFT, dtp.System(),       SatipSystemValuesSat);
      ST("C  *") q += PrintUrlString(q, STBUFLEFT, dtp.System(),       SatipSystemValuesCable);
      ST("  T*") q += PrintUrlString(q, STBUFLEFT, dtp.System(),       SatipSystemValuesTerrestrial);
