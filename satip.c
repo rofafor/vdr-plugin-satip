@@ -141,6 +141,13 @@ bool cPluginSatip::Initialize(void)
      return false;
   }
   
+  curl_version_info_data *curlVersion = curl_version_info(CURLVERSION_NOW);
+  if(curlVersion->version_num < 0x072400)
+  {
+     error("CURL version >= 7.36.0 required");
+     return false;
+  }
+  
   cSatipPoller::GetInstance()->Initialize();
   cSatipDiscover::GetInstance()->Initialize(serversM);
   return cSatipDevice::Initialize(deviceCountM);
