@@ -16,7 +16,7 @@
 #include "setup.h"
 
 #if defined(LIBCURL_VERSION_NUM) && LIBCURL_VERSION_NUM < 0x072400
-#warning "CURL version >= 7.36.0 is recommended"
+#error "CURL version >= 7.36.0 is required"
 #endif
 
 #if defined(APIVERSNUM) && APIVERSNUM < 20000
