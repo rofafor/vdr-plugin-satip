@@ -16,7 +16,7 @@
 #include "setup.h"
 
 #if defined(LIBCURL_VERSION_NUM) && LIBCURL_VERSION_NUM < 0x072400
-#warning "CURL version >= 7.36.0 is recommended"
+#error "CURL version >= 7.36.0 is required"
 #endif
 
 #if defined(APIVERSNUM) && APIVERSNUM < 20200
@@ -136,7 +136,18 @@ bool cPluginSatip::Initialize(void)
   debug1("%s", __PRETTY_FUNCTION__);
   // Initialize any background activities the plugin shall perform.
   if (curl_global_init(CURL_GLOBAL_ALL) != CURLE_OK)
+  {
      error("Unable to initialize CURL");
+     return false;
+  }
+  
+  curl_version_info_data *curlVersion = curl_version_info(CURLVERSION_NOW);
+  if(curlVersion->version_num < 0x072400)
+  {
+     error("CURL version >= 7.36.0 required");
+     return false;
+  }
+  
   cSatipPoller::GetInstance()->Initialize();
   cSatipDiscover::GetInstance()->Initialize(serversM);
   return cSatipDevice::Initialize(deviceCountM);
