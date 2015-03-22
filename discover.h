@@ -48,6 +48,7 @@ private:
   static size_t WriteCallback(char *ptrP, size_t sizeP, size_t nmembP, void *dataP);
   static int    DebugCallback(CURL *handleP, curl_infotype typeP, char *dataP, size_t sizeP, void *userPtrP);
   cMutex mutexM;
+  cString deviceInfoM;
   cSatipMsearch msearchM;
   cStringList probeUrlListM;
   CURL *handleM;
@@ -56,6 +57,7 @@ private:
   cSatipServers serversM;
   void Activate(void);
   void Deactivate(void);
+  void ParseDeviceInfo(const char *addrP);
   void AddServer(const char *addrP, const char *modelP, const char *descP);
   void Fetch(const char *urlP);
   // constructor

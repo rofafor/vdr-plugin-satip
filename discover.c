@@ -54,37 +54,8 @@ size_t cSatipDiscover::WriteCallback(char *ptrP, size_t sizeP, size_t nmembP, vo
   debug16("%s len=%zu", __PRETTY_FUNCTION__, len);
 
   if (obj) {
-     CURLcode res = CURLE_OK;
-     const char *desc = NULL, *model = NULL, *addr = NULL;
-     SATIP_CURL_EASY_GETINFO(obj->handleM, CURLINFO_PRIMARY_IP, &addr);
-#ifdef USE_TINYXML
-     TiXmlDocument doc;
-     char *xml = MALLOC(char, len + 1);
-     memcpy(xml, ptrP, len);
-     *(xml + len) = 0;
-     doc.Parse((const char *)xml);
-     TiXmlHandle docHandle(&doc);
-     TiXmlElement *descElement = docHandle.FirstChild("root").FirstChild("device").FirstChild("friendlyName").ToElement();
-     if (descElement)
-        desc = descElement->GetText() ? descElement->GetText() : "MyBrokenHardware";
-     TiXmlElement *modelElement = docHandle.FirstChild("root").FirstChild("device").FirstChild("satip:X_SATIPCAP").ToElement();
-     if (modelElement)
-        model = modelElement->GetText() ? modelElement->GetText() : "DVBS2-1";
-     obj->AddServer(addr, model, desc);
-     FREE_POINTER(xml);
-#else
-     pugi::xml_document doc;
-     pugi::xml_parse_result result = doc.load_buffer(ptrP, len);
-     if (result) {
-        pugi::xml_node descNode = doc.first_element_by_path("root/device/friendlyName");
-        if (descNode)
-           desc = descNode.text().as_string("MyBrokenHardware");
-        pugi::xml_node modelNode = doc.first_element_by_path("root/device/satip:X_SATIPCAP");
-        if (modelNode)
-           model = modelNode.text().as_string("DVBS2-1");
-        }
-     obj->AddServer(addr, model, desc);
-#endif
+     char *s = strndup(ptrP, len);
+     obj->deviceInfoM = cString::sprintf("%s%s", *obj->deviceInfoM, s ? s : "");
      }
 
   return len;
@@ -122,6 +93,7 @@ int cSatipDiscover::DebugCallback(CURL *handleP, curl_infotype typeP, char *data
 cSatipDiscover::cSatipDiscover()
 : cThread("SATIP discover"),
   mutexM(),
+  deviceInfoM(""),
   msearchM(*this),
   probeUrlListM(),
   handleM(curl_easy_init()),
@@ -197,6 +169,7 @@ void cSatipDiscover::Fetch(const char *urlP)
 {
   debug1("%s (%s)", __PRETTY_FUNCTION__, urlP);
   if (handleM && !isempty(urlP)) {
+     const char *addr = NULL;
      long rc = 0;
      CURLcode res = CURLE_OK;
 
@@ -224,11 +197,43 @@ void cSatipDiscover::Fetch(const char *urlP)
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_URL, urlP);
 
      // Fetch the data
+     deviceInfoM = "";
      SATIP_CURL_EASY_PERFORM(handleM);
      SATIP_CURL_EASY_GETINFO(handleM, CURLINFO_RESPONSE_CODE, &rc);
-     if (rc != 200)
+     SATIP_CURL_EASY_GETINFO(handleM, CURLINFO_PRIMARY_IP, &addr);
+     if (rc == 200)
+        ParseDeviceInfo(addr);
+     else
         error("Discovery detected invalid status code: %ld", rc);
      }
+}
+
+void cSatipDiscover::ParseDeviceInfo(const char *addrP)
+{
+  debug1("%s (%s)", __PRETTY_FUNCTION__, addrP);
+  const char *desc = NULL, *model = NULL;
+#ifdef USE_TINYXML
+  TiXmlDocument doc;
+  doc.Parse(*deviceInfoM);
+  TiXmlHandle docHandle(&doc);
+  TiXmlElement *descElement = docHandle.FirstChild("root").FirstChild("device").FirstChild("friendlyName").ToElement();
+  if (descElement)
+     desc = descElement->GetText() ? descElement->GetText() : "MyBrokenHardware";
+  TiXmlElement *modelElement = docHandle.FirstChild("root").FirstChild("device").FirstChild("satip:X_SATIPCAP").ToElement();
+  if (modelElement)
+     model = modelElement->GetText() ? modelElement->GetText() : "DVBS2-1";
+#else
+  pugi::xml_document doc;
+  if (doc.load_buffer(*deviceInfoM, strlen(*deviceInfoM))) {
+     pugi::xml_node descNode = doc.first_element_by_path("root/device/friendlyName");
+     if (descNode)
+        desc = descNode.text().as_string("MyBrokenHardware");
+     pugi::xml_node modelNode = doc.first_element_by_path("root/device/satip:X_SATIPCAP");
+     if (modelNode)
+        model = modelNode.text().as_string("DVBS2-1");
+     }
+#endif
+  AddServer(addrP, model, desc);
 }
 
 void cSatipDiscover::AddServer(const char *addrP, const char *modelP, const char * descP)
