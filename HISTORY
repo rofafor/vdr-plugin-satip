@@ -126,3 +126,5 @@ VDR Plugin 'satip' Revision History
 - Robustify the server discovery.
 - Fixed a memory leak in TinyXML implementation
   (Thanks to Oliver Endriss).
+- Updated against SAT>IP protocol specification
+  version 1.2.2.
