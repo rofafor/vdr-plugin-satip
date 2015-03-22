@@ -136,7 +136,11 @@ bool cPluginSatip::Initialize(void)
   debug1("%s", __PRETTY_FUNCTION__);
   // Initialize any background activities the plugin shall perform.
   if (curl_global_init(CURL_GLOBAL_ALL) != CURLE_OK)
+  {
      error("Unable to initialize CURL");
+     return false;
+  }
+  
   cSatipPoller::GetInstance()->Initialize();
   cSatipDiscover::GetInstance()->Initialize(serversM);
   return cSatipDevice::Initialize(deviceCountM);
