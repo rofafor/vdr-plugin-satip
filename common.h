@@ -84,6 +84,44 @@
 
 #define ELEMENTS(x) (sizeof(x) / sizeof(x[0]))
 
+class cSatipMemoryBuffer {
+private:
+  char   *dataM;
+  size_t sizeM;
+  void *AllocBuffer(void *ptrP, size_t sizeP)
+  {
+    // There might be a realloc() out there that doesn't like reallocing NULL pointers, so we take care of it here
+    if (ptrP)
+       return realloc(ptrP, sizeP);
+    else
+       return malloc(sizeP);
+  }
+  // to prevent copy constructor and assignment
+  cSatipMemoryBuffer(const cSatipMemoryBuffer&);
+  cSatipMemoryBuffer& operator=(const cSatipMemoryBuffer&);
+public:
+  cSatipMemoryBuffer() : dataM(NULL), sizeM(0) {}
+  ~cSatipMemoryBuffer() { Reset(); }
+  size_t Add(char *dataP, size_t sizeP)
+  {
+     if (sizeP > 0) {
+        dataM = (char *)AllocBuffer(dataM, sizeM + sizeP + 1);
+        if (dataM) {
+           memcpy(&(dataM[sizeM]), dataP, sizeP);
+           sizeM += sizeP;
+           dataM[sizeM] = 0;
+           return sizeP;
+           }
+        else
+           esyslog("[%s,%d]: Failed to allocate memory", __FILE__, __LINE__);
+       }
+     return 0;
+  };
+  char *Data(void) { return dataM; }
+  size_t Size(void) { return sizeM; }
+  void Reset(void) { FREE_POINTER(dataM); sizeM = 0; };
+};
+
 uint16_t ts_pid(const uint8_t *bufP);
 uint8_t payload(const uint8_t *bufP);
 const char *id_pid(const u_short pidP);

@@ -47,16 +47,14 @@ void cSatipDiscover::Destroy(void)
      instanceS->Deactivate();
 }
 
-size_t cSatipDiscover::WriteCallback(char *ptrP, size_t sizeP, size_t nmembP, void *dataP)
+size_t cSatipDiscover::DataCallback(char *ptrP, size_t sizeP, size_t nmembP, void *dataP)
 {
   cSatipDiscover *obj = reinterpret_cast<cSatipDiscover *>(dataP);
   size_t len = sizeP * nmembP;
   debug16("%s len=%zu", __PRETTY_FUNCTION__, len);
 
-  if (obj) {
-     char *s = strndup(ptrP, len);
-     obj->deviceInfoM = cString::sprintf("%s%s", *obj->deviceInfoM, s ? s : "");
-     }
+  if (obj && (len > 0))
+     obj->dataBufferM.Add(ptrP, len);
 
   return len;
 }
@@ -93,7 +91,7 @@ int cSatipDiscover::DebugCallback(CURL *handleP, curl_infotype typeP, char *data
 cSatipDiscover::cSatipDiscover()
 : cThread("SATIP discover"),
   mutexM(),
-  deviceInfoM(""),
+  dataBufferM(),
   msearchM(*this),
   probeUrlListM(),
   handleM(curl_easy_init()),
@@ -179,7 +177,7 @@ void cSatipDiscover::Fetch(const char *urlP)
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_DEBUGDATA, this);
 
      // Set callback
-     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_WRITEFUNCTION, cSatipDiscover::WriteCallback);
+     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_WRITEFUNCTION, cSatipDiscover::DataCallback);
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_WRITEDATA, this);
 
      // No progress meter and no signaling
@@ -197,12 +195,13 @@ void cSatipDiscover::Fetch(const char *urlP)
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_URL, urlP);
 
      // Fetch the data
-     deviceInfoM = "";
      SATIP_CURL_EASY_PERFORM(handleM);
      SATIP_CURL_EASY_GETINFO(handleM, CURLINFO_RESPONSE_CODE, &rc);
      SATIP_CURL_EASY_GETINFO(handleM, CURLINFO_PRIMARY_IP, &addr);
-     if (rc == 200)
+     if (rc == 200) {
         ParseDeviceInfo(addr);
+        dataBufferM.Reset();
+        }
      else
         error("Discovery detected invalid status code: %ld", rc);
      }
@@ -214,7 +213,7 @@ void cSatipDiscover::ParseDeviceInfo(const char *addrP)
   const char *desc = NULL, *model = NULL;
 #ifdef USE_TINYXML
   TiXmlDocument doc;
-  doc.Parse(*deviceInfoM);
+  doc.Parse(dataBufferM.Data());
   TiXmlHandle docHandle(&doc);
   TiXmlElement *descElement = docHandle.FirstChild("root").FirstChild("device").FirstChild("friendlyName").ToElement();
   if (descElement)
@@ -224,7 +223,7 @@ void cSatipDiscover::ParseDeviceInfo(const char *addrP)
      model = modelElement->GetText() ? modelElement->GetText() : "DVBS2-1";
 #else
   pugi::xml_document doc;
-  if (doc.load_buffer(*deviceInfoM, strlen(*deviceInfoM))) {
+  if (doc.load_buffer(dataBufferM.Data(), dataBufferM.Size())) {
      pugi::xml_node descNode = doc.first_element_by_path("root/device/friendlyName");
      if (descNode)
         desc = descNode.text().as_string("MyBrokenHardware");

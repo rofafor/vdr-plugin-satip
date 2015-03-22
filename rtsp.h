@@ -15,13 +15,13 @@
 #error "libcurl is missing required RTSP support"
 #endif
 
+#include "common.h"
 #include "tunerif.h"
 
 class cSatipRtsp {
 private:
-  static size_t HeaderCallback(void *ptrP, size_t sizeP, size_t nmembP, void *dataP);
-  static size_t DescribeCallback(void *ptrP, size_t sizeP, size_t nmembP, void *dataP);
-  static size_t SetupPlayCallback(void *ptrP, size_t sizeP, size_t nmembP, void *dataP);
+  static size_t HeaderCallback(char *ptrP, size_t sizeP, size_t nmembP, void *dataP);
+  static size_t DataCallback(char *ptrP, size_t sizeP, size_t nmembP, void *dataP);
   static int    DebugCallback(CURL *handleP, curl_infotype typeP, char *dataP, size_t sizeP, void *userPtrP);
 
   enum {
@@ -30,18 +30,19 @@ private:
   enum eCommunicationMode { cmUnicast, cmMulticast };
 
   cSatipTunerIf &tunerM;
+  cSatipMemoryBuffer headerBufferM;
+  cSatipMemoryBuffer dataBufferM;
   eCommunicationMode modeM;
   CURL *handleM;
   struct curl_slist *headerListM;
-  cString errorNoMore;
-  cString errorOutOfRange;
-  cString errorCheckSyntax;
+  cString errorNoMoreM;
+  cString errorOutOfRangeM;
+  cString errorCheckSyntaxM;
 
   void Create(void);
   void Destroy(void);
-  void SetErrorNoMore(const char *strP);
-  void SetErrorOutOfRange(const char *strP);
-  void SetErrorCheckSyntax(const char *strP);
+  void ParseHeader(void);
+  void ParseData(void);
   bool ValidateLatestResponse(long *rcP);
 
   // to prevent copy constructor and assignment

@@ -13,6 +13,7 @@
 #include <vdr/thread.h>
 #include <vdr/tools.h>
 
+#include "common.h"
 #include "discoverif.h"
 #include "msearch.h"
 #include "server.h"
@@ -45,10 +46,10 @@ private:
     eProbeIntervalMs  = 60000 // in milliseconds
   };
   static cSatipDiscover *instanceS;
-  static size_t WriteCallback(char *ptrP, size_t sizeP, size_t nmembP, void *dataP);
+  static size_t DataCallback(char *ptrP, size_t sizeP, size_t nmembP, void *dataP);
   static int    DebugCallback(CURL *handleP, curl_infotype typeP, char *dataP, size_t sizeP, void *userPtrP);
   cMutex mutexM;
-  cString deviceInfoM;
+  cSatipMemoryBuffer dataBufferM;
   cSatipMsearch msearchM;
   cStringList probeUrlListM;
   CURL *handleM;
