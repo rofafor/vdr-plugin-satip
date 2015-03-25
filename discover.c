@@ -142,7 +142,7 @@ void cSatipDiscover::Action(void)
            probeIntervalM.Set(eProbeIntervalMs);
            msearchM.Probe();
            mutexM.Lock();
-           serversM.Cleanup(eProbeIntervalMs * 2);
+           serversM.Cleanup(eCleanupTimeoutMs);
            mutexM.Unlock();
            }
         mutexM.Lock();

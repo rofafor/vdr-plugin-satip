@@ -40,10 +40,11 @@ class cSatipDiscoverServers : public cList<cSatipDiscoverServer> {
 class cSatipDiscover : public cThread, public cSatipDiscoverIf {
 private:
   enum {
-    eSleepTimeoutMs   = 500,  // in milliseconds
-    eConnectTimeoutMs = 1500, // in milliseconds
-    eProbeTimeoutMs   = 2000, // in milliseconds
-    eProbeIntervalMs  = 60000 // in milliseconds
+    eSleepTimeoutMs   = 500,   // in milliseconds
+    eConnectTimeoutMs = 1500,  // in milliseconds
+    eProbeTimeoutMs   = 2000,  // in milliseconds
+    eProbeIntervalMs  = 60000, // in milliseconds
+    eCleanupTimeoutMs = 124000 // in milliseoonds
   };
   static cSatipDiscover *instanceS;
   static size_t DataCallback(char *ptrP, size_t sizeP, size_t nmembP, void *dataP);
