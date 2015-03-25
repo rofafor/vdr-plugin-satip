@@ -86,7 +86,10 @@
 
 class cSatipMemoryBuffer {
 private:
-  char   *dataM;
+  enum {
+    eMaxDataSize = MEGABYTE(2)
+  };
+  char *dataM;
   size_t sizeM;
   void *AllocBuffer(void *ptrP, size_t sizeP)
   {
@@ -105,15 +108,20 @@ public:
   size_t Add(char *dataP, size_t sizeP)
   {
      if (sizeP > 0) {
-        dataM = (char *)AllocBuffer(dataM, sizeM + sizeP + 1);
-        if (dataM) {
-           memcpy(&(dataM[sizeM]), dataP, sizeP);
-           sizeM += sizeP;
-           dataM[sizeM] = 0;
-           return sizeP;
-           }
-        else
-           esyslog("[%s,%d]: Failed to allocate memory", __FILE__, __LINE__);
+        size_t len = sizeM + sizeP + 1;
+        if (len < eMaxDataSize) {
+           dataM = (char *)AllocBuffer(dataM, len);
+           if (dataM) {
+              memcpy(&(dataM[sizeM]), dataP, sizeP);
+              sizeM += sizeP;
+              dataM[sizeM] = 0;
+              return sizeP;
+              }
+           else
+              esyslog("[%s,%d]: Failed to allocate memory", __FILE__, __LINE__);
+          }
+       else
+          esyslog("[%s,%d]: Buffer overflow", __FILE__, __LINE__);
        }
      return 0;
   };
