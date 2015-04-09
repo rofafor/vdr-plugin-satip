@@ -27,7 +27,7 @@
 #define GITVERSION ""
 #endif
 
-       const char VERSION[]     = "2.2.1" GITVERSION;
+       const char VERSION[]     = "2.2.2" GITVERSION;
 static const char DESCRIPTION[] = trNOOP("SAT>IP Devices");
 
 class cPluginSatip : public cPlugin {
@@ -366,8 +366,8 @@ const char **cPluginSatip::SVDRPHelpPages(void)
     "    Lists status information of SAT>IP devices.\n",
     "CONT\n"
     "    Shows SAT>IP device count.\n",
-    "OPER\n"
-    "    Toggles operating mode of SAT>IP devices.\n",
+    "OPER [ off | low | normal | high ]\n"
+    "    Gets and(or sets operating mode of SAT>IP devices.\n",
     "TRAC [ <mode> ]\n"
     "    Gets and/or sets used tracing mode.\n",
     NULL
@@ -434,8 +434,19 @@ cString cPluginSatip::SVDRPCommand(const char *commandP, const char *optionP, in
      }
   else if (strcasecmp(commandP, "OPER") == 0) {
      cString mode;
-     SatipConfig.ToggleOperatingMode();
-     switch (SatipConfig.GetOperatingMode()) {
+     unsigned int oper = SatipConfig.GetOperatingMode();
+     if (optionP && *optionP) {
+        if (strcasecmp(optionP, "off") == 0)
+           oper = cSatipConfig::eOperatingModeOff;
+        else if (strcasecmp(optionP, "low") == 0)
+           oper = cSatipConfig::eOperatingModeLow;
+        else if (strcasecmp(optionP, "normal") == 0)
+           oper = cSatipConfig::eOperatingModeNormal;
+        else if (strcasecmp(optionP, "high") == 0)
+           oper = cSatipConfig::eOperatingModeHigh;
+        SatipConfig.SetOperatingMode(oper);
+     }
+     switch (oper) {
        case cSatipConfig::eOperatingModeOff:
             mode = "off";
             break;
