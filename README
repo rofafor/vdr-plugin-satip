@@ -42,7 +42,7 @@ make -C satip-X.Y.Z install
 Configuration:
 
 The plugin accepts a "--devices" (-d) command-line parameter defaulting
-to one. This parameter defines how many simultaneous transponders can
+to two. This parameter defines how many simultaneous transponders can
 be received, if there are available SAT>IP tuners.
 
 The plugin accepts also a "--server" (-s) command-line parameter, that

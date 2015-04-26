@@ -62,7 +62,7 @@ public:
   };
 
 cPluginSatip::cPluginSatip(void)
-: deviceCountM(1),
+: deviceCountM(2),
   serversM(NULL)
 {
   debug16("%s", __PRETTY_FUNCTION__);
