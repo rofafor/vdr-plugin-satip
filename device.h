@@ -110,6 +110,7 @@ public:
   virtual int GetId(void);
   virtual int GetPmtPid(void);
   virtual int GetCISlot(void);
+  virtual bool IsIdle(void);
 };
 
 #endif // __SATIP_DEVICE_H

@@ -460,6 +460,11 @@ int cSatipDevice::GetCISlot(void)
   return slot;
 }
 
+bool cSatipDevice::IsIdle(void)
+{
+  return !Receiving();
+}
+
 uchar *cSatipDevice::GetData(int *availableP)
 {
   debug16("%s [device %u]", __PRETTY_FUNCTION__, deviceIndexM);

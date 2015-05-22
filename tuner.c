@@ -29,6 +29,7 @@ cSatipTuner::cSatipTuner(cSatipDeviceIf &deviceP, unsigned int packetLenP)
   nextServerM(NULL, deviceP.GetId(), 0),
   mutexM(),
   reConnectM(),
+  idleReleaseM(),
   keepAliveM(),
   statusUpdateM(),
   pidUpdateCacheM(),
@@ -92,6 +93,7 @@ void cSatipTuner::Action(void)
 {
   debug1("%s Entering [device %d]", __PRETTY_FUNCTION__, deviceIdM);
   reConnectM.Set(eConnectTimeoutMs);
+  idleReleaseM.Set(eIdleTimeoutMs);
   // Do the thread loop
   while (Running()) {
         UpdateCurrentState();
@@ -116,6 +118,7 @@ void cSatipTuner::Action(void)
           case tsTuned:
                debug4("%s: tsTuned [device %d]", __PRETTY_FUNCTION__, deviceIdM);
                reConnectM.Set(eConnectTimeoutMs);
+               idleReleaseM.Set(eIdleTimeoutMs);
                // Read reception statistics via DESCRIBE and RTCP
                if (hasLockM || ReadReceptionStatus()) {
                   // Quirk for devices without valid reception data
@@ -143,6 +146,14 @@ void cSatipTuner::Action(void)
                if (reConnectM.TimedOut()) {
                   error("Connection timeout - retuning [device %d]", deviceIdM);
                   RequestState(tsSet, smInternal);
+                  break;
+                  }
+               if (idleReleaseM.TimedOut()) {
+                  idleReleaseM.Set(eIdleTimeoutMs);
+                  if (deviceM->IsIdle()) {
+                     info("Idle timeout - releasing [device %d]", deviceIdM);
+                     RequestState(tsRelease, smInternal);
+                     }
                   break;
                   }
                break;

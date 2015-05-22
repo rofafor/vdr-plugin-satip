@@ -83,6 +83,7 @@ private:
     eStatusUpdateTimeoutMs  = 1000,  // in milliseconds
     ePidUpdateIntervalMs    = 250,   // in milliseconds
     eConnectTimeoutMs       = 5000,  // in milliseconds
+    eIdleTimeoutMs          = 30000, // in milliseconds
     eMinKeepAliveIntervalMs = 30000  // in milliseconds
   };
   enum eTunerState { tsIdle, tsRelease, tsSet, tsTuned, tsLocked };
@@ -100,6 +101,7 @@ private:
   cSatipTunerServer nextServerM;
   cMutex mutexM;
   cTimeMs reConnectM;
+  cTimeMs idleReleaseM;
   cTimeMs keepAliveM;
   cTimeMs statusUpdateM;
   cTimeMs pidUpdateCacheM;

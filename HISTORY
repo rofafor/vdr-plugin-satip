@@ -137,3 +137,7 @@ VDR Plugin 'satip' Revision History
   interface.
 - Added new ATTA and DETA SVDRP commands.
 - Set the default device count to two.
+
+2015-xx-xx: Version 2.2.3
+
+- Added a timeout for releasing idling devices.
