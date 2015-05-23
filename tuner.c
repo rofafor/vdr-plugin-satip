@@ -29,7 +29,6 @@ cSatipTuner::cSatipTuner(cSatipDeviceIf &deviceP, unsigned int packetLenP)
   nextServerM(NULL, deviceP.GetId(), 0),
   mutexM(),
   reConnectM(),
-  idleReleaseM(),
   keepAliveM(),
   statusUpdateM(),
   pidUpdateCacheM(),
@@ -92,8 +91,10 @@ cSatipTuner::~cSatipTuner()
 void cSatipTuner::Action(void)
 {
   debug1("%s Entering [device %d]", __PRETTY_FUNCTION__, deviceIdM);
+
+  bool lastIdleStatus = false;
+  cTimeMs idleCheck(eIdleCheckTimeoutMs);
   reConnectM.Set(eConnectTimeoutMs);
-  idleReleaseM.Set(eIdleTimeoutMs);
   // Do the thread loop
   while (Running()) {
         UpdateCurrentState();
@@ -118,7 +119,8 @@ void cSatipTuner::Action(void)
           case tsTuned:
                debug4("%s: tsTuned [device %d]", __PRETTY_FUNCTION__, deviceIdM);
                reConnectM.Set(eConnectTimeoutMs);
-               idleReleaseM.Set(eIdleTimeoutMs);
+               idleCheck.Set(eIdleCheckTimeoutMs);
+               lastIdleStatus = false;
                // Read reception statistics via DESCRIBE and RTCP
                if (hasLockM || ReadReceptionStatus()) {
                   // Quirk for devices without valid reception data
@@ -148,12 +150,14 @@ void cSatipTuner::Action(void)
                   RequestState(tsSet, smInternal);
                   break;
                   }
-               if (idleReleaseM.TimedOut()) {
-                  idleReleaseM.Set(eIdleTimeoutMs);
-                  if (deviceM->IsIdle()) {
+               if (idleCheck.TimedOut()) {
+                  bool currentIdleStatus = deviceM->IsIdle();
+                  if (lastIdleStatus && currentIdleStatus) {
                      info("Idle timeout - releasing [device %d]", deviceIdM);
                      RequestState(tsRelease, smInternal);
                      }
+                  lastIdleStatus = currentIdleStatus;
+                  idleCheck.Set(eIdleCheckTimeoutMs);
                   break;
                   }
                break;
