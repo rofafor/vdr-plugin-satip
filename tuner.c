@@ -224,8 +224,7 @@ bool cSatipTuner::Connect(void)
            return true;
            }
         }
-     else
-        rtspM.Reset();
+     rtspM.Reset();
      streamIdM = -1;
      error("Connect failed [device %d]", deviceIdM);
      }
