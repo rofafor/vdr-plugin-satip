@@ -28,7 +28,7 @@ private:
   int GetHeaderLength(unsigned char *bufferP, unsigned int lengthP);
 
 public:
-  cSatipRtp(cSatipTunerIf &tunerP);
+  explicit cSatipRtp(cSatipTunerIf &tunerP);
   virtual ~cSatipRtp();
   virtual void Close(void);
 

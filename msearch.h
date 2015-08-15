@@ -26,7 +26,7 @@ private:
   bool registeredM;
 
 public:
-  cSatipMsearch(cSatipDiscoverIf &discoverP);
+  explicit cSatipMsearch(cSatipDiscoverIf &discoverP);
   virtual ~cSatipMsearch();
   void Probe(void);
 

@@ -19,7 +19,7 @@ public:
   virtual bool IsIdle(void) = 0;
 
 private:
-  cSatipDeviceIf(const cSatipDeviceIf&);
+  explicit cSatipDeviceIf(const cSatipDeviceIf&);
   cSatipDeviceIf& operator=(const cSatipDeviceIf&);
 };
 

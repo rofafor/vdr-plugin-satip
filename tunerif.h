@@ -19,7 +19,7 @@ public:
   virtual int GetId(void) = 0;
 
 private:
-  cSatipTunerIf(const cSatipTunerIf&);
+  explicit cSatipTunerIf(const cSatipTunerIf&);
   cSatipTunerIf& operator=(const cSatipTunerIf&);
 };
 

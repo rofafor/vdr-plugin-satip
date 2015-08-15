@@ -15,7 +15,7 @@ public:
   virtual void SetUrl(const char *urlP) = 0;
 
 private:
-  cSatipDiscoverIf(const cSatipDiscoverIf&);
+  explicit cSatipDiscoverIf(const cSatipDiscoverIf&);
   cSatipDiscoverIf& operator=(const cSatipDiscoverIf&);
 };
 

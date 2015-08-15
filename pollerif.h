@@ -17,7 +17,7 @@ public:
   virtual cString ToString(void) const = 0;
 
 private:
-  cSatipPollerIf(const cSatipPollerIf&);
+  explicit cSatipPollerIf(const cSatipPollerIf&);
   cSatipPollerIf& operator=(const cSatipPollerIf&);
 };
 

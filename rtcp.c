@@ -36,7 +36,7 @@ int cSatipRtcp::GetFd(void)
 
 int cSatipRtcp::GetApplicationOffset(int *lengthP)
 {
-  debug16("%s (%d) [device %d]", __PRETTY_FUNCTION__, *lengthP, tunerM.GetId());
+  debug16("%s (%d) [device %d]", __PRETTY_FUNCTION__, lengthP ? *lengthP : -1, tunerM.GetId());
   if (!lengthP)
      return -1;
   int offset = 0;

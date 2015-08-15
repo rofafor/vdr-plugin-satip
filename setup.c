@@ -94,7 +94,7 @@ private:
   void Setup(void);
 
 public:
-  cSatipServerInfo(cSatipServer *serverP);
+  explicit cSatipServerInfo(cSatipServer *serverP);
   virtual ~cSatipServerInfo();
   virtual eOSState ProcessKey(eKeys keyP);
 };
@@ -145,7 +145,7 @@ private:
   cSatipServer *serverM;
 
 public:
-  cSatipServerItem(cSatipServer *serverP);
+  explicit cSatipServerItem(cSatipServer *serverP);
   cSatipServer *Server(void) { return serverM; }
   virtual void SetMenuItem(cSkinDisplayMenu *displayMenuP, int indexP, bool currentP, bool selectableP);
   };

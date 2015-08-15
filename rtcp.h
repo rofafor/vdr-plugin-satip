@@ -23,7 +23,7 @@ private:
   int GetApplicationOffset(int *lengthP);
 
 public:
-  cSatipRtcp(cSatipTunerIf &tunerP);
+  explicit cSatipRtcp(cSatipTunerIf &tunerP);
   virtual ~cSatipRtcp();
 
   // for internal poller interface

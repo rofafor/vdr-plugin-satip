@@ -50,7 +50,7 @@ private:
   cSatipRtsp& operator=(const cSatipRtsp&);
 
 public:
-  cSatipRtsp(cSatipTunerIf &tunerP);
+  explicit cSatipRtsp(cSatipTunerIf &tunerP);
   virtual ~cSatipRtsp();
 
   cString RtspUnescapeString(const char *strP);
