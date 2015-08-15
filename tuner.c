@@ -94,6 +94,7 @@ void cSatipTuner::Action(void)
 
   bool lastIdleStatus = false;
   cTimeMs idleCheck(eIdleCheckTimeoutMs);
+  cTimeMs tuning(eTuningTimeoutMs);
   reConnectM.Set(eConnectTimeoutMs);
   // Do the thread loop
   while (Running()) {
@@ -110,6 +111,7 @@ void cSatipTuner::Action(void)
           case tsSet:
                debug4("%s: tsSet [device %d]", __PRETTY_FUNCTION__, deviceIdM);
                if (Connect()) {
+                  tuning.Set(eTuningTimeoutMs);
                   RequestState(tsTuned, smInternal);
                   UpdatePids(true);
                   }
@@ -131,6 +133,10 @@ void cSatipTuner::Action(void)
                      }
                   if (hasLockM)
                      RequestState(tsLocked, smInternal);
+                  }
+               else if (tuning.TimedOut()) {
+                  error("Tuning timeout - retuning [device %d]", deviceIdM);
+                  RequestState(tsSet, smInternal);
                   }
                break;
           case tsLocked:

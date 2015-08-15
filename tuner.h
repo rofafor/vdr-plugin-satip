@@ -84,6 +84,7 @@ private:
     ePidUpdateIntervalMs    = 250,   // in milliseconds
     eConnectTimeoutMs       = 5000,  // in milliseconds
     eIdleCheckTimeoutMs     = 15000, // in milliseconds
+    eTuningTimeoutMs        = 20000, // in milliseconds
     eMinKeepAliveIntervalMs = 30000  // in milliseconds
   };
   enum eTunerState { tsIdle, tsRelease, tsSet, tsTuned, tsLocked };
