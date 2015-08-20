@@ -103,7 +103,12 @@ cString cSatipDevice::GetSatipStatus(void)
          bool live = (device == cDevice::ActualDevice());
          bool lock = device->HasLock();
          const cChannel *channel = device->GetCurrentlyTunedTransponder();
+#if defined(APIVERSNUM) && APIVERSNUM >= 20301
+         LOCK_TIMERS_READ;
+         for (const cTimer *timer = Timers->First(); timer; timer = Timers->Next(timer)) {
+#else
          for (cTimer *timer = Timers.First(); timer; timer = Timers.Next(timer)) {
+#endif
              if (timer->Recording()) {
                 cRecordControl *control = cRecordControls::GetRecordControl(timer);
                 if (control && control->Device() == device)
@@ -128,13 +133,20 @@ cString cSatipDevice::GetSatipStatus(void)
 cString cSatipDevice::GetGeneralInformation(void)
 {
   debug16("%s [device %u]", __PRETTY_FUNCTION__, deviceIndexM);
+#if defined(APIVERSNUM) && APIVERSNUM >= 20301
+  LOCK_CHANNELS_READ;
+#endif
   return cString::sprintf("SAT>IP device: %d\nCardIndex: %d\nStream: %s\nSignal: %s\nStream bitrate: %s\n%sChannel: %s",
                           deviceIndexM, CardIndex(),
                           pTunerM ? *pTunerM->GetInformation() : "",
                           pTunerM ? *pTunerM->GetSignalStatus() : "",
                           pTunerM ? *pTunerM->GetTunerStatistic() : "",
                           *GetBufferStatistic(),
+#if defined(APIVERSNUM) && APIVERSNUM >= 20301
+                          *Channels->GetByNumber(cDevice::CurrentChannel())->ToText());
+#else
                           *Channels.GetByNumber(cDevice::CurrentChannel())->ToText());
+#endif
 }
 
 cString cSatipDevice::GetPidsInformation(void)

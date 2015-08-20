@@ -142,3 +142,4 @@ VDR Plugin 'satip' Revision History
 
 - Added a timeout for releasing idling devices.
 - Reset the RTSP connection after any failed connect.
+- Updated for vdr-2.3.1 (Thanks to Klaus Schmidinger).
