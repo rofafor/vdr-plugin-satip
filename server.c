@@ -108,7 +108,8 @@ cSatipServer::cSatipServer(const char *addressP, const char *modelP, const char 
         quirksM = cString::sprintf("%s%sPlayPids", *quirksM, isempty(*quirksM) ? "" : ",");
         }
      // These devices contain a frontend locking bug:
-     if (strstr(*descriptionM, "fritzdvbc")             // Fritz!WLAN Repeater DVB-C
+     if (strstr(*descriptionM, "fritzdvbc") ||            // Fritz!WLAN Repeater DVB-C
+         strstr(*descriptionM, "Schwaiger Sat>IP Server") // Schwaiger MS41IP
         ) {
         quirkM |= eSatipQuirkForceLock;
         quirksM = cString::sprintf("%s%sForceLock", *quirksM, isempty(*quirksM) ? "" : ",");
