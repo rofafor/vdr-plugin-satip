@@ -163,11 +163,20 @@ cString GetTransponderUrlParameters(const cChannel *channelP)
        dtp.SetModulation(QPSK);
        dtp.SetRollOff(ROLLOFF_35);
        }
+     ST(" S *") q += snprintf(q,       STBUFLEFT, "src=%d&",          ((src > 0) && (src <= 255)) ? src : 1);
                 q += snprintf(q,       STBUFLEFT, "freq=%s",          *dtoa(freq, "%lg"));
-     ST(" S *") q += snprintf(q,       STBUFLEFT, "&src=%d",          ((src > 0) && (src <= 255)) ? src : 1);
-     ST(" S *") q += snprintf(q,       STBUFLEFT, "&sr=%d",           channelP->Srate());
-     ST("C  1") q += snprintf(q,       STBUFLEFT, "&sr=%d",           channelP->Srate());
      ST(" S *") q += snprintf(q,       STBUFLEFT, "&pol=%c",          tolower(dtp.Polarization()));
+     ST(" S *") q += PrintUrlString(q, STBUFLEFT, dtp.RollOff(),      SatipRollOffValues);
+     ST(" S *") q += PrintUrlString(q, STBUFLEFT, dtp.System(),       SatipSystemValuesSat);
+     ST("C  *") q += PrintUrlString(q, STBUFLEFT, dtp.System(),       SatipSystemValuesCable);
+     ST("  T*") q += PrintUrlString(q, STBUFLEFT, dtp.System(),       SatipSystemValuesTerrestrial);
+     ST(" S *") q += PrintUrlString(q, STBUFLEFT, dtp.Modulation(),   SatipModulationValues);
+     ST("  T*") q += PrintUrlString(q, STBUFLEFT, dtp.Modulation(),   SatipModulationValues);
+     ST("C  1") q += PrintUrlString(q, STBUFLEFT, dtp.Modulation(),   SatipModulationValues);
+     ST(" S *") q += PrintUrlString(q, STBUFLEFT, dtp.Pilot(),        SatipPilotValues);
+     ST(" S *") q += snprintf(q,       STBUFLEFT, "&sr=%d",           channelP->Srate());
+     ST("CST*") q += PrintUrlString(q, STBUFLEFT, dtp.CoderateH(),    SatipCodeRateValues);
+     ST("C  1") q += snprintf(q,       STBUFLEFT, "&sr=%d",           channelP->Srate());
      ST("C T2") q += snprintf(q,       STBUFLEFT, "&plp=%d",          dtp.StreamId());
      ST("  T2") q += snprintf(q,       STBUFLEFT, "&t2id=%d",         dtp.T2SystemId());
      ST("C  2") q += snprintf(q,       STBUFLEFT, "&c2tft=%d",        C2TuningFrequencyType);
@@ -177,15 +186,6 @@ cString GetTransponderUrlParameters(const cChannel *channelP)
      ST("  T*") q += PrintUrlString(q, STBUFLEFT, dtp.Bandwidth(),    SatipBandwidthValues);
      ST("C  2") q += PrintUrlString(q, STBUFLEFT, dtp.Bandwidth(),    SatipBandwidthValues);
      ST("  T*") q += PrintUrlString(q, STBUFLEFT, dtp.Guard(),        SatipGuardValues);
-     ST("CST*") q += PrintUrlString(q, STBUFLEFT, dtp.CoderateH(),    SatipCodeRateValues);
-     ST(" S *") q += PrintUrlString(q, STBUFLEFT, dtp.Pilot(),        SatipPilotValues);
-     ST(" S *") q += PrintUrlString(q, STBUFLEFT, dtp.Modulation(),   SatipModulationValues);
-     ST("  T*") q += PrintUrlString(q, STBUFLEFT, dtp.Modulation(),   SatipModulationValues);
-     ST("C  1") q += PrintUrlString(q, STBUFLEFT, dtp.Modulation(),   SatipModulationValues);
-     ST(" S *") q += PrintUrlString(q, STBUFLEFT, dtp.RollOff(),      SatipRollOffValues);
-     ST(" S *") q += PrintUrlString(q, STBUFLEFT, dtp.System(),       SatipSystemValuesSat);
-     ST("C  *") q += PrintUrlString(q, STBUFLEFT, dtp.System(),       SatipSystemValuesCable);
-     ST("  T*") q += PrintUrlString(q, STBUFLEFT, dtp.System(),       SatipSystemValuesTerrestrial);
      ST("  T*") q += PrintUrlString(q, STBUFLEFT, dtp.Transmission(), SatipTransmissionValues);
      if ((channelP->Rid() % 100) > 0)
                 snprintf(q,            STBUFLEFT, "&fe=%d",           channelP->Rid() % 100);
