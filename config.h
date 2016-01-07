@@ -19,6 +19,8 @@ private:
   unsigned int ciExtensionM;
   unsigned int eitScanM;
   unsigned int useBytesM;
+  unsigned int portRangeStartM;
+  unsigned int portRangeStopM;
   bool detachedModeM;
   bool disableServerQuirksM;
   bool useSingleModelServersM;
@@ -74,6 +76,8 @@ public:
   int GetDisabledSources(unsigned int indexP) const;
   unsigned int GetDisabledFiltersCount(void) const;
   int GetDisabledFilters(unsigned int indexP) const;
+  unsigned int GetPortRangeStart(void) const { return portRangeStartM; }
+  unsigned int GetPortRangeStop(void) const { return portRangeStopM; }
 
   void SetOperatingMode(unsigned int operatingModeP) { operatingModeM = operatingModeP; }
   void SetTraceMode(unsigned int modeP) { traceModeM = (modeP & eTraceModeMask); }
@@ -86,6 +90,8 @@ public:
   void SetUseSingleModelServers(bool onOffP) { useSingleModelServersM = onOffP; }
   void SetDisabledSources(unsigned int indexP, int sourceP);
   void SetDisabledFilters(unsigned int indexP, int numberP);
+  void SetPortRangeStart(unsigned int rangeStartP) { portRangeStartM = rangeStartP; }
+  void SetPortRangeStop(unsigned int rangeStopP) { portRangeStopM = rangeStopP; }
 };
 
 extern cSatipConfig SatipConfig;
