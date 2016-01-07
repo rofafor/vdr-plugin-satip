@@ -35,6 +35,7 @@ private:
   unsigned int deviceCountM;
   cSatipDiscoverServers *serversM;
   void ParseServer(const char *paramP);
+  void ParsePortRange(const char *paramP);
   int ParseCicams(const char *valueP, int *cicamsP);
   int ParseSources(const char *valueP, int *sourcesP);
   int ParseFilters(const char *valueP, int *filtersP);
@@ -87,7 +88,9 @@ const char *cPluginSatip::CommandLineHelp(void)
          "                                define hard-coded SAT>IP server(s)\n"
          "  -D, --detach                  set the detached mode on\n"
          "  -S, --single                  set the single model server mode on\n"
-         "  -n, --noquirks                disable all the server quirks\n";
+         "  -n, --noquirks                disable all the server quirks\n"
+         "  -p, --portrange=<start>-<end> set a range of ports used for the RT[C]P server\n"
+         "                                a minimum of 2 ports per device is required.\n";
 }
 
 bool cPluginSatip::ProcessArgs(int argc, char *argv[])
@@ -98,6 +101,7 @@ bool cPluginSatip::ProcessArgs(int argc, char *argv[])
     { "devices",  required_argument, NULL, 'd' },
     { "trace",    required_argument, NULL, 't' },
     { "server",   required_argument, NULL, 's' },
+    { "portrange",required_argument, NULL, 'p' },
     { "detach",   no_argument,       NULL, 'D' },
     { "single",   no_argument,       NULL, 'S' },
     { "noquirks", no_argument,       NULL, 'n' },
@@ -105,8 +109,9 @@ bool cPluginSatip::ProcessArgs(int argc, char *argv[])
     };
 
   cString server;
+  cString portrange;
   int c;
-  while ((c = getopt_long(argc, argv, "d:t:s:DSn", long_options, NULL)) != -1) {
+  while ((c = getopt_long(argc, argv, "d:t:s:p:DSn", long_options, NULL)) != -1) {
     switch (c) {
       case 'd':
            deviceCountM = strtol(optarg, NULL, 0);
@@ -126,10 +131,15 @@ bool cPluginSatip::ProcessArgs(int argc, char *argv[])
       case 'n':
            SatipConfig.SetDisableServerQuirks(true);
            break;
+      case 'p':
+           portrange = optarg;
+           break;
       default:
            return false;
       }
     }
+  if (!isempty(*portrange))
+     ParsePortRange(portrange);
   // this must be done after all parameters are parsed
   if (!isempty(*server))
      ParseServer(*server);
@@ -253,6 +263,32 @@ void cPluginSatip::ParseServer(const char *paramP)
         r = strtok_r(NULL, ";", &s);
         }
   FREE_POINTER(p);
+}
+
+void cPluginSatip::ParsePortRange(const char *paramP)
+{
+  char *s, *p = skipspace(paramP);
+  char *r = strtok_r(p, "-", &s);
+  unsigned int rangeStart = 0;
+  unsigned int rangeStop = 0;
+  if (r) {
+     rangeStart = strtol(r, NULL, 0);
+     r = strtok_r(NULL, "-", &s);
+     }
+  if (r)
+     rangeStop = strtol(r, NULL, 0);
+  else {
+     error("Port range argument not valid '%s'", paramP);
+     rangeStart = 0;
+     rangeStop = 0;
+     }
+  if (rangeStop - rangeStart + 1 < deviceCountM * 2) {
+     error("The given port range is to small: %d < %d!", rangeStop - rangeStart + 1, deviceCountM * 2);
+     rangeStart = 0;
+     rangeStop = 0;
+     }
+  SatipConfig.SetPortRangeStart(rangeStart);
+  SatipConfig.SetPortRangeStop(rangeStop);
 }
 
 int cPluginSatip::ParseCicams(const char *valueP, int *cicamsP)
