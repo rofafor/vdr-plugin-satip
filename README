@@ -56,6 +56,11 @@ vdr -P 'satip -s <ipaddress>|<model>|<description>;...'
 vdr -P 'satip -s 192.168.0.1|DVBS2-2,DVBT2-2|Octo1'
 vdr -P 'satip -s 192.168.0.1|DVBS2-4|Octo1;192.168.0.2|DVBT2-4|Octo2'
 
+The plugin accepts a "--portrange" (-p) command-line parameter, that can
+be used to manually specify the RTP & RTCP port range and therefore
+enables using the plugin through a NAT (e.g. Docker bridged network).
+A minimum of 2 ports per device is required.
+
 SAT>IP satellite positions (aka. signal sources) shall be defined via
 sources.conf. If the source description begins with a number, it's used
 as SAT>IP signal source selection parameter. A special number zero can

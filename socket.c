@@ -34,7 +34,7 @@ cSatipSocket::~cSatipSocket()
   Close();
 }
 
-bool cSatipSocket::Open(const int portP)
+bool cSatipSocket::Open(const int portP, const bool reuseAddrP)
 {
   // Bind to the socket if it is not active already
   if (socketDescM < 0) {
@@ -46,7 +46,7 @@ bool cSatipSocket::Open(const int portP)
      ERROR_IF_FUNC(fcntl(socketDescM, F_SETFL, O_NONBLOCK), "fcntl(O_NONBLOCK)",
                    Close(), return false);
      // Allow multiple sockets to use the same PORT number
-     int yes = 1;
+     int yes = reuseAddrP;
      ERROR_IF_FUNC(setsockopt(socketDescM, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) < 0,
                    "setsockopt(SO_REUSEADDR)", Close(), return false);
      // Bind socket
