@@ -355,6 +355,7 @@ bool cSatipDevice::SetChannelDevice(const cChannel *channelP, bool liveViewP)
      }
   else if (pTunerM) {
      pTunerM->SetSource(NULL, 0, NULL, deviceIndexM);
+     deviceNameM = cString::sprintf("%s %d", *DeviceType(), deviceIndexM);
      return true;
      }
   return false;
