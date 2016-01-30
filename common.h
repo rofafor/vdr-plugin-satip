@@ -48,15 +48,15 @@
      esyslog("curl_easy_perform() [%s,%d] failed: %s (%d)",  __FILE__, __LINE__, curl_easy_strerror(res), res); \
      }
 
-#define ERROR_IF_FUNC(exp, errstr, func, ret)                \
-  do {                                                       \
-     if (exp) {                                              \
-        char tmp[64];                                        \
-        esyslog("[%s,%d]: "errstr": %s", __FILE__, __LINE__, \
-                strerror_r(errno, tmp, sizeof(tmp)));        \
-        func;                                                \
-        ret;                                                 \
-        }                                                    \
+#define ERROR_IF_FUNC(exp, errstr, func, ret)                  \
+  do {                                                         \
+     if (exp) {                                                \
+        char tmp[64];                                          \
+        esyslog("[%s,%d]: " errstr ": %s", __FILE__, __LINE__, \
+                strerror_r(errno, tmp, sizeof(tmp)));          \
+        func;                                                  \
+        ret;                                                   \
+        }                                                      \
   } while (0)
 
 
