@@ -69,6 +69,7 @@ public:
   void Set(cSatipServer *serverP, const int transponderP) { serverM = serverP; transponderM = transponderP; }
   void Reset(void) { serverM = NULL; transponderM = 0; }
   cString GetAddress(void) { return serverM ? cSatipDiscover::GetInstance()->GetServerAddress(serverM) : ""; }
+  int GetPort(void) { return serverM ? cSatipDiscover::GetInstance()->GetServerPort(serverM) : SATIP_DEFAULT_RTSP_PORT; }
   cString GetInfo(void) { return cString::sprintf("server=%s deviceid=%d transponder=%d", serverM ? "assigned" : "null", deviceIdM, transponderM); }
 };
 
@@ -98,6 +99,7 @@ private:
   cSatipRtcp rtcpM;
   cString streamAddrM;
   cString streamParamM;
+  int streamPortM;
   cSatipTunerServer currentServerM;
   cSatipTunerServer nextServerM;
   cMutex mutexM;
@@ -130,6 +132,7 @@ private:
   bool RequestState(eTunerState stateP, eStateMode modeP);
   const char *StateModeString(eStateMode modeP);
   const char *TunerStateString(eTunerState stateP);
+  cString GetBaseUrl(const char *addressP, const int portP);
 
 protected:
   virtual void Action(void);

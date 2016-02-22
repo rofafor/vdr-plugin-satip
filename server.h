@@ -59,6 +59,7 @@ private:
   cString descriptionM;
   cString quirksM;
   cSatipFrontends frontendsM[eSatipFrontendCount];
+  int portM;
   int quirkM;
   bool hasCiM;
   time_t createdM;
@@ -72,7 +73,7 @@ public:
     eSatipQuirkForceLock = 0x04,
     eSatipQuirkMask      = 0x0F
   };
-  cSatipServer(const char *addressP, const char *modelP, const char *descriptionP);
+  cSatipServer(const char *addressP, const int portP, const char *modelP, const char *descriptionP);
   virtual ~cSatipServer();
   virtual int Compare(const cListObject &listObjectP) const;
   bool Assign(int deviceIdP, int sourceP, int systemP, int transponderP);
@@ -89,6 +90,7 @@ public:
   const char *Model(void)       { return *modelM; }
   const char *Description(void) { return *descriptionM; }
   const char *Quirks(void)      { return *quirksM; }
+  int Port(void)                { return portM; }
   bool Quirk(int quirkP)        { return ((quirkP & eSatipQuirkMask) & quirkM); }
   bool HasQuirk(void)           { return (quirkM != eSatipQuirkNone); }
   bool HasCI(void)              { return hasCiM; }
@@ -112,6 +114,7 @@ public:
   void Cleanup(uint64_t intervalMsP = 0);
   cString GetAddress(cSatipServer *serverP);
   cString GetString(cSatipServer *serverP);
+  int GetPort(cSatipServer *serverP);
   cString List(void);
   int NumProvidedSystems(void);
 };

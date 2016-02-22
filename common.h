@@ -13,6 +13,8 @@
 #include <vdr/config.h>
 #include <vdr/i18n.h>
 
+#define SATIP_DEFAULT_RTSP_PORT          554
+
 #define SATIP_MAX_DEVICES                MAXDEVICES
 
 #define SATIP_BUFFER_SIZE                KILOBYTE(1024)
