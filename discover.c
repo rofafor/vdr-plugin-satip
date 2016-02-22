@@ -32,7 +32,7 @@ bool cSatipDiscover::Initialize(cSatipDiscoverServers *serversP)
   if (instanceS) {
        if (serversP) {
           for (cSatipDiscoverServer *s = serversP->First(); s; s = serversP->Next(s))
-              instanceS->AddServer(s->IpAddress(), s->Model(), s->Description());
+              instanceS->AddServer(s->IpAddress(), s->IpPort(), s->Model(), s->Description());
           }
      else
         instanceS->Activate();
@@ -45,6 +45,18 @@ void cSatipDiscover::Destroy(void)
   debug1("%s", __PRETTY_FUNCTION__);
   if (instanceS)
      instanceS->Deactivate();
+}
+
+size_t cSatipDiscover::HeaderCallback(char *ptrP, size_t sizeP, size_t nmembP, void *dataP)
+{
+  cSatipDiscover *obj = reinterpret_cast<cSatipDiscover *>(dataP);
+  size_t len = sizeP * nmembP;
+  debug16("%s len=%zu", __PRETTY_FUNCTION__, len);
+
+  if (obj && (len > 0))
+     obj->headerBufferM.Add(ptrP, len);
+
+  return len;
 }
 
 size_t cSatipDiscover::DataCallback(char *ptrP, size_t sizeP, size_t nmembP, void *dataP)
@@ -91,6 +103,7 @@ int cSatipDiscover::DebugCallback(CURL *handleP, curl_infotype typeP, char *data
 cSatipDiscover::cSatipDiscover()
 : cThread("SATIP discover"),
   mutexM(),
+  headerBufferM(),
   dataBufferM(),
   msearchM(*this),
   probeUrlListM(),
@@ -176,7 +189,9 @@ void cSatipDiscover::Fetch(const char *urlP)
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_DEBUGFUNCTION, cSatipDiscover::DebugCallback);
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_DEBUGDATA, this);
 
-     // Set callback
+     // Set header and data callbacks
+     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_HEADERFUNCTION, cSatipDiscover::HeaderCallback);
+     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_WRITEHEADER, this);
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_WRITEFUNCTION, cSatipDiscover::DataCallback);
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_WRITEDATA, this);
 
@@ -199,7 +214,8 @@ void cSatipDiscover::Fetch(const char *urlP)
      SATIP_CURL_EASY_GETINFO(handleM, CURLINFO_RESPONSE_CODE, &rc);
      SATIP_CURL_EASY_GETINFO(handleM, CURLINFO_PRIMARY_IP, &addr);
      if (rc == 200) {
-        ParseDeviceInfo(addr);
+        ParseDeviceInfo(addr, ParseRtspPort());
+        headerBufferM.Reset();
         dataBufferM.Reset();
         }
      else
@@ -207,9 +223,32 @@ void cSatipDiscover::Fetch(const char *urlP)
      }
 }
 
-void cSatipDiscover::ParseDeviceInfo(const char *addrP)
+int cSatipDiscover::ParseRtspPort(void)
 {
-  debug1("%s (%s)", __PRETTY_FUNCTION__, addrP);
+  debug1("%s", __PRETTY_FUNCTION__);
+  char *s, *p = headerBufferM.Data();
+  char *r = strtok_r(p, "\r\n", &s);
+  int port = SATIP_DEFAULT_RTSP_PORT;
+
+  while (r) {
+        debug16("%s (%zu): %s", __PRETTY_FUNCTION__, headerBufferM.Size(), r);
+        r = skipspace(r);
+        if (strstr(r, "X-SATIP-RTSP-Port")) {
+           int tmp = -1;
+           if (sscanf(r, "X-SATIP-RTSP-Port:%11d", &tmp) == 1) {
+              port = tmp;
+              break;
+              }
+           }
+        r = strtok_r(NULL, "\r\n", &s);
+        }
+
+  return port;
+}
+
+void cSatipDiscover::ParseDeviceInfo(const char *addrP, const int portP)
+{
+  debug1("%s (%s, %d)", __PRETTY_FUNCTION__, addrP, portP);
   const char *desc = NULL, *model = NULL;
 #ifdef USE_TINYXML
   TiXmlDocument doc;
@@ -232,12 +271,12 @@ void cSatipDiscover::ParseDeviceInfo(const char *addrP)
         model = modelNode.text().as_string("DVBS2-1");
      }
 #endif
-  AddServer(addrP, model, desc);
+  AddServer(addrP, portP, model, desc);
 }
 
-void cSatipDiscover::AddServer(const char *addrP, const char *modelP, const char * descP)
+void cSatipDiscover::AddServer(const char *addrP, const int portP, const char *modelP, const char * descP)
 {
-  debug1("%s (%s, %s, %s)", __PRETTY_FUNCTION__, addrP, modelP, descP);
+  debug1("%s (%s, %d, %s, %s)", __PRETTY_FUNCTION__, addrP, portP, modelP, descP);
   cMutexLock MutexLock(&mutexM);
   if (SatipConfig.GetUseSingleModelServers() && modelP && !isempty(modelP)) {
      int n = 0;
@@ -246,7 +285,7 @@ void cSatipDiscover::AddServer(const char *addrP, const char *modelP, const char
      while (r) {
            r = skipspace(r);
            cString desc = cString::sprintf("%s #%d", !isempty(descP) ? descP : "MyBrokenHardware", n++);
-           cSatipServer *tmp = new cSatipServer(addrP, r, desc);
+           cSatipServer *tmp = new cSatipServer(addrP, portP, r, desc);
            if (!serversM.Update(tmp)) {
               info("Adding server '%s|%s|%s' CI: %s Quirks: %s", tmp->Address(), tmp->Model(), tmp->Description(), tmp->HasCI() ? "yes" : "no", tmp->HasQuirk() ? tmp->Quirks() : "none");
               serversM.Add(tmp);
@@ -258,7 +297,7 @@ void cSatipDiscover::AddServer(const char *addrP, const char *modelP, const char
      FREE_POINTER(p);
      }
   else {
-     cSatipServer *tmp = new cSatipServer(addrP, modelP, descP);
+     cSatipServer *tmp = new cSatipServer(addrP, portP, modelP, descP);
      if (!serversM.Update(tmp)) {
         info("Adding server '%s|%s|%s' CI: %s Quirks: %s", tmp->Address(), tmp->Model(), tmp->Description(), tmp->HasCI() ? "yes" : "no", tmp->HasQuirk() ? tmp->Quirks() : "none");
         serversM.Add(tmp);
@@ -350,6 +389,13 @@ cString cSatipDiscover::GetServerAddress(cSatipServer *serverP)
   debug16("%s", __PRETTY_FUNCTION__);
   cMutexLock MutexLock(&mutexM);
   return serversM.GetAddress(serverP);
+}
+
+int cSatipDiscover::GetServerPort(cSatipServer *serverP)
+{
+  debug16("%s", __PRETTY_FUNCTION__);
+  cMutexLock MutexLock(&mutexM);
+  return serversM.GetPort(serverP);
 }
 
 int cSatipDiscover::NumProvidedSystems(void)

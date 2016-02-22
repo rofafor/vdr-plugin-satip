@@ -80,11 +80,12 @@ bool cSatipFrontends::Detach(int deviceIdP, int transponderP)
 
 // --- cSatipServer -----------------------------------------------------------
 
-cSatipServer::cSatipServer(const char *addressP, const char *modelP, const char *descriptionP)
+cSatipServer::cSatipServer(const char *addressP, const int portP, const char *modelP, const char *descriptionP)
 : addressM((addressP && *addressP) ? addressP : "0.0.0.0"),
   modelM((modelP && *modelP) ? modelP : "DVBS-1"),
   descriptionM(!isempty(descriptionP) ? descriptionP : "MyBrokenHardware"),
   quirksM(""),
+  portM(portP),
   quirkM(eSatipQuirkNone),
   hasCiM(false),
   createdM(time(NULL)),
@@ -372,6 +373,18 @@ cString cSatipServers::GetAddress(cSatipServer *serverP)
          }
       }
   return address;
+}
+
+int cSatipServers::GetPort(cSatipServer *serverP)
+{
+  int port = SATIP_DEFAULT_RTSP_PORT;
+  for (cSatipServer *s = First(); s; s = Next(s)) {
+      if (s == serverP) {
+         port = s->Port();
+         break;
+         }
+      }
+  return port;
 }
 
 cString cSatipServers::GetString(cSatipServer *serverP)

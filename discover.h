@@ -21,14 +21,16 @@
 
 class cSatipDiscoverServer : public cListObject {
 private:
+  int ipPortM;
   cString ipAddressM;
   cString descriptionM;
   cString modelM;
 public:
-  cSatipDiscoverServer(const char *ipAddressP, const char *modelP, const char *descriptionP)
+  cSatipDiscoverServer(const char *ipAddressP, const int ipPortP, const char *modelP, const char *descriptionP)
   {
-    ipAddressM = ipAddressP; modelM = modelP; descriptionM = descriptionP;
+    ipAddressM = ipAddressP; ipPortM = ipPortP; modelM = modelP; descriptionM = descriptionP;
   }
+  int IpPort(void)              { return ipPortM; }
   const char *IpAddress(void)   { return *ipAddressM; }
   const char *Model(void)       { return *modelM; }
   const char *Description(void) { return *descriptionM; }
@@ -47,9 +49,11 @@ private:
     eCleanupTimeoutMs = 124000 // in milliseoonds
   };
   static cSatipDiscover *instanceS;
+  static size_t HeaderCallback(char *ptrP, size_t sizeP, size_t nmembP, void *dataP);
   static size_t DataCallback(char *ptrP, size_t sizeP, size_t nmembP, void *dataP);
   static int    DebugCallback(CURL *handleP, curl_infotype typeP, char *dataP, size_t sizeP, void *userPtrP);
   cMutex mutexM;
+  cSatipMemoryBuffer headerBufferM;
   cSatipMemoryBuffer dataBufferM;
   cSatipMsearch msearchM;
   cStringList probeUrlListM;
@@ -59,8 +63,9 @@ private:
   cSatipServers serversM;
   void Activate(void);
   void Deactivate(void);
-  void ParseDeviceInfo(const char *addrP);
-  void AddServer(const char *addrP, const char *modelP, const char *descP);
+  int ParseRtspPort(void);
+  void ParseDeviceInfo(const char *addrP, const int portP);
+  void AddServer(const char *addrP, const int portP, const char *modelP, const char *descP);
   void Fetch(const char *urlP);
   // constructor
   cSatipDiscover();
@@ -88,6 +93,7 @@ public:
   bool IsServerQuirk(cSatipServer *serverP, int quirkP);
   bool HasServerCI(cSatipServer *serverP);
   cString GetServerAddress(cSatipServer *serverP);
+  int GetServerPort(cSatipServer *serverP);
   cString GetServerList(void);
   int NumProvidedSystems(void);
 
