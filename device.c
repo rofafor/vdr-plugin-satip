@@ -116,10 +116,12 @@ cString cSatipDevice::GetSatipStatus(void)
             info = cString::sprintf("%sCardIndex: %d  HasLock: yes  Strength: %d  Quality: %d%s\n", *info, device->CardIndex(), device->SignalStrength(), device->SignalQuality(), live ? "  Live: yes" : "");
          else
             info = cString::sprintf("%sCardIndex: %d  HasLock: no\n", *info, device->CardIndex());
-         if (channel && channel->Number() > 0 && device->Receiving())
-            info = cString::sprintf("%sTransponder: %d  Channel: %s\n", *info, channel->Transponder(), channel->Name());
-         else
-            info = cString::sprintf("%sTransponder: %d\n", *info, channel->Transponder());
+         if (channel) {
+            if (channel->Number() > 0 && device->Receiving())
+               info = cString::sprintf("%sTransponder: %d  Channel: %s\n", *info, channel->Transponder(), channel->Name());
+            else
+               info = cString::sprintf("%sTransponder: %d\n", *info, channel->Transponder());
+            }
          if (timers)
             info = cString::sprintf("%sRecording: %d timer%s\n", *info, timers, (timers > 1) ? "s" : "");
          info = cString::sprintf("%s\n", *info);
