@@ -200,6 +200,8 @@ cString cSatipDevice::DeviceType(void) const
 cString cSatipDevice::DeviceName(void) const
 {
   debug16("%s [device %u]", __PRETTY_FUNCTION__, deviceIndexM);
+  if (!Receiving())
+     return cString::sprintf("%s %d", *DeviceType(), deviceIndexM);
   return deviceNameM;
 }
 
