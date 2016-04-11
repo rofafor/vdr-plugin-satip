@@ -34,10 +34,11 @@ cSatipSocket::~cSatipSocket()
   Close();
 }
 
-bool cSatipSocket::Open(const int portP, const bool reuseAddrP)
+bool cSatipSocket::Open(const int portP, const bool reuseP)
 {
   // Bind to the socket if it is not active already
   if (socketDescM < 0) {
+     int yes;
      socklen_t len = sizeof(sockAddrM);
      // Create socket
      socketDescM = socket(PF_INET, SOCK_DGRAM, 0);
@@ -46,9 +47,12 @@ bool cSatipSocket::Open(const int portP, const bool reuseAddrP)
      ERROR_IF_FUNC(fcntl(socketDescM, F_SETFL, O_NONBLOCK), "fcntl(O_NONBLOCK)",
                    Close(), return false);
      // Allow multiple sockets to use the same PORT number
-     int yes = reuseAddrP;
+     yes = reuseP;
      ERROR_IF_FUNC(setsockopt(socketDescM, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) < 0,
                    "setsockopt(SO_REUSEADDR)", Close(), return false);
+     yes = reuseP;
+     ERROR_IF_FUNC(setsockopt(socketDescM, SOL_SOCKET, SO_REUSEPORT, &yes, sizeof(yes)) < 0 && errno != ENOPROTOOPT,
+                   "setsockopt(SO_REUSEPORT)", Close(), return false);
      // Bind socket
      memset(&sockAddrM, 0, sizeof(sockAddrM));
      sockAddrM.sin_family = AF_INET;

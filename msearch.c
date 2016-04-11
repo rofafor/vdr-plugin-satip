@@ -29,7 +29,7 @@ cSatipMsearch::cSatipMsearch(cSatipDiscoverIf &discoverP)
      memset(bufferM, 0, bufferLenM);
   else
      error("Cannot create Msearch buffer!");
-  if (!Open(eDiscoveryPort))
+  if (!Open(eDiscoveryPort, true))
      error("Cannot open Msearch port!");
 }
 

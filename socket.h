@@ -19,7 +19,7 @@ private:
 public:
   cSatipSocket();
   virtual ~cSatipSocket();
-  bool Open(const int portP = 0, const bool reuseAddrP = false);
+  bool Open(const int portP = 0, const bool reuseP = false);
   virtual void Close(void);
   int Fd(void) { return socketDescM; }
   int Port(void) { return socketPortM; }
