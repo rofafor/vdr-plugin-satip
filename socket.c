@@ -51,8 +51,10 @@ bool cSatipSocket::Open(const int portP, const bool reuseP)
      ERROR_IF_FUNC(setsockopt(socketDescM, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) < 0,
                    "setsockopt(SO_REUSEADDR)", Close(), return false);
      yes = reuseP;
+#ifdef SO_REUSEPORT
      ERROR_IF_FUNC(setsockopt(socketDescM, SOL_SOCKET, SO_REUSEPORT, &yes, sizeof(yes)) < 0 && errno != ENOPROTOOPT,
                    "setsockopt(SO_REUSEPORT)", Close(), return false);
+#endif
      // Bind socket
      memset(&sockAddrM, 0, sizeof(sockAddrM));
      sockAddrM.sin_family = AF_INET;
