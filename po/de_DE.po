@@ -178,6 +178,15 @@ msgstr "Filter"
 msgid "Define an ill-behaving filter to be blacklisted."
 msgstr "Bestimme einen fehlerhaften Filter der ausgeblendet werden soll."
 
+msgid "Use RTP-over-TCP mode"
+msgstr ""
+
+msgid ""
+"Define whether the RTP-over-TCP mode shall be used.\n"
+"\n"
+"This setting affects only SAT>IP devices supporting the feature."
+msgstr ""
+
 msgid "Active SAT>IP servers:"
 msgstr "Aktive SAT>IP Server:"
 

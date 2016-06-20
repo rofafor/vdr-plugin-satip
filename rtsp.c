@@ -171,9 +171,9 @@ bool cSatipRtsp::Options(const char *uriP)
   return result;
 }
 
-bool cSatipRtsp::Setup(const char *uriP, int rtpPortP, int rtcpPortP)
+bool cSatipRtsp::Setup(const char *uriP, int rtpPortP, int rtcpPortP, bool useTcpP)
 {
-  debug1("%s (%s, %d, %d) [device %d]", __PRETTY_FUNCTION__, uriP, rtpPortP, rtcpPortP, tunerM.GetId());
+  debug1("%s (%s, %d, %d, %d) [device %d]", __PRETTY_FUNCTION__, uriP, rtpPortP, rtcpPortP, useTcpP, tunerM.GetId());
   bool result = false;
 
   if (handleM && !isempty(uriP)) {
@@ -190,7 +190,8 @@ bool cSatipRtsp::Setup(const char *uriP, int rtpPortP, int rtcpPortP)
        default:
        case cmUnicast:
             // RTP/AVP;unicast;client_port=<client RTP port>-<client RTCP port>
-            transport = cString::sprintf("RTP/AVP;unicast;client_port=%d-%d", rtpPortP, rtcpPortP);
+            // RTP/AVP/TCP;unicast;client_port=<client RTP port>-<client RTCP port>
+            transport = cString::sprintf("RTP/AVP%s;unicast;client_port=%d-%d", useTcpP ? "/TCP" : "", rtpPortP, rtcpPortP);
             break;
        }
 

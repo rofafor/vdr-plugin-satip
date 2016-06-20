@@ -177,6 +177,18 @@ msgstr "Suodatin"
 msgid "Define an ill-behaving filter to be blacklisted."
 msgstr "Määrittele käytöstä poistettava suodatin, joka lisätään mustalle listalle."
 
+msgid "Use RTP-over-TCP mode"
+msgstr "Käytä RTP-over-TCP -moodia"
+
+msgid ""
+"Define whether the RTP-over-TCP mode shall be used.\n"
+"\n"
+"This setting affects only SAT>IP devices supporting the feature."
+msgstr ""
+"Määrittele RTP-over-TCP -moodin käyttöönotto.\n"
+"\n"
+"Tämä asetus vaikuttaa vain SAT>IP-laitteisiin, jotka tukevat kyseistä ominaisuutta."
+
 msgid "Active SAT>IP servers:"
 msgstr "Aktiiviset SAT>IP-palvelimet:"
 

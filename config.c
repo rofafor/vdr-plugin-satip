@@ -19,6 +19,7 @@ cSatipConfig::cSatipConfig(void)
   useBytesM(1),
   portRangeStartM(0),
   portRangeStopM(0),
+  useRtpOverTcpM(false),
   detachedModeM(false),
   disableServerQuirksM(false),
   useSingleModelServersM(false)

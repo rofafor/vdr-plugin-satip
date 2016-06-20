@@ -332,6 +332,7 @@ eOSState cSatipMenuInfo::ProcessKey(eKeys keyP)
 cSatipPluginSetup::cSatipPluginSetup()
 : detachedModeM(SatipConfig.GetDetachedMode()),
   deviceCountM(0),
+  useRtpOverTcpM(SatipConfig.GetUseRtpOverTcp()),
   operatingModeM(SatipConfig.GetOperatingMode()),
   ciExtensionM(SatipConfig.GetCIExtension()),
   eitScanM(SatipConfig.GetEITScan()),
@@ -400,6 +401,8 @@ void cSatipPluginSetup::Setup(void)
          helpM.Append(tr("Define an ill-behaving filter to be blacklisted."));
          }
      }
+  Add(new cMenuEditBoolItem(tr("Use RTP-over-TCP mode"), &useRtpOverTcpM));
+  helpM.Append(tr("Define whether the RTP-over-TCP mode shall be used.\n\nThis setting affects only SAT>IP devices supporting the feature."));
   Add(new cOsdItem(tr("Active SAT>IP servers:"), osUnknown, false));
   helpM.Append("");
 
@@ -546,6 +549,7 @@ void cSatipPluginSetup::StoreFilters(const char *nameP, int *valuesP)
 void cSatipPluginSetup::Store(void)
 {
   // Store values into setup.conf
+  SetupStore("UseRtpOverTcp", useRtpOverTcpM);
   SetupStore("OperatingMode", operatingModeM);
   SetupStore("EnableCIExtension", ciExtensionM);
   SetupStore("EnableEITScan", eitScanM);
@@ -553,6 +557,7 @@ void cSatipPluginSetup::Store(void)
   StoreSources("DisabledSources", disabledSourcesM);
   StoreFilters("DisabledFilters", disabledFilterIndexesM);
   // Update global config
+  SatipConfig.SetUseRtpOverTcp(useRtpOverTcpM);
   SatipConfig.SetOperatingMode(operatingModeM);
   SatipConfig.SetCIExtension(ciExtensionM);
   SatipConfig.SetEITScan(eitScanM);
