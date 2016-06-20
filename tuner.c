@@ -221,10 +221,11 @@ bool cSatipTuner::Connect(void)
         }
      else if (rtspM.Options(*connectionUri)) {
         cString uri = cString::sprintf("%s?%s", *connectionUri, *streamParamM);
+        bool useTcp = SatipConfig.GetUseRtpOverTcp() && nextServerM.IsValid() && nextServerM.IsQuirk(cSatipServer::eSatipQuirkRtpOverTcp);
         // Flush any old content
         //rtpM.Flush();
         //rtcpM.Flush();
-        if (rtspM.Setup(*uri, rtpM.Port(), rtcpM.Port())) {
+        if (rtspM.Setup(*uri, rtpM.Port(), rtcpM.Port(), useTcp)) {
            keepAliveM.Set(timeoutM);
            if (nextServerM.IsValid()) {
               currentServerM = nextServerM;
