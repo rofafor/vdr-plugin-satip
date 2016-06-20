@@ -386,6 +386,8 @@ bool cPluginSatip::SetupParse(const char *nameP, const char *valueP)
      for (unsigned int i = 0; i < DisabledFiltersCount; ++i)
          SatipConfig.SetDisabledFilters(i, DisabledFilters[i]);
      }
+  else if (!strcasecmp(nameP, "UseRtpOverTcp"))
+     SatipConfig.SetUseRtpOverTcp(atoi(valueP));
   else
      return false;
   return true;

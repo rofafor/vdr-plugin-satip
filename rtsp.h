@@ -56,7 +56,7 @@ public:
   cString RtspUnescapeString(const char *strP);
   void Reset(void);
   bool Options(const char *uriP);
-  bool Setup(const char *uriP, int rtpPortP, int rtcpPortP);
+  bool Setup(const char *uriP, int rtpPortP, int rtcpPortP, bool useTcpP);
   bool SetSession(const char *sessionP);
   bool Describe(const char *uriP);
   bool Play(const char *uriP);

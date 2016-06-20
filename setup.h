@@ -17,6 +17,7 @@ class cSatipPluginSetup : public cMenuSetupPage
 private:
   bool detachedModeM;
   int deviceCountM;
+  int useRtpOverTcpM;
   int operatingModeM;
   const char *operatingModeTextsM[cSatipConfig::eOperatingModeCount];
   int ciExtensionM;
