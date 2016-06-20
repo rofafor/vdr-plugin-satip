@@ -67,11 +67,12 @@ private:
 
 public:
   enum eSatipQuirk {
-    eSatipQuirkNone      = 0x00,
-    eSatipQuirkSessionId = 0x01,
-    eSatipQuirkPlayPids  = 0x02,
-    eSatipQuirkForceLock = 0x04,
-    eSatipQuirkMask      = 0x0F
+    eSatipQuirkNone       = 0x00,
+    eSatipQuirkSessionId  = 0x01,
+    eSatipQuirkPlayPids   = 0x02,
+    eSatipQuirkForceLock  = 0x04,
+    eSatipQuirkRtpOverTcp = 0x08,
+    eSatipQuirkMask       = 0x0F
   };
   cSatipServer(const char *addressP, const int portP, const char *modelP, const char *descriptionP);
   virtual ~cSatipServer();

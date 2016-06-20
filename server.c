@@ -102,6 +102,14 @@ cSatipServer::cSatipServer(const char *addressP, const int portP, const char *mo
         quirkM |= eSatipQuirkSessionId;
         quirksM = cString::sprintf("%s%sSessionId", *quirksM, isempty(*quirksM) ? "" : ",");
         }
+     // These devices contain support for RTP over TCP:
+     if (strstr(*descriptionM, "GSSBOX") ||             // Grundig Sat Systems GSS.box DSI 400
+         strstr(*descriptionM, "DIGIBIT") ||            // Telestar Digibit R1
+         strstr(*descriptionM, "Triax SatIP Converter") // Triax TSS 400
+        ) {
+        quirkM |= eSatipQuirkRtpOverTcp;
+        quirksM = cString::sprintf("%s%sRtpOverTcp", *quirksM, isempty(*quirksM) ? "" : ",");
+        }
      // These devices contain a play (add/delpids) parameter bug:
      if (strstr(*descriptionM, "fritzdvbc")             // Fritz!WLAN Repeater DVB-C
         ) {
