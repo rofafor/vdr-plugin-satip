@@ -88,6 +88,7 @@ public:
   cSatipServer *GetServer(cSatipServer *serverP);
   cSatipServers *GetServers(void);
   cString GetServerString(cSatipServer *serverP);
+  void ActivateServer(cSatipServer *serverP, bool onOffP);
   void AttachServer(cSatipServer *serverP, int deviceIdP, int transponderP);
   void DetachServer(cSatipServer *serverP, int deviceIdP, int transponderP);
   bool IsServerQuirk(cSatipServer *serverP, int quirkP);

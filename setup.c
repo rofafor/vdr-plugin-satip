@@ -86,6 +86,8 @@ eOSState cSatipEditSrcItem::ProcessKey(eKeys Key)
 class cSatipServerInfo : public cOsdMenu
 {
 private:
+  cSatipServer *serverM;
+  int activeM;
   cString addressM;
   cString modelM;
   cString descriptionM;
@@ -101,6 +103,8 @@ public:
 
 cSatipServerInfo::cSatipServerInfo(cSatipServer *serverP)
 : cOsdMenu(tr("SAT>IP Server"), 20),
+  serverM(serverP),
+  activeM(serverP && serverP->IsActive()),
   addressM(serverP ? serverP->Address() : "---"),
   modelM(serverP ? serverP->Model() : "---"),
   descriptionM(serverP ? serverP->Description() : "---"),
@@ -118,6 +122,7 @@ cSatipServerInfo::~cSatipServerInfo()
 
 void cSatipServerInfo::Setup(void)
 {
+  Add(new cMenuEditBoolItem(trVDR("Active"), &activeM));
   Add(new cOsdItem(cString::sprintf("%s:\t%s", tr("Address"),       *addressM),              osUnknown, false));
   Add(new cOsdItem(cString::sprintf("%s:\t%s", tr("Model"),         *modelM),                osUnknown, false));
   Add(new cOsdItem(cString::sprintf("%s:\t%s", tr("Description"),   *descriptionM),          osUnknown, false));
@@ -127,6 +132,7 @@ void cSatipServerInfo::Setup(void)
 
 eOSState cSatipServerInfo::ProcessKey(eKeys keyP)
 {
+  int oldActive = activeM;
   eOSState state = cOsdMenu::ProcessKey(keyP);
 
   if (state == osUnknown) {
@@ -135,6 +141,12 @@ eOSState cSatipServerInfo::ProcessKey(eKeys keyP)
        default:  state = osContinue; break;
        }
      }
+
+  if (keyP != kNone && oldActive != activeM) {
+     cSatipDiscover::GetInstance()->ActivateServer(serverM, activeM);
+     Setup();
+     }
+
   return state;
 }
 
@@ -155,7 +167,7 @@ cSatipServerItem::cSatipServerItem(cSatipServer *serverP)
 {
   SetSelectable(true);
   // Must begin with a '#' character!
-  SetText(*cString::sprintf("# %s (%s)\t%s", serverM->Address(), serverM->Model(), serverM->Description()));
+  SetText(*cString::sprintf("%s %s (%s)\t%s", serverM->IsActive() ? "+" : "-", serverM->Address(), serverM->Model(), serverM->Description()));
 }
 
 void cSatipServerItem::SetMenuItem(cSkinDisplayMenu *displayMenuP, int indexP, bool currentP, bool selectableP)
@@ -468,10 +480,12 @@ eOSState cSatipPluginSetup::ProcessKey(eKeys keyP)
   int oldNumDisabledFilters = numDisabledFiltersM;
   eOSState state = cMenuSetupPage::ProcessKey(keyP);
 
-  // Ugly hack with hardcoded '#' character :(
+  // Ugly hack with hardcoded '+/-' characters :(
   const char *p = Get(Current())->Text();
-  if (!hadSubMenu && !HasSubMenu() && (*p == '#') && (keyP == kOk))
+  if (!hadSubMenu && !HasSubMenu() && p && (*p == '+' || *p == '-') && (keyP == kOk))
      return DeviceInfo();
+  if (hadSubMenu && !HasSubMenu())
+     Setup();
 
   if (state == osUnknown) {
      switch (keyP) {
