@@ -62,6 +62,7 @@ private:
   int portM;
   int quirkM;
   bool hasCiM;
+  bool activeM;
   time_t createdM;
   cTimeMs lastSeenM;
 
@@ -87,6 +88,7 @@ public:
   int GetModulesDVBT2(void);
   int GetModulesDVBC(void);
   int GetModulesDVBC2(void);
+  void Activate(bool onOffP)    { activeM = onOffP; }
   const char *Address(void)     { return *addressM; }
   const char *Model(void)       { return *modelM; }
   const char *Description(void) { return *descriptionM; }
@@ -95,6 +97,7 @@ public:
   bool Quirk(int quirkP)        { return ((quirkP & eSatipQuirkMask) & quirkM); }
   bool HasQuirk(void)           { return (quirkM != eSatipQuirkNone); }
   bool HasCI(void)              { return hasCiM; }
+  bool IsActive(void)           { return activeM; }
   void Update(void)             { lastSeenM.Set(); }
   uint64_t LastSeen(void)       { return lastSeenM.Elapsed(); }
   time_t Created(void)          { return createdM; }
@@ -108,6 +111,7 @@ public:
   cSatipServer *Find(int sourceP);
   cSatipServer *Assign(int deviceIdP, int sourceP, int transponderP, int systemP);
   cSatipServer *Update(cSatipServer *serverP);
+  void Activate(cSatipServer *serverP, bool onOffP);
   void Attach(cSatipServer *serverP, int deviceIdP, int transponderP);
   void Detach(cSatipServer *serverP, int deviceIdP, int transponderP);
   bool IsQuirk(cSatipServer *serverP, int quirkP);

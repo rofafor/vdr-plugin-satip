@@ -88,6 +88,7 @@ cSatipServer::cSatipServer(const char *addressP, const int portP, const char *mo
   portM(portP),
   quirkM(eSatipQuirkNone),
   hasCiM(false),
+  activeM(true),
   createdM(time(NULL)),
   lastSeenM(0)
 {
@@ -297,11 +298,11 @@ cSatipServer *cSatipServers::Find(int sourceP)
 
 cSatipServer *cSatipServers::Assign(int deviceIdP, int sourceP, int transponderP, int systemP)
 {
-  for (cSatipServer *s = First(); s; s = Next(s)) {
+  for (cSatipServer *s = First(); s && s->IsActive(); s = Next(s)) {
       if (s->Matches(deviceIdP, sourceP, systemP, transponderP))
          return s;
       }
-  for (cSatipServer *s = First(); s; s = Next(s)) {
+  for (cSatipServer *s = First(); s && s->IsActive(); s = Next(s)) {
       if (s->Assign(deviceIdP, sourceP, systemP, transponderP))
          return s;
       }
@@ -317,6 +318,16 @@ cSatipServer *cSatipServers::Update(cSatipServer *serverP)
          }
       }
   return NULL;
+}
+
+void cSatipServers::Activate(cSatipServer *serverP, bool onOffP)
+{
+  for (cSatipServer *s = First(); s; s = Next(s)) {
+      if (s == serverP) {
+         s->Activate(onOffP);
+         break;
+         }
+      }
 }
 
 void cSatipServers::Attach(cSatipServer *serverP, int deviceIdP, int transponderP)
@@ -413,7 +424,7 @@ cString cSatipServers::List(void)
 {
   cString list = "";
   for (cSatipServer *s = First(); s; s = Next(s))
-      list = cString::sprintf("%s%s|%s|%s\n", *list, s->Address(), s->Model(), s->Description());
+      list = cString::sprintf("%s%c %s|%s|%s\n", *list, s->IsActive() ? '+' : '-', s->Address(), s->Model(), s->Description());
   return list;
 }
 

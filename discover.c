@@ -356,6 +356,13 @@ cString cSatipDiscover::GetServerList(void)
   return serversM.List();
 }
 
+void cSatipDiscover::ActivateServer(cSatipServer *serverP, bool onOffP)
+{
+  debug16("%s (, %d)", __PRETTY_FUNCTION__, onOffP);
+  cMutexLock MutexLock(&mutexM);
+  serversM.Activate(serverP, onOffP);
+}
+
 void cSatipDiscover::AttachServer(cSatipServer *serverP, int deviceIdP, int transponderP)
 {
   debug16("%s (, %d, %d)", __PRETTY_FUNCTION__, deviceIdP, transponderP);
