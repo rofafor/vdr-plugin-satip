@@ -298,12 +298,12 @@ cSatipServer *cSatipServers::Find(int sourceP)
 
 cSatipServer *cSatipServers::Assign(int deviceIdP, int sourceP, int transponderP, int systemP)
 {
-  for (cSatipServer *s = First(); s && s->IsActive(); s = Next(s)) {
-      if (s->Matches(deviceIdP, sourceP, systemP, transponderP))
+  for (cSatipServer *s = First(); s; s = Next(s)) {
+      if (s->IsActive() && s->Matches(deviceIdP, sourceP, systemP, transponderP))
          return s;
       }
-  for (cSatipServer *s = First(); s && s->IsActive(); s = Next(s)) {
-      if (s->Assign(deviceIdP, sourceP, systemP, transponderP))
+  for (cSatipServer *s = First(); s; s = Next(s)) {
+      if (s->IsActive() && s->Assign(deviceIdP, sourceP, systemP, transponderP))
          return s;
       }
   return NULL;
