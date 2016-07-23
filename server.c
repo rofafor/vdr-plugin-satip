@@ -80,9 +80,10 @@ bool cSatipFrontends::Detach(int deviceIdP, int transponderP)
 
 // --- cSatipServer -----------------------------------------------------------
 
-cSatipServer::cSatipServer(const char *addressP, const int portP, const char *modelP, const char *descriptionP)
+cSatipServer::cSatipServer(const char *addressP, const int portP, const char *modelP, const char *filtersP, const char *descriptionP)
 : addressM((addressP && *addressP) ? addressP : "0.0.0.0"),
   modelM((modelP && *modelP) ? modelP : "DVBS-1"),
+  filtersM((filtersP && *filtersP) ? filtersP : ""),
   descriptionM(!isempty(descriptionP) ? descriptionP : "MyBrokenHardware"),
   quirksM(""),
   portM(portP),
@@ -92,6 +93,25 @@ cSatipServer::cSatipServer(const char *addressP, const int portP, const char *mo
   createdM(time(NULL)),
   lastSeenM(0)
 {
+  memset(sourceFiltersM, 0, sizeof(sourceFiltersM));
+  if (!isempty(*filtersM)) {
+     char *s, *p = strdup(*filtersM);
+     char *r = strtok_r(p, ",", &s);
+     unsigned int i = 0;
+     while (r) {
+           int t = cSource::FromString(skipspace(r));
+           if (t && i < ELEMENTS(sourceFiltersM))
+              sourceFiltersM[i++] = t;
+           r = strtok_r(NULL, ",", &s);
+           }
+     if (i) {
+        filtersM = "";
+        for (unsigned int j = 0; j < i; ++j)
+            filtersM = cString::sprintf("%s%s%s", *filtersM, isempty(*filtersM) ? "" : ",", *cSource::ToString(sourceFiltersM[j]));
+        debug3("%s filters=%s", __PRETTY_FUNCTION__, *filtersM);
+        }
+     FREE_POINTER(p);
+     }
   if (!SatipConfig.GetDisableServerQuirks()) {
      // These devices contain a session id bug:
      // Inverto Airscreen Server IDL 400 ?
@@ -165,7 +185,7 @@ cSatipServer::cSatipServer(const char *addressP, const int portP, const char *mo
            }
         r = strtok_r(NULL, ",", &s);
         }
-  free(p);
+  FREE_POINTER(p);
 }
 
 cSatipServer::~cSatipServer()
@@ -204,33 +224,50 @@ bool cSatipServer::Assign(int deviceIdP, int sourceP, int systemP, int transpond
   return result;
 }
 
+bool cSatipServer::IsValidSource(int sourceP)
+{
+  if (sourceFiltersM[0]) {
+     for (unsigned int i = 0; i < ELEMENTS(sourceFiltersM); ++i) {
+         if (sourceP == sourceFiltersM[i]) {
+            return true;
+            }
+         }
+     return false;
+     }
+  return true;
+}
+
 bool cSatipServer::Matches(int sourceP)
 {
-  if (cSource::IsType(sourceP, 'S'))
-     return GetModulesDVBS2();
-  else if (cSource::IsType(sourceP, 'T'))
-     return GetModulesDVBT() || GetModulesDVBT2();
-  else if (cSource::IsType(sourceP, 'C'))
-     return GetModulesDVBC() || GetModulesDVBC2();
+  if (IsValidSource(sourceP)) {
+     if (cSource::IsType(sourceP, 'S'))
+        return GetModulesDVBS2();
+     else if (cSource::IsType(sourceP, 'T'))
+        return GetModulesDVBT() || GetModulesDVBT2();
+     else if (cSource::IsType(sourceP, 'C'))
+        return GetModulesDVBC() || GetModulesDVBC2();
+     }
   return false;
 }
 
 bool cSatipServer::Matches(int deviceIdP, int sourceP, int systemP, int transponderP)
 {
   bool result = false;
-  if (cSource::IsType(sourceP, 'S'))
-     result = frontendsM[eSatipFrontendDVBS2].Matches(deviceIdP, transponderP);
-  else if (cSource::IsType(sourceP, 'T')) {
-     if (systemP)
-        result = frontendsM[eSatipFrontendDVBT2].Matches(deviceIdP, transponderP);
-     else
-        result = frontendsM[eSatipFrontendDVBT].Matches(deviceIdP, transponderP) || frontendsM[eSatipFrontendDVBT2].Matches(deviceIdP, transponderP);
-     }
-  else if (cSource::IsType(sourceP, 'C')) {
-     if (systemP)
-        result = frontendsM[eSatipFrontendDVBC2].Matches(deviceIdP, transponderP);
-     else
-        result = frontendsM[eSatipFrontendDVBC].Matches(deviceIdP, transponderP) || frontendsM[eSatipFrontendDVBC2].Matches(deviceIdP, transponderP);
+  if (IsValidSource(sourceP)) {
+     if (cSource::IsType(sourceP, 'S'))
+        result = frontendsM[eSatipFrontendDVBS2].Matches(deviceIdP, transponderP);
+     else if (cSource::IsType(sourceP, 'T')) {
+        if (systemP)
+           result = frontendsM[eSatipFrontendDVBT2].Matches(deviceIdP, transponderP);
+        else
+           result = frontendsM[eSatipFrontendDVBT].Matches(deviceIdP, transponderP) || frontendsM[eSatipFrontendDVBT2].Matches(deviceIdP, transponderP);
+        }
+     else if (cSource::IsType(sourceP, 'C')) {
+        if (systemP)
+           result = frontendsM[eSatipFrontendDVBC2].Matches(deviceIdP, transponderP);
+        else
+           result = frontendsM[eSatipFrontendDVBC].Matches(deviceIdP, transponderP) || frontendsM[eSatipFrontendDVBC2].Matches(deviceIdP, transponderP);
+        }
      }
   return result;
 }
