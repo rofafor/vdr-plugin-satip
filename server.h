@@ -54,17 +54,23 @@ private:
     eSatipFrontendDVBC2,
     eSatipFrontendCount
   };
+  enum {
+    eSatipMaxSourceFilters = 16
+  };
   cString addressM;
   cString modelM;
+  cString filtersM;
   cString descriptionM;
   cString quirksM;
   cSatipFrontends frontendsM[eSatipFrontendCount];
+  int sourceFiltersM[eSatipMaxSourceFilters];
   int portM;
   int quirkM;
   bool hasCiM;
   bool activeM;
   time_t createdM;
   cTimeMs lastSeenM;
+  bool IsValidSource(int sourceP);
 
 public:
   enum eSatipQuirk {
@@ -75,7 +81,7 @@ public:
     eSatipQuirkRtpOverTcp = 0x08,
     eSatipQuirkMask       = 0x0F
   };
-  cSatipServer(const char *addressP, const int portP, const char *modelP, const char *descriptionP);
+  cSatipServer(const char *addressP, const int portP, const char *modelP, const char *filtersP, const char *descriptionP);
   virtual ~cSatipServer();
   virtual int Compare(const cListObject &listObjectP) const;
   bool Assign(int deviceIdP, int sourceP, int systemP, int transponderP);
@@ -91,6 +97,7 @@ public:
   void Activate(bool onOffP)    { activeM = onOffP; }
   const char *Address(void)     { return *addressM; }
   const char *Model(void)       { return *modelM; }
+  const char *Filters(void)     { return *filtersM; }
   const char *Description(void) { return *descriptionM; }
   const char *Quirks(void)      { return *quirksM; }
   int Port(void)                { return portM; }
