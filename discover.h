@@ -25,14 +25,16 @@ private:
   cString ipAddressM;
   cString descriptionM;
   cString modelM;
+  cString filtersM;
 public:
-  cSatipDiscoverServer(const char *ipAddressP, const int ipPortP, const char *modelP, const char *descriptionP)
+  cSatipDiscoverServer(const char *ipAddressP, const int ipPortP, const char *modelP, const char *filtersP, const char *descriptionP)
   {
-    ipAddressM = ipAddressP; ipPortM = ipPortP; modelM = modelP; descriptionM = descriptionP;
+    ipAddressM = ipAddressP; ipPortM = ipPortP; modelM = modelP; filtersM = filtersP; descriptionM = descriptionP;
   }
   int IpPort(void)              { return ipPortM; }
   const char *IpAddress(void)   { return *ipAddressM; }
   const char *Model(void)       { return *modelM; }
+  const char *Filters(void)     { return *filtersM; }
   const char *Description(void) { return *descriptionM; }
 };
 
@@ -65,7 +67,7 @@ private:
   void Deactivate(void);
   int ParseRtspPort(void);
   void ParseDeviceInfo(const char *addrP, const int portP);
-  void AddServer(const char *addrP, const int portP, const char *modelP, const char *descP);
+  void AddServer(const char *addrP, const int portP, const char *modelP, const char *filtersP, const char *descP);
   void Fetch(const char *urlP);
   // constructor
   cSatipDiscover();
