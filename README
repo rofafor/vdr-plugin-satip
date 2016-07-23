@@ -53,8 +53,8 @@ consists of a DVB system (DVBS2,DVBT2,DVBT,DVBC) and number of available
 frontends separated by a hyphen:
 
 vdr -P 'satip -s <ipaddress>|<model>|<description>;...'
-vdr -P 'satip -s 192.168.0.1|DVBS2-2,DVBT2-2|Octo1'
-vdr -P 'satip -s 192.168.0.1|DVBS2-4|Octo1;192.168.0.2|DVBT2-4|Octo2'
+vdr -P 'satip -s 192.168.0.1|DVBS2-2,DVBT2-2|OctopusNet'
+vdr -P 'satip -s 192.168.0.1|DVBS2-4|OctopusNet;192.168.0.2|DVBT2-4|minisatip'
 
 The plugin accepts a "--portrange" (-p) command-line parameter, that can
 be used to manually specify the RTP & RTCP port range and therefore
