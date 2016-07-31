@@ -206,6 +206,9 @@ int cSatipServer::Compare(const cListObject &listObjectP) const
 
 bool cSatipServer::Assign(int deviceIdP, int sourceP, int systemP, int transponderP)
 {
+  if (!IsValidSource(sourceP))
+	  return false;
+
   bool result = false;
   if (cSource::IsType(sourceP, 'S'))
      result = frontendsM[eSatipFrontendDVBS2].Assign(deviceIdP, transponderP);
