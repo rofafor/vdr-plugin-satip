@@ -204,26 +204,6 @@ int cSatipServer::Compare(const cListObject &listObjectP) const
   return result;
 }
 
-bool cSatipServer::Assign(int deviceIdP, int sourceP, int systemP, int transponderP)
-{
-  bool result = false;
-  if (cSource::IsType(sourceP, 'S'))
-     result = frontendsM[eSatipFrontendDVBS2].Assign(deviceIdP, transponderP);
-  else if (cSource::IsType(sourceP, 'T')) {
-     if (systemP)
-        result = frontendsM[eSatipFrontendDVBT2].Assign(deviceIdP, transponderP);
-     else
-        result = frontendsM[eSatipFrontendDVBT].Assign(deviceIdP, transponderP) || frontendsM[eSatipFrontendDVBT2].Assign(deviceIdP, transponderP);
-     }
-  else if (cSource::IsType(sourceP, 'C')) {
-     if (systemP)
-        result = frontendsM[eSatipFrontendDVBC2].Assign(deviceIdP, transponderP);
-     else
-        result = frontendsM[eSatipFrontendDVBC].Assign(deviceIdP, transponderP) || frontendsM[eSatipFrontendDVBC2].Assign(deviceIdP, transponderP);
-     }
-  return result;
-}
-
 bool cSatipServer::IsValidSource(int sourceP)
 {
   if (sourceFiltersM[0]) {
@@ -235,6 +215,28 @@ bool cSatipServer::IsValidSource(int sourceP)
      return false;
      }
   return true;
+}
+
+bool cSatipServer::Assign(int deviceIdP, int sourceP, int systemP, int transponderP)
+{
+  bool result = false;
+  if (IsValidSource(sourceP)) {
+     if (cSource::IsType(sourceP, 'S'))
+        result = frontendsM[eSatipFrontendDVBS2].Assign(deviceIdP, transponderP);
+     else if (cSource::IsType(sourceP, 'T')) {
+        if (systemP)
+           result = frontendsM[eSatipFrontendDVBT2].Assign(deviceIdP, transponderP);
+        else
+           result = frontendsM[eSatipFrontendDVBT].Assign(deviceIdP, transponderP) || frontendsM[eSatipFrontendDVBT2].Assign(deviceIdP, transponderP);
+        }
+     else if (cSource::IsType(sourceP, 'C')) {
+        if (systemP)
+           result = frontendsM[eSatipFrontendDVBC2].Assign(deviceIdP, transponderP);
+        else
+           result = frontendsM[eSatipFrontendDVBC].Assign(deviceIdP, transponderP) || frontendsM[eSatipFrontendDVBC2].Assign(deviceIdP, transponderP);
+        }
+     }
+  return result;
 }
 
 bool cSatipServer::Matches(int sourceP)
