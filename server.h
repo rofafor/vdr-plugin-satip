@@ -79,7 +79,9 @@ public:
     eSatipQuirkPlayPids   = 0x02,
     eSatipQuirkForceLock  = 0x04,
     eSatipQuirkRtpOverTcp = 0x08,
-    eSatipQuirkMask       = 0x0F
+    eSatipQuirkCiXpmt     = 0x10,
+    eSatipQuirkCiTnr      = 0x20,
+    eSatipQuirkMask       = 0xFF
   };
   cSatipServer(const char *addressP, const int portP, const char *modelP, const char *filtersP, const char *descriptionP);
   virtual ~cSatipServer();

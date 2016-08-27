@@ -16,6 +16,7 @@ public:
   virtual int GetId(void) = 0;
   virtual int GetPmtPid(void) = 0;
   virtual int GetCISlot(void) = 0;
+  virtual cString GetTnrParameterString(void) = 0;
   virtual bool IsIdle(void) = 0;
 
 private:
