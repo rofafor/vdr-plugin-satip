@@ -11,5 +11,6 @@
 #include "common.h"
 
 cString GetTransponderUrlParameters(const cChannel *channelP);
+cString GetTnrUrlParameters(const cChannel *channelP);
 
 #endif // __SATIP_PARAM_H

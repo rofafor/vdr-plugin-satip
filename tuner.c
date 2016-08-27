@@ -25,6 +25,7 @@ cSatipTuner::cSatipTuner(cSatipDeviceIf &deviceP, unsigned int packetLenP)
   rtcpM(*this),
   streamAddrM(""),
   streamParamM(""),
+  tnrParamM(""),
   streamPortM(SATIP_DEFAULT_RTSP_PORT),
   currentServerM(NULL, deviceP.GetId(), 0),
   nextServerM(NULL, deviceP.GetId(), 0),
@@ -210,6 +211,7 @@ bool cSatipTuner::Connect(void)
 
   if (!isempty(*streamAddrM)) {
      cString connectionUri = GetBaseUrl(*streamAddrM, streamPortM);
+     tnrParamM = "";
      // Just retune
      if (streamIdM >= 0) {
         cString uri = cString::sprintf("%sstream=%d?%s", *connectionUri, streamIdM, *streamParamM);
@@ -445,20 +447,30 @@ bool cSatipTuner::UpdatePids(bool forceP)
            uri = cString::sprintf("%s%sdelpids=%s", *uri, addPidsM.Size() ? "&" : "?", *delPidsM.ListPids());
         }
      if (useci) {
-        // CI extension parameters:
-        // - x_pmt : specifies the PMT of the service you want the CI to decode
-        // - x_ci  : specfies which CI slot (1..n) to use
-        //           value 0 releases the CI slot
-        //           CI slot released automatically if the stream is released,
-        //           but not when used retuning to another channel
-        int pid = deviceM->GetPmtPid();
-        if ((pid > 0) && (pid != pmtPidM)) {
-           int slot = deviceM->GetCISlot();
-           uri = cString::sprintf("%s&x_pmt=%d", *uri, pid);
-           if (slot > 0)
-              uri = cString::sprintf("%s&x_ci=%d", *uri, slot);
+        if (currentServerM.IsQuirk(cSatipServer::eSatipQuirkCiXpmt)) {
+           // CI extension parameters:
+           // - x_pmt : specifies the PMT of the service you want the CI to decode
+           // - x_ci  : specfies which CI slot (1..n) to use
+           //           value 0 releases the CI slot
+           //           CI slot released automatically if the stream is released,
+           //           but not when used retuning to another channel
+           int pid = deviceM->GetPmtPid();
+           if ((pid > 0) && (pid != pmtPidM)) {
+              int slot = deviceM->GetCISlot();
+              uri = cString::sprintf("%s&x_pmt=%d", *uri, pid);
+              if (slot > 0)
+                 uri = cString::sprintf("%s&x_ci=%d", *uri, slot);
+              }
+           pmtPidM = pid;
            }
-        pmtPidM = pid;
+        else if (currentServerM.IsQuirk(cSatipServer::eSatipQuirkCiTnr)) {
+           // CI extension parameters:
+           // - tnr : specifies a channel config entry
+           cString param = deviceM->GetTnrParameterString();
+           if (!isempty(*param) && strcmp(*tnrParamM, *param) != 0)
+              uri = cString::sprintf("%s&tnr=%s", *uri, *param);
+           tnrParamM = param;
+           }
         }
      pidUpdateCacheM.Set(ePidUpdateIntervalMs);
      if (!rtspM.Play(*uri))

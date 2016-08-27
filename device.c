@@ -469,6 +469,13 @@ int cSatipDevice::GetCISlot(void)
   return slot;
 }
 
+cString cSatipDevice::GetTnrParameterString(void)
+{
+   if (channelM.Ca())
+      return GetTnrUrlParameters(&channelM);
+   return NULL;
+}
+
 bool cSatipDevice::IsIdle(void)
 {
   return !Receiving();

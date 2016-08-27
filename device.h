@@ -110,6 +110,7 @@ public:
   virtual int GetId(void);
   virtual int GetPmtPid(void);
   virtual int GetCISlot(void);
+  virtual cString GetTnrParameterString(void);
   virtual bool IsIdle(void);
 };
 

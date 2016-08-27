@@ -146,11 +146,25 @@ cSatipServer::cSatipServer(const char *addressP, const int portP, const char *mo
         quirkM |= eSatipQuirkForceLock;
         quirksM = cString::sprintf("%s%sForceLock", *quirksM, isempty(*quirksM) ? "" : ",");
         }
+     // These devices support the X_PMT protocol extension
+     if (strstr(*descriptionM, "OctopusNet") ||         // Digital Devices OctopusNet
+         strstr(*descriptionM, "minisatip")             // minisatip server
+        ) {
+        quirkM |= eSatipQuirkCiXpmt;
+        quirksM = cString::sprintf("%s%sCiXpmt", *quirksM, isempty(*quirksM) ? "" : ",");
+        }
+     // These devices support the TNR protocol extension
+     if (strstr(*descriptionM, "DVBViewer")             // DVBViewer Media Server
+        ) {
+        quirkM |= eSatipQuirkCiTnr;
+        quirksM = cString::sprintf("%s%sCiTnr", *quirksM, isempty(*quirksM) ? "" : ",");
+        }
      debug3("%s description=%s quirks=%s", __PRETTY_FUNCTION__, *descriptionM, *quirksM);
      }
-  // These devices support the X_PMT protocol extension
+  // These devices support external CI
   if (strstr(*descriptionM, "OctopusNet") ||            // Digital Devices OctopusNet
-      strstr(*descriptionM, "minisatip")                // minisatip server
+      strstr(*descriptionM, "minisatip") ||             // minisatip server
+      strstr(*descriptionM, "DVBViewer")                // DVBViewer Media Server
      ) {
      hasCiM = true;
      }

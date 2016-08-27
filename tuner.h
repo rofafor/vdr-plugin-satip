@@ -99,6 +99,7 @@ private:
   cSatipRtcp rtcpM;
   cString streamAddrM;
   cString streamParamM;
+  cString tnrParamM;
   int streamPortM;
   cSatipTunerServer currentServerM;
   cSatipTunerServer nextServerM;
