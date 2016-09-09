@@ -419,10 +419,12 @@ bool cSatipRtsp::ValidateLatestResponse(long *rcP)
             // SETUP PLAY TEARDOWN
             // The message body of the response may contain the "Out-of-Range:" parameter followed
             // by a space-separated list of the attribute names that are not understood:
-            // "src" "fe" "freq" "pol" "msys" "mtype" "plts" "ro" "sr" "fec" "pids" "addpids" "delpids" "mcast
+            // "src" "fe" "freq" "pol" "msys" "mtype" "plts" "ro" "sr" "fec" "pids" "addpids" "delpids" "mcast"
             if (!isempty(*errorOutOfRangeM)) {
                SATIP_CURL_EASY_GETINFO(handleM, CURLINFO_EFFECTIVE_URL, &url);
                error("Out of range: %s (error code %ld: %s) [device %d]", *errorOutOfRangeM, rc, url, tunerM.GetId());
+               // Reseting the connection wouldn't help anything due to invalid channel configuration, so let it be successful
+               result = true;
                break;
                }
        case 503:
