@@ -32,7 +32,7 @@ bool cSatipDiscover::Initialize(cSatipDiscoverServers *serversP)
   if (instanceS) {
        if (serversP) {
           for (cSatipDiscoverServer *s = serversP->First(); s; s = serversP->Next(s))
-              instanceS->AddServer(s->IpAddress(), s->IpPort(), s->Model(), s->Filters(), s->Description());
+              instanceS->AddServer(s->IpAddress(), s->IpPort(), s->Model(), s->Filters(), s->Description(), s->Quirk());
           }
      else
         instanceS->Activate();
@@ -271,12 +271,12 @@ void cSatipDiscover::ParseDeviceInfo(const char *addrP, const int portP)
         model = modelNode.text().as_string("DVBS2-1");
      }
 #endif
-  AddServer(addrP, portP, model, NULL, desc);
+  AddServer(addrP, portP, model, NULL, desc, cSatipServer::eSatipQuirkNone);
 }
 
-void cSatipDiscover::AddServer(const char *addrP, const int portP, const char *modelP, const char *filtersP, const char *descP)
+void cSatipDiscover::AddServer(const char *addrP, const int portP, const char *modelP, const char *filtersP, const char *descP, const int quirkP)
 {
-  debug1("%s (%s, %d, %s, %s, %s)", __PRETTY_FUNCTION__, addrP, portP, modelP, filtersP, descP);
+  debug1("%s (%s, %d, %s, %s, %s, %d)", __PRETTY_FUNCTION__, addrP, portP, modelP, filtersP, descP, quirkP);
   cMutexLock MutexLock(&mutexM);
   if (SatipConfig.GetUseSingleModelServers() && modelP && !isempty(modelP)) {
      int n = 0;
@@ -285,7 +285,7 @@ void cSatipDiscover::AddServer(const char *addrP, const int portP, const char *m
      while (r) {
            r = skipspace(r);
            cString desc = cString::sprintf("%s #%d", !isempty(descP) ? descP : "MyBrokenHardware", n++);
-           cSatipServer *tmp = new cSatipServer(addrP, portP, r, filtersP, desc);
+           cSatipServer *tmp = new cSatipServer(addrP, portP, r, filtersP, desc, quirkP);
            if (!serversM.Update(tmp)) {
               info("Adding server '%s|%s|%s' Filters: %s CI: %s Quirks: %s", tmp->Address(), tmp->Model(), tmp->Description(), !isempty(tmp->Filters()) ? tmp->Filters() : "none", tmp->HasCI() ? "yes" : "no", tmp->HasQuirk() ? tmp->Quirks() : "none");
               serversM.Add(tmp);
@@ -297,7 +297,7 @@ void cSatipDiscover::AddServer(const char *addrP, const int portP, const char *m
      FREE_POINTER(p);
      }
   else {
-     cSatipServer *tmp = new cSatipServer(addrP, portP, modelP, filtersP, descP);
+     cSatipServer *tmp = new cSatipServer(addrP, portP, modelP, filtersP, descP, quirkP);
      if (!serversM.Update(tmp)) {
         info("Adding server '%s|%s|%s' Filters: %s CI: %s Quirks: %s", tmp->Address(), tmp->Model(), tmp->Description(), !isempty(tmp->Filters()) ? tmp->Filters() : "none", tmp->HasCI() ? "yes" : "no", tmp->HasQuirk() ? tmp->Quirks() : "none");
         serversM.Add(tmp);

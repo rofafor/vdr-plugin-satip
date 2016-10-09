@@ -83,7 +83,7 @@ public:
     eSatipQuirkCiTnr      = 0x20,
     eSatipQuirkMask       = 0xFF
   };
-  cSatipServer(const char *addressP, const int portP, const char *modelP, const char *filtersP, const char *descriptionP);
+  cSatipServer(const char *addressP, const int portP, const char *modelP, const char *filtersP, const char *descriptionP, const int quirkP);
   virtual ~cSatipServer();
   virtual int Compare(const cListObject &listObjectP) const;
   bool Assign(int deviceIdP, int sourceP, int systemP, int transponderP);

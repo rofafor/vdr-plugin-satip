@@ -84,11 +84,11 @@ const char *cPluginSatip::CommandLineHelp(void)
   // Return a string that describes all known command line options.
   return "  -d <num>, --devices=<number>  set number of devices to be created\n"
          "  -t <mode>, --trace=<mode>     set the tracing mode\n"
-         "  -s <ipaddr>|<model>|<desc>, --server=<ipaddr1>|<model1>|<desc1>;<ipaddr2>:<port>|<model2>:<filter>|<desc2>\n"
+         "  -s <ipaddr>|<model>|<desc>, --server=<ipaddr1>|<model1>|<desc1>;<ipaddr2>:<port>|<model2>:<filter>|<desc2>:<quirk>\n"
          "                                define hard-coded SAT>IP server(s)\n"
          "  -D, --detach                  set the detached mode on\n"
          "  -S, --single                  set the single model server mode on\n"
-         "  -n, --noquirks                disable all the server quirks\n"
+         "  -n, --noquirks                disable autodetection of the server quirks\n"
          "  -p, --portrange=<start>-<end> set a range of ports used for the RT[C]P server\n"
          "                                a minimum of 2 ports per device is required.\n";
 }
@@ -233,6 +233,7 @@ void cPluginSatip::ParseServer(const char *paramP)
         r = skipspace(r);
         debug3("%s server[%d]=%s", __PRETTY_FUNCTION__, n, r);
         cString serverAddr, serverModel, serverFilters, serverDescription;
+        int serverQuirk = cSatipServer::eSatipQuirkNone;
         int serverPort = SATIP_DEFAULT_RTSP_PORT;
         int n2 = 0;
         char *s2, *p2 = r;
@@ -261,7 +262,14 @@ void cPluginSatip::ParseServer(const char *paramP)
                           }
                           break;
                      case 2:
+                          {
                           serverDescription = r2;
+                          char *r3 = strchr(r2, ':');
+                          if (r3) {
+                             serverQuirk = strtol(r3 + 1, NULL, 0);
+                             serverDescription = serverDescription.Truncate(r3 - r2);
+                             }
+                          }
                           break;
                      default:
                           break;
@@ -269,10 +277,10 @@ void cPluginSatip::ParseServer(const char *paramP)
               r2 = strtok_r(NULL, "|", &s2);
               }
         if (*serverAddr && *serverModel && *serverDescription) {
-           debug1("%s ipaddr=%s port=%d model=%s (%s) desc=%s", __PRETTY_FUNCTION__, *serverAddr, serverPort, *serverModel, *serverFilters, *serverDescription);
+           debug1("%s ipaddr=%s port=%d model=%s (%s) desc=%s (%d)", __PRETTY_FUNCTION__, *serverAddr, serverPort, *serverModel, *serverFilters, *serverDescription, serverQuirk);
            if (!serversM)
               serversM = new cSatipDiscoverServers();
-           serversM->Add(new cSatipDiscoverServer(*serverAddr, serverPort, *serverModel, *serverFilters, *serverDescription));
+           serversM->Add(new cSatipDiscoverServer(*serverAddr, serverPort, *serverModel, *serverFilters, *serverDescription, serverQuirk));
            }
         ++n;
         r = strtok_r(NULL, ";", &s);
