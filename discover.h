@@ -22,16 +22,18 @@
 class cSatipDiscoverServer : public cListObject {
 private:
   int ipPortM;
+  int quirkM;
   cString ipAddressM;
   cString descriptionM;
   cString modelM;
   cString filtersM;
 public:
-  cSatipDiscoverServer(const char *ipAddressP, const int ipPortP, const char *modelP, const char *filtersP, const char *descriptionP)
+  cSatipDiscoverServer(const char *ipAddressP, const int ipPortP, const char *modelP, const char *filtersP, const char *descriptionP, const int quirkP)
   {
-    ipAddressM = ipAddressP; ipPortM = ipPortP; modelM = modelP; filtersM = filtersP; descriptionM = descriptionP;
+    ipAddressM = ipAddressP; ipPortM = ipPortP; modelM = modelP; filtersM = filtersP; descriptionM = descriptionP; quirkM = quirkP;
   }
   int IpPort(void)              { return ipPortM; }
+  int Quirk(void)               { return quirkM; }
   const char *IpAddress(void)   { return *ipAddressM; }
   const char *Model(void)       { return *modelM; }
   const char *Filters(void)     { return *filtersM; }
@@ -67,7 +69,7 @@ private:
   void Deactivate(void);
   int ParseRtspPort(void);
   void ParseDeviceInfo(const char *addrP, const int portP);
-  void AddServer(const char *addrP, const int portP, const char *modelP, const char *filtersP, const char *descP);
+  void AddServer(const char *addrP, const int portP, const char *modelP, const char *filtersP, const char *descP, const int quirkP);
   void Fetch(const char *urlP);
   // constructor
   cSatipDiscover();

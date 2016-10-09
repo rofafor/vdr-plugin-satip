@@ -80,14 +80,14 @@ bool cSatipFrontends::Detach(int deviceIdP, int transponderP)
 
 // --- cSatipServer -----------------------------------------------------------
 
-cSatipServer::cSatipServer(const char *addressP, const int portP, const char *modelP, const char *filtersP, const char *descriptionP)
+cSatipServer::cSatipServer(const char *addressP, const int portP, const char *modelP, const char *filtersP, const char *descriptionP, const int quirkP)
 : addressM((addressP && *addressP) ? addressP : "0.0.0.0"),
   modelM((modelP && *modelP) ? modelP : "DVBS-1"),
   filtersM((filtersP && *filtersP) ? filtersP : ""),
   descriptionM(!isempty(descriptionP) ? descriptionP : "MyBrokenHardware"),
   quirksM(""),
   portM(portP),
-  quirkM(eSatipQuirkNone),
+  quirkM(quirkP),
   hasCiM(false),
   activeM(true),
   createdM(time(NULL)),
@@ -119,48 +119,48 @@ cSatipServer::cSatipServer(const char *addressP, const int portP, const char *mo
      if (strstr(*descriptionM, "GSSBOX") ||             // Grundig Sat Systems GSS.box DSI 400
          strstr(*descriptionM, "DIGIBIT") ||            // Telestar Digibit R1
          strstr(*descriptionM, "Triax SatIP Converter") // Triax TSS 400
-        ) {
+        )
         quirkM |= eSatipQuirkSessionId;
-        quirksM = cString::sprintf("%s%sSessionId", *quirksM, isempty(*quirksM) ? "" : ",");
-        }
      // These devices contain support for RTP over TCP:
      if (strstr(*descriptionM, "minisatip") ||          // minisatip server
          strstr(*descriptionM, "DVBViewer") ||          // DVBViewer Media Server
          strstr(*descriptionM, "GSSBOX") ||             // Grundig Sat Systems GSS.box DSI 400
          strstr(*descriptionM, "DIGIBIT") ||            // Telestar Digibit R1
          strstr(*descriptionM, "Triax SatIP Converter") // Triax TSS 400
-        ) {
+        )
         quirkM |= eSatipQuirkRtpOverTcp;
-        quirksM = cString::sprintf("%s%sRtpOverTcp", *quirksM, isempty(*quirksM) ? "" : ",");
-        }
      // These devices contain a play (add/delpids) parameter bug:
      if (strstr(*descriptionM, "fritzdvbc")             // Fritz!WLAN Repeater DVB-C
-        ) {
+        )
         quirkM |= eSatipQuirkPlayPids;
-        quirksM = cString::sprintf("%s%sPlayPids", *quirksM, isempty(*quirksM) ? "" : ",");
-        }
      // These devices contain a frontend locking bug:
      if (strstr(*descriptionM, "fritzdvbc") ||            // Fritz!WLAN Repeater DVB-C
          strstr(*descriptionM, "Schwaiger Sat>IP Server") // Schwaiger MS41IP
-        ) {
+        )
         quirkM |= eSatipQuirkForceLock;
-        quirksM = cString::sprintf("%s%sForceLock", *quirksM, isempty(*quirksM) ? "" : ",");
-        }
      // These devices support the X_PMT protocol extension
      if (strstr(*descriptionM, "OctopusNet") ||         // Digital Devices OctopusNet
          strstr(*descriptionM, "minisatip")             // minisatip server
-        ) {
+        )
         quirkM |= eSatipQuirkCiXpmt;
-        quirksM = cString::sprintf("%s%sCiXpmt", *quirksM, isempty(*quirksM) ? "" : ",");
-        }
      // These devices support the TNR protocol extension
      if (strstr(*descriptionM, "DVBViewer")             // DVBViewer Media Server
-        ) {
+        )
         quirkM |= eSatipQuirkCiTnr;
-        quirksM = cString::sprintf("%s%sCiTnr", *quirksM, isempty(*quirksM) ? "" : ",");
-        }
-     debug3("%s description=%s quirks=%s", __PRETTY_FUNCTION__, *descriptionM, *quirksM);
      }
+  if ((quirkM & eSatipQuirkMask) & eSatipQuirkSessionId)
+     quirksM = cString::sprintf("%s%sSessionId", *quirksM, isempty(*quirksM) ? "" : ",");
+  if ((quirkM & eSatipQuirkMask) & eSatipQuirkPlayPids)
+     quirksM = cString::sprintf("%s%sPlayPids", *quirksM, isempty(*quirksM) ? "" : ",");
+  if ((quirkM & eSatipQuirkMask) & eSatipQuirkForceLock)
+     quirksM = cString::sprintf("%s%sForceLock", *quirksM, isempty(*quirksM) ? "" : ",");
+  if ((quirkM & eSatipQuirkMask) & eSatipQuirkRtpOverTcp)
+     quirksM = cString::sprintf("%s%sRtpOverTcp", *quirksM, isempty(*quirksM) ? "" : ",");
+  if ((quirkM & eSatipQuirkMask) & eSatipQuirkCiXpmt)
+     quirksM = cString::sprintf("%s%sCiXpmt", *quirksM, isempty(*quirksM) ? "" : ",");
+  if ((quirkM & eSatipQuirkMask) & eSatipQuirkCiTnr)
+     quirksM = cString::sprintf("%s%sCiTnr", *quirksM, isempty(*quirksM) ? "" : ",");
+  debug3("%s description=%s quirks=%s", __PRETTY_FUNCTION__, *descriptionM, *quirksM);
   // These devices support external CI
   if (strstr(*descriptionM, "OctopusNet") ||            // Digital Devices OctopusNet
       strstr(*descriptionM, "minisatip") ||             // minisatip server
