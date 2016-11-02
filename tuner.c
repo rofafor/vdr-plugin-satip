@@ -47,7 +47,8 @@ cSatipTuner::cSatipTuner(cSatipDeviceIf &deviceP, unsigned int packetLenP)
   pmtPidM(-1),
   addPidsM(),
   delPidsM(),
-  pidsM()
+  pidsM(),
+  fixedPidsM()
 {
   debug1("%s (, %d) [device %d]", __PRETTY_FUNCTION__, packetLenP, deviceIdM);
 
@@ -405,7 +406,7 @@ bool cSatipTuner::SetSource(cSatipServer *serverP, const int transponderP, const
   return true;
 }
 
-bool cSatipTuner::SetPid(int pidP, int typeP, bool onP)
+bool cSatipTuner::SetPid(int pidP, int typeP, bool onP, bool fixedP)
 {
   debug16("%s (%d, %d, %d) [device %d]", __PRETTY_FUNCTION__, pidP, typeP, onP, deviceIdM);
   cMutexLock MutexLock(&mutexM);
@@ -413,11 +414,14 @@ bool cSatipTuner::SetPid(int pidP, int typeP, bool onP)
      pidsM.AddPid(pidP);
      addPidsM.AddPid(pidP);
      delPidsM.RemovePid(pidP);
+     if (fixedP)
+        fixedPidsM.AddPid(pidP);
      }
-  else {
+  else if (fixedP || fixedPidsM.IndexOf(pidP) == -1) {
      pidsM.RemovePid(pidP);
      delPidsM.AddPid(pidP);
      addPidsM.RemovePid(pidP);
+     fixedPidsM.RemovePid(pidP);
      }
   debug12("%s (%d, %d, %d) pids=%s [device %d]", __PRETTY_FUNCTION__, pidP, typeP, onP, *pidsM.ListPids(), deviceIdM);
   sleepM.Signal();
@@ -477,6 +481,7 @@ bool cSatipTuner::UpdatePids(bool forceP)
         return false;
      addPidsM.Clear();
      delPidsM.Clear();
+     fixedPidsM.Clear();
      }
 
   return true;

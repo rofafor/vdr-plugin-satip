@@ -122,6 +122,7 @@ private:
   cSatipPid addPidsM;
   cSatipPid delPidsM;
   cSatipPid pidsM;
+  cSatipPid fixedPidsM;
 
   bool Connect(void);
   bool Disconnect(void);
@@ -143,7 +144,7 @@ public:
   virtual ~cSatipTuner();
   bool IsTuned(void) const { return (currentStateM >= tsTuned); }
   bool SetSource(cSatipServer *serverP, const int transponderP, const char *parameterP, const int indexP);
-  bool SetPid(int pidP, int typeP, bool onP);
+  bool SetPid(int pidP, int typeP, bool onP, bool fixedP = true);
   bool Open(void);
   bool Close(void);
   int FrontendId(void);
