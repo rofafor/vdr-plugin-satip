@@ -140,7 +140,7 @@ cString cSatipDevice::GetGeneralInformation(void)
 #if defined(APIVERSNUM) && APIVERSNUM >= 20301
   LOCK_CHANNELS_READ;
 #endif
-  return cString::sprintf("SAT>IP device: %d\nCardIndex: %d\nStream: %s\nSignal: %s\nStream bitrate: %s\n%sChannel: %s",
+  return cString::sprintf("SAT>IP device: %d\nCardIndex: %d\nStream: %s\nSignal: %s\nStream bitrate: %s\n%sChannel: %s\n",
                           deviceIndexM, CardIndex(),
                           pTunerM ? *pTunerM->GetInformation() : "",
                           pTunerM ? *pTunerM->GetSignalStatus() : "",

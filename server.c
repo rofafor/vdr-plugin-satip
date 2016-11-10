@@ -147,6 +147,13 @@ cSatipServer::cSatipServer(const char *addressP, const int portP, const char *mo
      if (strstr(*descriptionM, "DVBViewer")             // DVBViewer Media Server
         )
         quirkM |= eSatipQuirkCiTnr;
+     // These devices don't support auto-detection of pilot tones
+     if (strstr(*descriptionM, "GSSBOX") ||             // Grundig Sat Systems GSS.box DSI 400
+         strstr(*descriptionM, "DIGIBIT") ||            // Telestar Digibit R1
+         strstr(*descriptionM, "Triax SatIP Converter") // Triax TSS 400
+                                                        // Kathrein ExIP 414/E
+        )
+        quirkM |= eSatipQuirkForcePilot;
      }
   if ((quirkM & eSatipQuirkMask) & eSatipQuirkSessionId)
      quirksM = cString::sprintf("%s%sSessionId", *quirksM, isempty(*quirksM) ? "" : ",");
@@ -160,6 +167,8 @@ cSatipServer::cSatipServer(const char *addressP, const int portP, const char *mo
      quirksM = cString::sprintf("%s%sCiXpmt", *quirksM, isempty(*quirksM) ? "" : ",");
   if ((quirkM & eSatipQuirkMask) & eSatipQuirkCiTnr)
      quirksM = cString::sprintf("%s%sCiTnr", *quirksM, isempty(*quirksM) ? "" : ",");
+  if ((quirkM & eSatipQuirkMask) & eSatipQuirkForcePilot)
+     quirksM = cString::sprintf("%s%sForcePilot", *quirksM, isempty(*quirksM) ? "" : ",");
   debug3("%s description=%s quirks=%s", __PRETTY_FUNCTION__, *descriptionM, *quirksM);
   // These devices support external CI
   if (strstr(*descriptionM, "OctopusNet") ||            // Digital Devices OctopusNet
