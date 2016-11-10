@@ -131,6 +131,9 @@ Information menu:
 
 Notes:
 
+- If you are having problems receiving DVB-S2 channels, make sure your
+  channels.conf entry contains correct pilot tone setting.
+
 - The stream id "-1" states about unsuccessful tuning. This might be a
   result of invalid channel parameters or lack of free SAT>IP tuners.
 
