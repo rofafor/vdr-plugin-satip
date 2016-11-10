@@ -134,7 +134,7 @@ cString cSatipDevice::GetGeneralInformation(void)
 {
   debug16("%s [device %u]", __PRETTY_FUNCTION__, deviceIndexM);
   LOCK_CHANNELS_READ;
-  return cString::sprintf("SAT>IP device: %d\nCardIndex: %d\nStream: %s\nSignal: %s\nStream bitrate: %s\n%sChannel: %s",
+  return cString::sprintf("SAT>IP device: %d\nCardIndex: %d\nStream: %s\nSignal: %s\nStream bitrate: %s\n%sChannel: %s\n",
                           deviceIndexM, CardIndex(),
                           pTunerM ? *pTunerM->GetInformation() : "",
                           pTunerM ? *pTunerM->GetSignalStatus() : "",

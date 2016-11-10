@@ -393,6 +393,9 @@ bool cSatipTuner::SetSource(cSatipServer *serverP, const int transponderP, const
         streamAddrM = rtspM.RtspUnescapeString(*nextServerM.GetAddress());
         streamParamM = rtspM.RtspUnescapeString(parameterP);
         streamPortM = nextServerM.GetPort();
+        // Modify parameter if required
+        if (nextServerM.IsQuirk(cSatipServer::eSatipQuirkForcePilot) && strstr(parameterP, "msys=dvbs2") && !strstr(parameterP, "plts="))
+           streamParamM = rtspM.RtspUnescapeString(*cString::sprintf("%s&plts=on", parameterP));
         // Reconnect
         RequestState(tsSet, smExternal);
         }
