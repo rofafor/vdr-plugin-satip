@@ -21,7 +21,7 @@ private:
   unsigned int useBytesM;
   unsigned int portRangeStartM;
   unsigned int portRangeStopM;
-  bool useRtpOverTcpM;
+  unsigned int transportModeM;
   bool detachedModeM;
   bool disableServerQuirksM;
   bool useSingleModelServersM;
@@ -36,6 +36,12 @@ public:
     eOperatingModeNormal,
     eOperatingModeHigh,
     eOperatingModeCount
+  };
+  enum eTransportMode {
+    eTransportModeUnicast = 0,
+    eTransportModeMulticast,
+    eTransportModeRtpOverTcp,
+    eTransportModeCount
   };
   enum eTraceMode {
     eTraceModeNormal  = 0x0000,
@@ -70,7 +76,10 @@ public:
   int GetCICAM(unsigned int indexP) const;
   unsigned int GetEITScan(void) const { return eitScanM; }
   unsigned int GetUseBytes(void) const { return useBytesM; }
-  bool GetUseRtpOverTcp(void) const { return useRtpOverTcpM; }
+  unsigned int GetTransportMode(void) const { return transportModeM; }
+  bool IsTransportModeUnicast(void) const { return (transportModeM == eTransportModeUnicast); }
+  bool IsTransportModeRtpOverTcp(void) const { return (transportModeM == eTransportModeRtpOverTcp); }
+  bool IsTransportModeMulticast(void) const { return (transportModeM == eTransportModeMulticast); }
   bool GetDetachedMode(void) const { return detachedModeM; }
   bool GetDisableServerQuirks(void) const { return disableServerQuirksM; }
   bool GetUseSingleModelServers(void) const { return useSingleModelServersM; }
@@ -87,7 +96,7 @@ public:
   void SetCICAM(unsigned int indexP, int cicamP);
   void SetEITScan(unsigned int onOffP) { eitScanM = onOffP; }
   void SetUseBytes(unsigned int onOffP) { useBytesM = onOffP; }
-  void SetUseRtpOverTcp(bool onOffP) { useRtpOverTcpM = onOffP; }
+  void SetTransportMode(unsigned int transportModeP) { transportModeM = transportModeP; }
   void SetDetachedMode(bool onOffP) { detachedModeM = onOffP; }
   void SetDisableServerQuirks(bool onOffP) { disableServerQuirksM = onOffP; }
   void SetUseSingleModelServers(bool onOffP) { useSingleModelServersM = onOffP; }

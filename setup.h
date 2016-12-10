@@ -17,9 +17,10 @@ class cSatipPluginSetup : public cMenuSetupPage
 private:
   bool detachedModeM;
   int deviceCountM;
-  int useRtpOverTcpM;
   int operatingModeM;
+  int transportModeM;
   const char *operatingModeTextsM[cSatipConfig::eOperatingModeCount];
+  const char *transportModeTextsM[cSatipConfig::eTransportModeCount];
   int ciExtensionM;
   int cicamsM[MAX_CICAM_COUNT];
   const char *cicamTextsM[CA_SYSTEMS_TABLE_SIZE];

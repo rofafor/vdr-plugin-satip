@@ -55,12 +55,13 @@ cSatipTuner::cSatipTuner(cSatipDeviceIf &deviceP, unsigned int packetLenP)
   int i = SatipConfig.GetPortRangeStart() ? SatipConfig.GetPortRangeStop() - SatipConfig.GetPortRangeStart() - 1 : 100;
   int port = SatipConfig.GetPortRangeStart();
   while (i-- > 0) {
-        if (rtpM.Open(port) && rtcpM.Open(rtpM.Port() + 1))
+        // RTP must use an even port number
+        if (rtpM.Open(port) && (rtpM.Port() % 2 == 0) && rtcpM.Open(rtpM.Port() + 1))
            break;
         rtpM.Close();
         rtcpM.Close();
         if (SatipConfig.GetPortRangeStart())
-           ++port;
+           port += 2;
         }
   if ((rtpM.Port() <= 0) || (rtcpM.Port() <= 0)) {
      error("Cannot open required RTP/RTCP ports [device %d]", deviceIdM);
@@ -223,7 +224,7 @@ bool cSatipTuner::Connect(void)
         }
      else if (rtspM.Options(*connectionUri)) {
         cString uri = cString::sprintf("%s?%s", *connectionUri, *streamParamM);
-        bool useTcp = SatipConfig.GetUseRtpOverTcp() && nextServerM.IsValid() && nextServerM.IsQuirk(cSatipServer::eSatipQuirkRtpOverTcp);
+        bool useTcp = SatipConfig.IsTransportModeRtpOverTcp() && nextServerM.IsValid() && nextServerM.IsQuirk(cSatipServer::eSatipQuirkRtpOverTcp);
         // Flush any old content
         //rtpM.Flush();
         //rtcpM.Flush();
@@ -364,6 +365,33 @@ void cSatipTuner::SetSessionTimeout(const char *sessionP, int timeoutP)
   if (nextServerM.IsQuirk(cSatipServer::eSatipQuirkSessionId) && !isempty(*sessionM) && startswith(*sessionM, "0"))
      rtspM.SetSession(SkipZeroes(*sessionM));
   timeoutM = (timeoutP > eMinKeepAliveIntervalMs) ? timeoutP : eMinKeepAliveIntervalMs;
+}
+
+void cSatipTuner::SetupTransport(int rtpPortP, int rtcpPortP, const char *streamAddrP, const char *sourceAddrP)
+{
+  cMutexLock MutexLock(&mutexM);
+  debug1("%s (%d, %d, %s, %s) [device %d]", __PRETTY_FUNCTION__, rtpPortP, rtcpPortP, streamAddrP, sourceAddrP, deviceIdM);
+  bool multicast = !isempty(streamAddrP);
+  // Adapt RTP to any transport media change
+  if (multicast != rtpM.IsMulticast() || rtpPortP != rtpM.Port()) {
+     cSatipPoller::GetInstance()->Unregister(rtpM);
+     rtpM.Close();
+     if (multicast)
+        rtpM.OpenMulticast(rtpPortP, streamAddrP, sourceAddrP);
+     else
+        rtpM.Open(rtpPortP);
+     cSatipPoller::GetInstance()->Register(rtpM);
+     }
+  // Adapt RTCP to any transport media change
+  if (multicast != rtcpM.IsMulticast() || rtcpPortP != rtcpM.Port()) {
+     cSatipPoller::GetInstance()->Unregister(rtcpM);
+     rtcpM.Close();
+     if (multicast)
+        rtcpM.OpenMulticast(rtpPortP, streamAddrP, sourceAddrP);
+     else
+        rtcpM.Open(rtpPortP);
+     cSatipPoller::GetInstance()->Register(rtcpM);
+     }
 }
 
 cString cSatipTuner::GetBaseUrl(const char *addressP, const int portP)

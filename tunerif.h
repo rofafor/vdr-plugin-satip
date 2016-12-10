@@ -16,6 +16,7 @@ public:
   virtual void ProcessApplicationData(u_char *bufferP, int lengthP) = 0;
   virtual void SetStreamId(int streamIdP) = 0;
   virtual void SetSessionTimeout(const char *sessionP, int timeoutP) = 0;
+  virtual void SetupTransport(int rtpPortP, int rtcpPortP, const char *streamAddrP, const char *sourceAddrP) = 0;
   virtual int GetId(void) = 0;
 
 private:

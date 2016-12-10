@@ -344,8 +344,8 @@ eOSState cSatipMenuInfo::ProcessKey(eKeys keyP)
 cSatipPluginSetup::cSatipPluginSetup()
 : detachedModeM(SatipConfig.GetDetachedMode()),
   deviceCountM(0),
-  useRtpOverTcpM(SatipConfig.GetUseRtpOverTcp()),
   operatingModeM(SatipConfig.GetOperatingMode()),
+  transportModeM(SatipConfig.GetTransportMode()),
   ciExtensionM(SatipConfig.GetCIExtension()),
   eitScanM(SatipConfig.GetEITScan()),
   numDisabledSourcesM(SatipConfig.GetDisabledSourcesCount()),
@@ -356,6 +356,9 @@ cSatipPluginSetup::cSatipPluginSetup()
   operatingModeTextsM[cSatipConfig::eOperatingModeLow]    = tr("low");
   operatingModeTextsM[cSatipConfig::eOperatingModeNormal] = tr("normal");
   operatingModeTextsM[cSatipConfig::eOperatingModeHigh]   = tr("high");
+  transportModeTextsM[cSatipConfig::eTransportModeUnicast]    = tr("Unicast");
+  transportModeTextsM[cSatipConfig::eTransportModeMulticast]  = tr("Multicast");
+  transportModeTextsM[cSatipConfig::eTransportModeRtpOverTcp] = tr("RTP-over-TCP");
   for (unsigned int i = 0; i < ELEMENTS(cicamsM); ++i)
       cicamsM[i] = SatipConfig.GetCICAM(i);
   for (unsigned int i = 0; i < ELEMENTS(ca_systems_table); ++i)
@@ -413,8 +416,8 @@ void cSatipPluginSetup::Setup(void)
          helpM.Append(tr("Define an ill-behaving filter to be blacklisted."));
          }
      }
-  Add(new cMenuEditBoolItem(tr("Use RTP-over-TCP mode"), &useRtpOverTcpM));
-  helpM.Append(tr("Define whether the RTP-over-TCP mode shall be used.\n\nThis setting affects only SAT>IP devices supporting the feature."));
+  Add(new cMenuEditStraItem(tr("Transport mode"), &transportModeM, ELEMENTS(transportModeTextsM) - 1, transportModeTextsM)); // TODO: RTP-over-TCP
+  helpM.Append(tr("Define which transport mode shall be used.\n\nUnicast, Multicast, RTP-over-TCP"));
   Add(new cOsdItem(tr("Active SAT>IP servers:"), osUnknown, false));
   helpM.Append("");
 
@@ -563,16 +566,16 @@ void cSatipPluginSetup::StoreFilters(const char *nameP, int *valuesP)
 void cSatipPluginSetup::Store(void)
 {
   // Store values into setup.conf
-  SetupStore("UseRtpOverTcp", useRtpOverTcpM);
   SetupStore("OperatingMode", operatingModeM);
+  SetupStore("TransportMode", transportModeM);
   SetupStore("EnableCIExtension", ciExtensionM);
   SetupStore("EnableEITScan", eitScanM);
   StoreCicams("CICAM", cicamsM);
   StoreSources("DisabledSources", disabledSourcesM);
   StoreFilters("DisabledFilters", disabledFilterIndexesM);
   // Update global config
-  SatipConfig.SetUseRtpOverTcp(useRtpOverTcpM);
   SatipConfig.SetOperatingMode(operatingModeM);
+  SatipConfig.SetTransportMode(transportModeM);
   SatipConfig.SetCIExtension(ciExtensionM);
   SatipConfig.SetEITScan(eitScanM);
   for (int i = 0; i < MAX_CICAM_COUNT; ++i)
