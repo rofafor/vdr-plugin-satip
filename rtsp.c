@@ -17,7 +17,6 @@ cSatipRtsp::cSatipRtsp(cSatipTunerIf &tunerP)
 : tunerM(tunerP),
   headerBufferM(),
   dataBufferM(),
-  modeM(cmUnicast),
   handleM(NULL),
   headerListM(NULL),
   errorNoMoreM(""),
@@ -182,13 +181,12 @@ bool cSatipRtsp::Setup(const char *uriP, int rtpPortP, int rtcpPortP, bool useTc
      cTimeMs processing(0);
      CURLcode res = CURLE_OK;
 
-     switch (modeM) {
-       case cmMulticast:
-            // RTP/AVP;multicast;destination=<IP multicast address>;port=<RTP port>-<RTCP port>;ttl=<ttl>
-            transport = cString::sprintf("RTP/AVP;multicast;port=%d-%d", rtpPortP, rtcpPortP);
+     switch (SatipConfig.GetTransportMode()) {
+       case cSatipConfig::eTransportModeMulticast:
+            // RTP/AVP;multicast;destination=<multicast group address>;port=<RTP port>-<RTCP port>;ttl=<ttl>[;source=<multicast source address>]
+            transport = cString::sprintf("RTP/AVP;multicast");
             break;
        default:
-       case cmUnicast:
             // RTP/AVP;unicast;client_port=<client RTP port>-<client RTCP port>
             // RTP/AVP/TCP;unicast;client_port=<client RTP port>-<client RTCP port>
             transport = cString::sprintf("RTP/AVP%s;unicast;client_port=%d-%d", useTcpP ? "/TCP" : "", rtpPortP, rtcpPortP);
@@ -351,6 +349,26 @@ void cSatipRtsp::ParseHeader(void)
            else if (sscanf(r, "Session:%m[^;]", &session) == 1)
               tunerM.SetSessionTimeout(skipspace(session), -1);
            FREE_POINTER(session);
+           }
+        else if (strstr(r, "Transport:")) {
+           int rtp = -1, rtcp = -1, ttl = -1;
+           char *tmp = NULL, *destination = NULL, *source = NULL;
+           if (sscanf(r, "Transport:%m[^;];unicast;client_port=%11d-%11d", &tmp, &rtp, &rtcp) == 3)
+              tunerM.SetupTransport(rtp, rtcp, NULL, NULL);
+           else if (sscanf(r, "Transport:%m[^;];multicast;destination=%m[^;];port=%11d-%11d;ttl=%11d;source=%m[^;]", &tmp, &destination, &rtp, &rtcp, &ttl, &source) == 6 ||
+                    sscanf(r, "Transport:%m[^;];multicast;destination=%m[^;];port=%11d-%11d;ttl=%11d", &tmp, &destination, &rtp, &rtcp, &ttl) == 5)
+              tunerM.SetupTransport(rtp, rtcp, destination, source);
+           // TODO: else if (sscanf(r, "Transport:%m[^;];interleaved=%11d-%11d", &tmp, &rtp, &rtcp) == 3)
+           // Stream data such as RTP packets is encapsulated by an ASCII dollar
+           // sign (24 hexadecimal), followed by a one-byte channel identifier,
+           // followed by the length of the encapsulated binary data as a binary,
+           // two-byte integer in network byte order. The stream data follows
+           // immediately afterwards, without a CRLF, but including the upper-layer
+           // protocol headers. Each $ block contains exactly one upper-layer
+           // protocol data unit, e.g., one RTP packet.
+           FREE_POINTER(tmp);
+           FREE_POINTER(destination);
+           FREE_POINTER(source);
            }
         r = strtok_r(NULL, "\r\n", &s);
         }

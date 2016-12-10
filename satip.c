@@ -305,7 +305,12 @@ void cPluginSatip::ParsePortRange(const char *paramP)
      rangeStart = 0;
      rangeStop = 0;
      }
-  if (rangeStop - rangeStart + 1 < deviceCountM * 2) {
+  if (rangeStart % 2) {
+     error("The given range start port must be even!");
+     rangeStart = 0;
+     rangeStop = 0;
+     }
+  else if (rangeStop - rangeStart + 1 < deviceCountM * 2) {
      error("The given port range is to small: %d < %d!", rangeStop - rangeStart + 1, deviceCountM * 2);
      rangeStart = 0;
      rangeStop = 0;
@@ -401,8 +406,8 @@ bool cPluginSatip::SetupParse(const char *nameP, const char *valueP)
      for (unsigned int i = 0; i < DisabledFiltersCount; ++i)
          SatipConfig.SetDisabledFilters(i, DisabledFilters[i]);
      }
-  else if (!strcasecmp(nameP, "UseRtpOverTcp"))
-     SatipConfig.SetUseRtpOverTcp(atoi(valueP));
+  else if (!strcasecmp(nameP, "TransportMode"))
+     SatipConfig.SetTransportMode(atoi(valueP));
   else
      return false;
   return true;

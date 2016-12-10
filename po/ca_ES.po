@@ -85,6 +85,15 @@ msgstr "Normal"
 msgid "high"
 msgstr "Alt"
 
+msgid "Unicast"
+msgstr ""
+
+msgid "Multicast"
+msgstr ""
+
+msgid "RTP-over-TCP"
+msgstr ""
+
 msgid "Button$Devices"
 msgstr "Dispositius"
 
@@ -178,13 +187,13 @@ msgstr "Filtra"
 msgid "Define an ill-behaving filter to be blacklisted."
 msgstr "Definir un filtre mal comportar a la llista negra."
 
-msgid "Use RTP-over-TCP mode"
+msgid "Transport mode"
 msgstr ""
 
 msgid ""
-"Define whether the RTP-over-TCP mode shall be used.\n"
+"Define which transport mode shall be used.\n"
 "\n"
-"This setting affects only SAT>IP devices supporting the feature."
+"Unicast, Multicast, RTP-over-TCP"
 msgstr ""
 
 msgid "Active SAT>IP servers:"

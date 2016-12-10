@@ -27,12 +27,10 @@ private:
   enum {
     eConnectTimeoutMs = 1500,  // in milliseconds
   };
-  enum eCommunicationMode { cmUnicast, cmMulticast };
 
   cSatipTunerIf &tunerM;
   cSatipMemoryBuffer headerBufferM;
   cSatipMemoryBuffer dataBufferM;
-  eCommunicationMode modeM;
   CURL *handleM;
   struct curl_slist *headerListM;
   cString errorNoMoreM;

@@ -116,6 +116,11 @@ Setup menu:
                              "Disable filter" options which allow you
                              to disable the individual section filters.
                              Valid range: "none" = 0 ... 7
+- Transport mode = unicast   If you want to use the non-standard
+                   multicast RTP-over-TCP transport mode, set this option
+                   rtp-o-tcp accordingly. Otherwise, the transport
+                             mode will be RTP-over-UDP via unicast or
+                             multicast.
 - [Red:Scan]                 Forces network scanning of SAT>IP hardware.
 - [Yellow:Devices]           Opens SAT>IP device status menu.
 - [Blue:Info]                Opens SAT>IP information/statistics menu.

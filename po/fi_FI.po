@@ -85,6 +85,15 @@ msgstr "normaali"
 msgid "high"
 msgstr "korkea"
 
+msgid "Unicast"
+msgstr "Unicast"
+
+msgid "Multicast"
+msgstr "Multicast"
+
+msgid "RTP-over-TCP"
+msgstr "RTP-over-TCP"
+
 msgid "Button$Devices"
 msgstr "Laitteet"
 
@@ -177,17 +186,17 @@ msgstr "Suodatin"
 msgid "Define an ill-behaving filter to be blacklisted."
 msgstr "Määrittele käytöstä poistettava suodatin, joka lisätään mustalle listalle."
 
-msgid "Use RTP-over-TCP mode"
-msgstr "Käytä RTP-over-TCP -moodia"
+msgid "Transport mode"
+msgstr "Siirtoyhteystapa"
 
 msgid ""
-"Define whether the RTP-over-TCP mode shall be used.\n"
+"Define which transport mode shall be used.\n"
 "\n"
-"This setting affects only SAT>IP devices supporting the feature."
+"Unicast, Multicast, RTP-over-TCP"
 msgstr ""
-"Määrittele RTP-over-TCP -moodin käyttöönotto.\n"
+"Määrittele käytettävä siirtoyhteystapa.\n"
 "\n"
-"Tämä asetus vaikuttaa vain SAT>IP-laitteisiin, jotka tukevat kyseistä ominaisuutta."
+"Unicast, Multicast, RTP-over-TCP"
 
 msgid "Active SAT>IP servers:"
 msgstr "Aktiiviset SAT>IP-palvelimet:"
