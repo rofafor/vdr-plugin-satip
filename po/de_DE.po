@@ -1,7 +1,7 @@
 # VDR plugin language source file.
-# Copyright (C) 2007-2015 Rolf Ahrenberg
+# Copyright (C) 2007-2016 Rolf Ahrenberg
 # This file is distributed under the same license as the satip package.
-# Frank Neumann, 2014-2015
+# Frank Neumann, 2014-2016
 #
 msgid ""
 msgstr ""
@@ -86,19 +86,19 @@ msgid "high"
 msgstr "hoch"
 
 msgid "Unicast"
-msgstr ""
+msgstr "Unicast"
 
 msgid "Multicast"
-msgstr ""
+msgstr "Multicast"
 
 msgid "RTP-over-TCP"
-msgstr ""
+msgstr "RTP-over-TCP"
 
 msgid "Button$Devices"
 msgstr "Geräte"
 
 msgid "Operating mode"
-msgstr "Betriebsmodus"
+msgstr "Betriebsart"
 
 msgid ""
 "Define the used operating mode for all SAT>IP devices:\n"
@@ -108,7 +108,7 @@ msgid ""
 "normal - devices are working within normal parameters\n"
 "high - devices are working at the highest priority"
 msgstr ""
-"Bestimme den Betriebsmodus für alle SAT>IP Geräte:\n"
+"Bestimme die Betriebsart für alle SAT>IP Geräte:\n"
 "\n"
 "aus - Geräte sind abgeschaltet\n"
 "niedrig - Geräte arbeiten mit geringster Priorität\n"
@@ -179,22 +179,25 @@ msgid ""
 msgstr ""
 "Bestimme die Anzahl der Abschnittsfilter die deaktiviert werden sollen.\n"
 "\n"
-"Bestimmte Abschnittsfilter können unerwünschtes Verhalten mit VDR, z.B. falsche Zeit-Synchronisation, verursachen. Durch das Ausblenden einzelner Filter können nützliche Daten dieser Abschnitte für den VDR erhalten werden."
+"Bestimmte Abschnittsfilter können unerwünschtes Verhalten mit VDR, z.B. falsche Zeit-Synchronisation, verursachen. Durch das Ausblenden einzelner Filter können nützliche Daten dieser Abschnitte für den VDR erhalten bleiben."
 
 msgid "Filter"
 msgstr "Filter"
 
 msgid "Define an ill-behaving filter to be blacklisted."
-msgstr "Bestimme einen fehlerhaften Filter der ausgeblendet werden soll."
+msgstr "Bestimme fehlerhafte Filter die ausgeblendet werden sollen."
 
 msgid "Transport mode"
-msgstr ""
+msgstr "Übertragungsart"
 
 msgid ""
 "Define which transport mode shall be used.\n"
 "\n"
 "Unicast, Multicast, RTP-over-TCP"
 msgstr ""
+"Lege die gewünschte Übertragungsart fest.\n"
+"\n"
+"Unicast, Multicast, RTP-over-TCP"
 
 msgid "Active SAT>IP servers:"
 msgstr "Aktive SAT>IP Server:"
