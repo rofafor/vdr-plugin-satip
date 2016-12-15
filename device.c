@@ -373,7 +373,7 @@ bool cSatipDevice::SetPid(cPidHandle *handleP, int typeP, bool onP)
   if (pTunerM && handleP && handleP->pid >= 0) {
      if (onP)
         return pTunerM->SetPid(handleP->pid, typeP, true);
-     else if (!handleP->used)
+     else if (!handleP->used && pSectionFilterHandlerM && !pSectionFilterHandlerM->Exists(handleP->pid))
         return pTunerM->SetPid(handleP->pid, typeP, false);
      }
   return true;
