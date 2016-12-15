@@ -142,6 +142,22 @@ void cSatipRtp::Process(void)
      }
 }
 
+void cSatipRtp::Process(unsigned char *dataP, int lengthP)
+{
+  debug16("%s [device %d]", __PRETTY_FUNCTION__, tunerM.GetId());
+  if (dataP && lengthP > 0) {
+     uint64_t elapsed;
+     cTimeMs processing(0);
+     int headerlen = GetHeaderLength(dataP, lengthP);
+     if ((headerlen >= 0) && (headerlen < lengthP))
+        tunerM.ProcessVideoData(dataP + headerlen, lengthP - headerlen);
+
+     elapsed = processing.Elapsed();
+     if (elapsed > 1)
+        debug6("%s %d read(s) took %" PRIu64 " ms [device %d]", __PRETTY_FUNCTION__, lengthP, elapsed, tunerM.GetId());
+     }
+}
+
 cString cSatipRtp::ToString(void) const
 {
   return cString::sprintf("RTP [device %d]", tunerM.GetId());

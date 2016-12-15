@@ -157,6 +157,8 @@ public:
 public:
   virtual void ProcessVideoData(u_char *bufferP, int lengthP);
   virtual void ProcessApplicationData(u_char *bufferP, int lengthP);
+  virtual void ProcessRtpData(u_char *bufferP, int lengthP);
+  virtual void ProcessRtcpData(u_char *bufferP, int lengthP);
   virtual void SetStreamId(int streamIdP);
   virtual void SetSessionTimeout(const char *sessionP, int timeoutP);
   virtual void SetupTransport(int rtpPortP, int rtcpPortP, const char *streamAddrP, const char *sourceAddrP);

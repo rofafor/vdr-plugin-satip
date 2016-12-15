@@ -92,6 +92,16 @@ void cSatipRtcp::Process(void)
      }
 }
 
+void cSatipRtcp::Process(unsigned char *dataP, int lengthP)
+{
+  debug16("%s [device %d]", __PRETTY_FUNCTION__, tunerM.GetId());
+  if (dataP && lengthP > 0) {
+     int offset = GetApplicationOffset(&lengthP);
+     if (offset >= 0)
+        tunerM.ProcessApplicationData(dataP + offset, lengthP);
+     }
+}
+
 cString cSatipRtcp::ToString(void) const
 {
   return cString::sprintf("RTCP [device %d]", tunerM.GetId());

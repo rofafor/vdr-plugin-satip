@@ -36,6 +36,7 @@ public:
 public:
   virtual int GetFd(void);
   virtual void Process(void);
+  virtual void Process(unsigned char *dataP, int lengthP);
   virtual cString ToString(void) const;
 };
 
