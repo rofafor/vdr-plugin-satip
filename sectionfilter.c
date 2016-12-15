@@ -338,6 +338,19 @@ cString cSatipSectionFilterHandler::GetInformation(void)
   return s;
 }
 
+bool cSatipSectionFilterHandler::Exists(u_short pidP)
+{
+  debug16("%s (%d) [device %d]", __PRETTY_FUNCTION__, pidP, deviceIndexM);
+  cMutexLock MutexLock(&mutexM);
+  for (unsigned int i = 0; i < eMaxSecFilterCount; ++i) {
+      if (filtersM[i] && (pidP == filtersM[i]->GetPid())) {
+         debug12("%s (%d) Found [device %d]", __PRETTY_FUNCTION__, pidP, deviceIndexM);
+         return true;
+         }
+      }
+  return false;
+}
+
 bool cSatipSectionFilterHandler::Delete(unsigned int indexP)
 {
   debug16("%s (%d) [device %d]", __PRETTY_FUNCTION__, indexP, deviceIndexM);

@@ -80,6 +80,7 @@ public:
   cSatipSectionFilterHandler(int deviceIndexP, unsigned int bufferLenP);
   virtual ~cSatipSectionFilterHandler();
   cString GetInformation(void);
+  bool Exists(u_short pidP);
   int Open(u_short pidP, u_char tidP, u_char maskP);
   void Close(int handleP);
   int GetPid(int handleP);
