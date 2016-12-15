@@ -22,10 +22,12 @@ class cSatipRtsp {
 private:
   static size_t HeaderCallback(char *ptrP, size_t sizeP, size_t nmembP, void *dataP);
   static size_t DataCallback(char *ptrP, size_t sizeP, size_t nmembP, void *dataP);
+  static size_t InterleaveCallback(char *ptrP, size_t sizeP, size_t nmembP, void *dataP);
   static int    DebugCallback(CURL *handleP, curl_infotype typeP, char *dataP, size_t sizeP, void *userPtrP);
 
   enum {
-    eConnectTimeoutMs = 1500,  // in milliseconds
+    eConnectTimeoutMs      = 1500,  // in milliseconds
+    eMaxDownloadSpeedMBits = 20,    // in megabits per second
   };
 
   cSatipTunerIf &tunerM;
@@ -36,6 +38,9 @@ private:
   cString errorNoMoreM;
   cString errorOutOfRangeM;
   cString errorCheckSyntaxM;
+  int modeM;
+  unsigned int interleavedRtpIdM;
+  unsigned int interleavedRtcpIdM;
 
   void Create(void);
   void Destroy(void);
@@ -51,6 +56,7 @@ public:
   explicit cSatipRtsp(cSatipTunerIf &tunerP);
   virtual ~cSatipRtsp();
 
+  cString GetActiveMode(void);
   cString RtspUnescapeString(const char *strP);
   void Reset(void);
   bool Options(const char *uriP);

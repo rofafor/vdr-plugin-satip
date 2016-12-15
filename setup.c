@@ -416,7 +416,7 @@ void cSatipPluginSetup::Setup(void)
          helpM.Append(tr("Define an ill-behaving filter to be blacklisted."));
          }
      }
-  Add(new cMenuEditStraItem(tr("Transport mode"), &transportModeM, ELEMENTS(transportModeTextsM) - 1, transportModeTextsM)); // TODO: RTP-over-TCP
+  Add(new cMenuEditStraItem(tr("Transport mode"), &transportModeM, ELEMENTS(transportModeTextsM), transportModeTextsM));
   helpM.Append(tr("Define which transport mode shall be used.\n\nUnicast, Multicast, RTP-over-TCP"));
   Add(new cOsdItem(tr("Active SAT>IP servers:"), osUnknown, false));
   helpM.Append("");
