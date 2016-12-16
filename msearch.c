@@ -100,6 +100,11 @@ void cSatipMsearch::Process(void)
      }
 }
 
+void cSatipMsearch::Process(unsigned char *dataP, int lengthP)
+{
+  debug16("%s", __PRETTY_FUNCTION__);
+}
+
 cString cSatipMsearch::ToString(void) const
 {
   return "MSearch";

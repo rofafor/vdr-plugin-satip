@@ -1,5 +1,5 @@
 # VDR plugin language source file.
-# Copyright (C) 2007-2015 Rolf Ahrenberg
+# Copyright (C) 2007-2016 Rolf Ahrenberg
 # This file is distributed under the same license as the satip package.
 # Gabriel Bonich, 2014-2015
 #
@@ -84,6 +84,15 @@ msgstr "Normal"
 
 msgid "high"
 msgstr "Alto"
+
+msgid "Unicast"
+msgstr ""
+
+msgid "Multicast"
+msgstr ""
+
+msgid "RTP-over-TCP"
+msgstr ""
 
 msgid "Button$Devices"
 msgstr "Dispositivos"
@@ -178,13 +187,13 @@ msgstr "Filtra"
 msgid "Define an ill-behaving filter to be blacklisted."
 msgstr "Define un filtro para poner en la lista negra."
 
-msgid "Use RTP-over-TCP mode"
+msgid "Transport mode"
 msgstr ""
 
 msgid ""
-"Define whether the RTP-over-TCP mode shall be used.\n"
+"Define which transport mode shall be used.\n"
 "\n"
-"This setting affects only SAT>IP devices supporting the feature."
+"Unicast, Multicast, RTP-over-TCP"
 msgstr ""
 
 msgid "Active SAT>IP servers:"

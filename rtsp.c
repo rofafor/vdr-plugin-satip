@@ -17,12 +17,14 @@ cSatipRtsp::cSatipRtsp(cSatipTunerIf &tunerP)
 : tunerM(tunerP),
   headerBufferM(),
   dataBufferM(),
-  modeM(cmUnicast),
   handleM(NULL),
   headerListM(NULL),
   errorNoMoreM(""),
   errorOutOfRangeM(""),
-  errorCheckSyntaxM("")
+  errorCheckSyntaxM(""),
+  modeM(cSatipConfig::eTransportModeUnicast),
+  interleavedRtpIdM(0),
+  interleavedRtcpIdM(1)
 {
   debug1("%s [device %d]", __PRETTY_FUNCTION__, tunerM.GetId());
   Create();
@@ -58,6 +60,30 @@ size_t cSatipRtsp::DataCallback(char *ptrP, size_t sizeP, size_t nmembP, void *d
   return len;
 }
 
+size_t cSatipRtsp::InterleaveCallback(char *ptrP, size_t sizeP, size_t nmembP, void *dataP)
+{
+  cSatipRtsp *obj = reinterpret_cast<cSatipRtsp *>(dataP);
+  size_t len = sizeP * nmembP;
+  debug16("%s len=%zu", __PRETTY_FUNCTION__, len);
+
+  if (obj && ptrP && len > 0) {
+     char tag = ptrP[0] & 0xFF;
+     if (tag == '$') {
+        int count = ((ptrP[2] & 0xFF) << 8) | (ptrP[3] & 0xFF);
+        if (count > 0) {
+           unsigned int channel = ptrP[1] & 0xFF;
+           u_char *data = (u_char *)&ptrP[4];
+           if (channel == obj->interleavedRtpIdM)
+              obj->tunerM.ProcessRtpData(data, count);
+           else if (channel == obj->interleavedRtcpIdM)
+              obj->tunerM.ProcessRtcpData(data, count);
+           }
+        }
+     }
+
+  return len;
+}
+
 int cSatipRtsp::DebugCallback(CURL *handleP, curl_infotype typeP, char *dataP, size_t sizeP, void *userPtrP)
 {
   cSatipRtsp *obj = reinterpret_cast<cSatipRtsp *>(userPtrP);
@@ -85,6 +111,21 @@ int cSatipRtsp::DebugCallback(CURL *handleP, curl_infotype typeP, char *dataP, s
      }
 
   return 0;
+}
+
+cString cSatipRtsp::GetActiveMode(void)
+{
+  switch (modeM) {
+    case cSatipConfig::eTransportModeUnicast:
+         return "Unicast";
+    case cSatipConfig::eTransportModeMulticast:
+         return "Multicast";
+    case cSatipConfig::eTransportModeRtpOverTcp:
+         return "RTP-over-TCP";
+    default:
+         break;
+    }
+  return "";
 }
 
 cString cSatipRtsp::RtspUnescapeString(const char *strP)
@@ -122,6 +163,9 @@ void cSatipRtsp::Create(void)
      // Set timeouts
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_TIMEOUT_MS, (long)eConnectTimeoutMs);
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_CONNECTTIMEOUT_MS, (long)eConnectTimeoutMs);
+
+     // Limit download speed (bytes/s)
+     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_MAX_RECV_SPEED_LARGE, eMaxDownloadSpeedMBits * 131072L);
 
      // Set user-agent
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_USERAGENT, *cString::sprintf("vdr-%s/%s (device %d)", PLUGIN_NAME_I18N, VERSION, tunerM.GetId()));
@@ -182,16 +226,18 @@ bool cSatipRtsp::Setup(const char *uriP, int rtpPortP, int rtcpPortP, bool useTc
      cTimeMs processing(0);
      CURLcode res = CURLE_OK;
 
-     switch (modeM) {
-       case cmMulticast:
-            // RTP/AVP;multicast;destination=<IP multicast address>;port=<RTP port>-<RTCP port>;ttl=<ttl>
-            transport = cString::sprintf("RTP/AVP;multicast;port=%d-%d", rtpPortP, rtcpPortP);
+     switch (SatipConfig.GetTransportMode()) {
+       case cSatipConfig::eTransportModeMulticast:
+            // RTP/AVP;multicast;destination=<multicast group address>;port=<RTP port>-<RTCP port>;ttl=<ttl>[;source=<multicast source address>]
+            transport = cString::sprintf("RTP/AVP;multicast");
             break;
        default:
-       case cmUnicast:
             // RTP/AVP;unicast;client_port=<client RTP port>-<client RTCP port>
             // RTP/AVP/TCP;unicast;client_port=<client RTP port>-<client RTCP port>
-            transport = cString::sprintf("RTP/AVP%s;unicast;client_port=%d-%d", useTcpP ? "/TCP" : "", rtpPortP, rtcpPortP);
+            if (useTcpP)
+               transport = cString::sprintf("RTP/AVP/TCP;unicast;interleaved=%u-%u", interleavedRtpIdM, interleavedRtcpIdM);
+            else
+               transport = cString::sprintf("RTP/AVP;unicast;client_port=%d-%d", rtpPortP, rtcpPortP);
             break;
        }
 
@@ -204,6 +250,9 @@ bool cSatipRtsp::Setup(const char *uriP, int rtpPortP, int rtcpPortP, bool useTc
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_WRITEHEADER, this);
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_WRITEFUNCTION, cSatipRtsp::DataCallback);
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_WRITEDATA, this);
+     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_INTERLEAVEFUNCTION, NULL);
+     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_INTERLEAVEDATA, NULL);
+
      SATIP_CURL_EASY_PERFORM(handleM);
      // Session id is now known - disable header parsing
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_HEADERFUNCTION, NULL);
@@ -311,6 +360,8 @@ bool cSatipRtsp::Teardown(const char *uriP)
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_REQUEST, (long)CURL_RTSPREQ_TEARDOWN);
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_WRITEFUNCTION, cSatipRtsp::DataCallback);
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_WRITEDATA, this);
+     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_INTERLEAVEFUNCTION, NULL);
+     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_INTERLEAVEDATA, NULL);
      SATIP_CURL_EASY_PERFORM(handleM);
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_WRITEFUNCTION, NULL);
      SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_WRITEDATA, NULL);
@@ -351,6 +402,35 @@ void cSatipRtsp::ParseHeader(void)
            else if (sscanf(r, "Session:%m[^;]", &session) == 1)
               tunerM.SetSessionTimeout(skipspace(session), -1);
            FREE_POINTER(session);
+           }
+        else if (strstr(r, "Transport:")) {
+           CURLcode res = CURLE_OK;
+           int rtp = -1, rtcp = -1, ttl = -1;
+           char *tmp = NULL, *destination = NULL, *source = NULL;
+           interleavedRtpIdM = 0;
+           interleavedRtcpIdM = 1;
+           SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_INTERLEAVEFUNCTION, NULL);
+           SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_INTERLEAVEDATA, NULL);
+           if (sscanf(r, "Transport:%m[^;];unicast;client_port=%11d-%11d", &tmp, &rtp, &rtcp) == 3) {
+              modeM = cSatipConfig::eTransportModeUnicast;
+              tunerM.SetupTransport(rtp, rtcp, NULL, NULL);
+              }
+           else if (sscanf(r, "Transport:%m[^;];multicast;destination=%m[^;];port=%11d-%11d;ttl=%11d;source=%m[^;]", &tmp, &destination, &rtp, &rtcp, &ttl, &source) == 6 ||
+                    sscanf(r, "Transport:%m[^;];multicast;destination=%m[^;];port=%11d-%11d;ttl=%11d", &tmp, &destination, &rtp, &rtcp, &ttl) == 5) {
+              modeM = cSatipConfig::eTransportModeMulticast;
+              tunerM.SetupTransport(rtp, rtcp, destination, source);
+              }
+           else if (sscanf(r, "Transport:%m[^;];interleaved=%11d-%11d", &tmp, &rtp, &rtcp) == 3) {
+              interleavedRtpIdM = rtp;
+              interleavedRtcpIdM = rtcp;
+              SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_INTERLEAVEFUNCTION, cSatipRtsp::InterleaveCallback);
+              SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_INTERLEAVEDATA, this);
+              modeM = cSatipConfig::eTransportModeRtpOverTcp;
+              tunerM.SetupTransport(-1, -1, NULL, NULL);
+              }
+           FREE_POINTER(tmp);
+           FREE_POINTER(destination);
+           FREE_POINTER(source);
            }
         r = strtok_r(NULL, "\r\n", &s);
         }

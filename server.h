@@ -81,6 +81,7 @@ public:
     eSatipQuirkRtpOverTcp = 0x08,
     eSatipQuirkCiXpmt     = 0x10,
     eSatipQuirkCiTnr      = 0x20,
+    eSatipQuirkForcePilot = 0x40,
     eSatipQuirkMask       = 0xFF
   };
   cSatipServer(const char *addressP, const int portP, const char *modelP, const char *filtersP, const char *descriptionP, const int quirkP);

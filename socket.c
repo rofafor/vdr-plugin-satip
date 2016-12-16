@@ -21,7 +21,11 @@
 
 cSatipSocket::cSatipSocket()
 : socketPortM(0),
-  socketDescM(-1)
+  socketDescM(-1),
+  isMulticastM(false),
+  useSsmM(false),
+  streamAddrM(htonl(INADDR_ANY)),
+  sourceAddrM(htonl(INADDR_ANY))
 {
   debug1("%s", __PRETTY_FUNCTION__);
   memset(&sockAddrM, 0, sizeof(sockAddrM));
@@ -36,6 +40,12 @@ cSatipSocket::~cSatipSocket()
 
 bool cSatipSocket::Open(const int portP, const bool reuseP)
 {
+  // If socket is there already and it is bound to a different port, it must
+  // be closed first
+  if (portP != socketPortM) {
+     debug1("%s (%d, %d) Socket tear-down", __PRETTY_FUNCTION__, portP, reuseP);
+     Close();
+     }
   // Bind to the socket if it is not active already
   if (socketDescM < 0) {
      int yes;
@@ -55,6 +65,11 @@ bool cSatipSocket::Open(const int portP, const bool reuseP)
      ERROR_IF_FUNC(setsockopt(socketDescM, SOL_SOCKET, SO_REUSEPORT, &yes, sizeof(yes)) < 0 && errno != ENOPROTOOPT,
                    "setsockopt(SO_REUSEPORT)", Close(), return false);
 #endif
+#ifndef __FreeBSD__
+     // Allow packet information to be fetched
+     ERROR_IF_FUNC(setsockopt(socketDescM, SOL_IP, IP_PKTINFO, &yes, sizeof(yes)) < 0,
+                   "setsockopt(IP_PKTINFO)", Close(), return false);
+#endif // __FreeBSD__
      // Bind socket
      memset(&sockAddrM, 0, sizeof(sockAddrM));
      sockAddrM.sin_family = AF_INET;
@@ -63,12 +78,25 @@ bool cSatipSocket::Open(const int portP, const bool reuseP)
      ERROR_IF_FUNC(bind(socketDescM, (struct sockaddr *)&sockAddrM, sizeof(sockAddrM)) < 0,
                    "bind()", Close(), return false);
      // Update socket port
-     ERROR_IF_FUNC(getsockname(socketDescM,(struct sockaddr*)&sockAddrM, &len) < 0,
+     ERROR_IF_FUNC(getsockname(socketDescM, (struct sockaddr*)&sockAddrM, &len) < 0,
                    "getsockname()", Close(), return false);
      socketPortM = ntohs(sockAddrM.sin_port);
+     isMulticastM = false;
      }
   debug1("%s (%d) socketPort=%d", __PRETTY_FUNCTION__, portP, socketPortM);
   return true;
+}
+
+bool cSatipSocket::OpenMulticast(const int portP, const char *streamAddrP, const char *sourceAddrP)
+{
+  debug1("%s (%d, %s, %s)", __PRETTY_FUNCTION__, portP, streamAddrP, sourceAddrP);
+  if (Open(portP)) {
+     CheckAddress(streamAddrP, &streamAddrM);
+     if (!isempty(sourceAddrP))
+        useSsmM = CheckAddress(sourceAddrP, &sourceAddrM);
+     return Join();
+     }
+  return false;
 }
 
 void cSatipSocket::Close(void)
@@ -76,10 +104,15 @@ void cSatipSocket::Close(void)
   debug1("%s sockerPort=%d", __PRETTY_FUNCTION__, socketPortM);
   // Check if socket exists
   if (socketDescM >= 0) {
+     Leave();
      close(socketDescM);
      socketDescM = -1;
      socketPortM = 0;
      memset(&sockAddrM, 0, sizeof(sockAddrM));
+     streamAddrM = htonl(INADDR_ANY);
+     sourceAddrM = htonl(INADDR_ANY);
+     isMulticastM = false;
+     useSsmM = false;
      }
 }
 
@@ -100,6 +133,96 @@ bool cSatipSocket::Flush(void)
         }
      }
   return false;
+}
+
+bool cSatipSocket::CheckAddress(const char *addrP, in_addr_t *inAddrP)
+{
+  if (inAddrP) {
+     // First try only the IP address
+     *inAddrP = inet_addr(addrP);
+     if (*inAddrP == htonl(INADDR_NONE)) {
+        debug1("%s (%s, ) Cannot convert to address", __PRETTY_FUNCTION__, addrP);
+        // It may be a host name, get the name
+        struct hostent *host = gethostbyname(addrP);
+        if (!host) {
+           char tmp[64];
+           error("gethostbyname() failed: %s is not valid address: %s", addrP,
+                 strerror_r(h_errno, tmp, sizeof(tmp)));
+           return false;
+           }
+        *inAddrP = inet_addr(*host->h_addr_list);
+        }
+     return true;
+     }
+  return false;
+}
+
+bool cSatipSocket::Join(void)
+{
+  debug1("%s", __PRETTY_FUNCTION__);
+  // Check if socket exists
+  if (socketDescM >= 0 && !isMulticastM) {
+     // Join a new multicast group
+     if (useSsmM) {
+        // Source-specific multicast (SSM) is used
+        struct group_source_req gsr;
+        struct sockaddr_in *grp;
+        struct sockaddr_in *src;
+        gsr.gsr_interface = 0; // if_nametoindex("any") ?
+        grp = (struct sockaddr_in*)&gsr.gsr_group;
+        grp->sin_family = AF_INET;
+        grp->sin_addr.s_addr = streamAddrM;
+        grp->sin_port = 0;
+        src = (struct sockaddr_in*)&gsr.gsr_source;
+        src->sin_family = AF_INET;
+        src->sin_addr.s_addr = sourceAddrM;
+        src->sin_port = 0;
+        ERROR_IF_RET(setsockopt(socketDescM, SOL_IP, MCAST_JOIN_SOURCE_GROUP, &gsr, sizeof(gsr)) < 0, "setsockopt(MCAST_JOIN_SOURCE_GROUP)", return false);
+        }
+     else {
+        struct ip_mreq mreq;
+        mreq.imr_multiaddr.s_addr = streamAddrM;
+        mreq.imr_interface.s_addr = htonl(INADDR_ANY);
+        ERROR_IF_RET(setsockopt(socketDescM, SOL_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq)) < 0, "setsockopt(IP_ADD_MEMBERSHIP)", return false);
+        }
+     // Update multicasting flag
+     isMulticastM = true;
+     }
+  return true;
+}
+
+bool cSatipSocket::Leave(void)
+{
+  debug1("%s", __PRETTY_FUNCTION__);
+  // Check if socket exists
+  if (socketDescM >= 0 && isMulticastM) {
+     // Leave the existing multicast group
+     if (useSsmM) {
+        // Source-specific multicast (SSM) is used
+        struct group_source_req gsr;
+        struct sockaddr_in *grp;
+        struct sockaddr_in *src;
+        gsr.gsr_interface = 0; // if_nametoindex("any") ?
+        grp = (struct sockaddr_in*)&gsr.gsr_group;
+        grp->sin_family = AF_INET;
+        grp->sin_addr.s_addr = streamAddrM;
+        grp->sin_port = 0;
+        src = (struct sockaddr_in*)&gsr.gsr_source;
+        src->sin_family = AF_INET;
+        src->sin_addr.s_addr = sourceAddrM;
+        src->sin_port = 0;
+        ERROR_IF_RET(setsockopt(socketDescM, SOL_IP, MCAST_LEAVE_SOURCE_GROUP, &gsr, sizeof(gsr)) < 0, "setsockopt(MCAST_LEAVE_SOURCE_GROUP)", return false);
+        }
+     else {
+        struct ip_mreq mreq;
+        mreq.imr_multiaddr.s_addr = streamAddrM;
+        mreq.imr_interface.s_addr = htonl(INADDR_ANY);
+        ERROR_IF_RET(setsockopt(socketDescM, SOL_IP, IP_DROP_MEMBERSHIP, &mreq, sizeof(mreq)) < 0, "setsockopt(IP_DROP_MEMBERSHIP)", return false);
+        }
+     // Update multicasting flag
+     isMulticastM = false;
+     }
+  return true;
 }
 
 int cSatipSocket::Read(unsigned char *bufferAddrP, unsigned int bufferLenP)
@@ -132,8 +255,22 @@ int cSatipSocket::Read(unsigned char *bufferAddrP, unsigned int bufferLenP)
 
     if (socketDescM && bufferAddrP && (bufferLenP > 0))
        len = (int)recvmsg(socketDescM, &msgh, MSG_DONTWAIT);
-    if (len > 0)
-       return len;
+    if (len > 0) {
+#ifndef __FreeBSD__
+       if (isMulticastM) {
+          // Process auxiliary received data and validate source address
+          for (struct cmsghdr *cmsg = CMSG_FIRSTHDR(&msgh); cmsg != NULL; cmsg = CMSG_NXTHDR(&msgh, cmsg)) {
+              if ((cmsg->cmsg_level == SOL_IP) && (cmsg->cmsg_type == IP_PKTINFO)) {
+                 struct in_pktinfo *i = (struct in_pktinfo *)CMSG_DATA(cmsg);
+                 if ((i->ipi_addr.s_addr == streamAddrM) || (htonl(INADDR_ANY) == streamAddrM))
+                    return len;
+                 }
+              }
+          }
+       else
+#endif // __FreeBSD__
+          return len;
+       }
     } while (len > 0);
   ERROR_IF_RET(len < 0 && errno != EAGAIN && errno != EWOULDBLOCK, "recvmsg()", return -1);
   return 0;

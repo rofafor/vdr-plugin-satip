@@ -40,7 +40,6 @@ private:
   cSatipSectionFilterHandler *pSectionFilterHandlerM;
   cTimeMs createdM;
   cMutex mutexM;
-  cSatipPid fixedPidsM;
 
   // constructor & destructor
 public:

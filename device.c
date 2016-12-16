@@ -22,8 +22,7 @@ cSatipDevice::cSatipDevice(unsigned int indexP)
   deviceNameM(*cString::sprintf("%s %d", *DeviceType(), deviceIndexM)),
   channelM(),
   createdM(0),
-  mutexM(),
-  fixedPidsM()
+  mutexM()
 {
   unsigned int bufsize = (unsigned int)SATIP_BUFFER_SIZE;
   bufsize -= (bufsize % TS_SIZE);
@@ -141,7 +140,7 @@ cString cSatipDevice::GetGeneralInformation(void)
 #if defined(APIVERSNUM) && APIVERSNUM >= 20301
   LOCK_CHANNELS_READ;
 #endif
-  return cString::sprintf("SAT>IP device: %d\nCardIndex: %d\nStream: %s\nSignal: %s\nStream bitrate: %s\n%sChannel: %s",
+  return cString::sprintf("SAT>IP device: %d\nCardIndex: %d\nStream: %s\nSignal: %s\nStream bitrate: %s\n%sChannel: %s\n",
                           deviceIndexM, CardIndex(),
                           pTunerM ? *pTunerM->GetInformation() : "",
                           pTunerM ? *pTunerM->GetSignalStatus() : "",
@@ -372,16 +371,10 @@ bool cSatipDevice::SetPid(cPidHandle *handleP, int typeP, bool onP)
 {
   debug12("%s (%d, %d, %d) [device %u]", __PRETTY_FUNCTION__, handleP ? handleP->pid : -1, typeP, onP, deviceIndexM);
   if (pTunerM && handleP && handleP->pid >= 0) {
-     if (onP) {
-        fixedPidsM.AddPid(handleP->pid);
-        debug12("%s A%d fixedPidsM=%s [device %d]", __PRETTY_FUNCTION__, handleP->pid, *fixedPidsM.ListPids(), deviceIndexM);
+     if (onP)
         return pTunerM->SetPid(handleP->pid, typeP, true);
-     }
-     else if (!handleP->used) {
-        fixedPidsM.RemovePid(handleP->pid);
-        debug12("%s R%d fixedPidsM=%s [device %d]", __PRETTY_FUNCTION__, handleP->pid, *fixedPidsM.ListPids(), deviceIndexM);
+     else if (!handleP->used && pSectionFilterHandlerM && !pSectionFilterHandlerM->Exists(handleP->pid))
         return pTunerM->SetPid(handleP->pid, typeP, false);
-        }
      }
   return true;
 }
@@ -403,7 +396,7 @@ void cSatipDevice::CloseFilter(int handleP)
   if (pSectionFilterHandlerM) {
      int pid = pSectionFilterHandlerM->GetPid(handleP);
      debug12("%s (%d) [device %u]", __PRETTY_FUNCTION__, pid, deviceIndexM);
-     if (pTunerM && fixedPidsM.IndexOf(pid) == -1)
+     if (pTunerM)
         pTunerM->SetPid(pid, ptOther, false);
      pSectionFilterHandlerM->Close(handleP);
      }
@@ -417,7 +410,6 @@ bool cSatipDevice::OpenDvr(void)
   if (pTunerM)
      pTunerM->Open();
   isOpenDvrM = true;
-  fixedPidsM.Clear();
   return true;
 }
 
@@ -562,8 +554,8 @@ bool cSatipDevice::GetTSPacket(uchar *&dataP)
      if (dataP && (dataP[4] == 0x00) && (dataP[5] == 0x02) && ((dataP[6] & 0xfc) == 0xb0)) {
         int pidA = ((dataP[1] & 0x1f) << 8) | dataP[2];
 	int pidB = GetPmtPid();
-        debug12("%s PID %d/%d 0x%02x%02x%02x%02x%02x%02x%02x %d", __PRETTY_FUNCTION__,
-			pidA, pidB, dataP[0], dataP[1], dataP[2], dataP[3], dataP[4], dataP[5], dataP[6], fixedPidsM.IndexOf(pidA));
+        debug12("%s PID %d/%d 0x%02x%02x%02x%02x%02x%02x%02x", __PRETTY_FUNCTION__,
+			pidA, pidB, dataP[0], dataP[1], dataP[2], dataP[3], dataP[4], dataP[5], dataP[6]);
      }
 
      return true;
