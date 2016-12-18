@@ -144,3 +144,15 @@ VDR Plugin 'satip' Revision History
 - Reset the RTSP connection after any failed connect.
 - Added tweaks for minisatip and Schwaiger MS41IP.
 - Updated for vdr-2.3.1 (Thanks to Klaus Schmidinger).
+
+2016-12-18: Version 2.2.4
+
+- Updated German translation (Thanks to Frank Neumann).
+- Fixed Panasonic CXW804 support (Thanks to Tobias Grimm).
+- Fixed C++11 support (Thanks to Tobias Grimm).
+- Fixed server assigment with source validation (Thanks to Patrick Boettcher).
+- Added configurable RTP/RTCP ports (Thanks to chriszero).
+- Added support for X-SATIP-RTSP-Port header.
+- Added multicast and RTP-over-TCP support.
+- Added support for activating/deactivating server on-the-fly.
+- Extended command-line parameters for setting server quirks.
