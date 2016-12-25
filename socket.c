@@ -289,6 +289,7 @@ int cSatipSocket::ReadMulti(unsigned char *bufferAddrP, unsigned int *elementRec
      error("%s Invalid parameter(s)", __PRETTY_FUNCTION__);
      return -1;
      }
+#if defined(__GLIBC__)
 #if defined(__GLIBC_PREREQ) && __GLIBC_PREREQ(2,12)
   // Initialize iov and msgh structures
   struct mmsghdr mmsgh[elementCountP];
@@ -307,6 +308,7 @@ int cSatipSocket::ReadMulti(unsigned char *bufferAddrP, unsigned int *elementRec
   for (int i = 0; i < count; ++i)
       elementRecvSizeP[i] = mmsgh[i].msg_len;
 #else
+#endif
   count = 0;
   while (count < (int)elementCountP) {
         int len = Read(bufferAddrP + count * elementBufferSizeP, elementBufferSizeP);
@@ -316,6 +318,8 @@ int cSatipSocket::ReadMulti(unsigned char *bufferAddrP, unsigned int *elementRec
            break;
         elementRecvSizeP[count++] = len;
         }
+#if defined(__GLIBC__)
+#endif
 #endif
   debug16("%s Received %d packets size[0]=%d", __PRETTY_FUNCTION__, count, elementRecvSizeP[0]);
 
