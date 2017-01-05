@@ -19,6 +19,14 @@
 #include "log.h"
 #include "socket.h"
 
+#if defined(__GLIBC__)
+  #if defined(__GLIBC_PREREQ)
+    #if !__GLIBC_PREREQ(2,12)
+      #define __SATIP_DISABLE_RECVMMSG__
+    #endif
+  #endif
+#endif
+
 cSatipSocket::cSatipSocket()
 : socketPortM(0),
   socketDescM(-1),
@@ -289,7 +297,7 @@ int cSatipSocket::ReadMulti(unsigned char *bufferAddrP, unsigned int *elementRec
      error("%s Invalid parameter(s)", __PRETTY_FUNCTION__);
      return -1;
      }
-#if defined(__GLIBC_PREREQ) && __GLIBC_PREREQ(2,12)
+#ifndef __SATIP_DISABLE_RECVMMSG__
   // Initialize iov and msgh structures
   struct mmsghdr mmsgh[elementCountP];
   struct iovec iov[elementCountP];
