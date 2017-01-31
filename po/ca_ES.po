@@ -1,7 +1,7 @@
 # VDR plugin language source file.
-# Copyright (C) 2007-2016 Rolf Ahrenberg
+# Copyright (C) 2007-2017 Rolf Ahrenberg
 # This file is distributed under the same license as the satip package.
-# Gabriel Bonich, 2014-2015
+# Gabriel Bonich, 2014-2017
 #
 msgid ""
 msgstr ""
@@ -86,13 +86,13 @@ msgid "high"
 msgstr "Alt"
 
 msgid "Unicast"
-msgstr ""
+msgstr "Unicast"
 
 msgid "Multicast"
-msgstr ""
+msgstr "Multicast"
 
 msgid "RTP-over-TCP"
-msgstr ""
+msgstr "RTP-per sobre-TCP"
 
 msgid "Button$Devices"
 msgstr "Dispositius"
@@ -188,7 +188,7 @@ msgid "Define an ill-behaving filter to be blacklisted."
 msgstr "Definir un filtre mal comportar a la llista negra."
 
 msgid "Transport mode"
-msgstr ""
+msgstr "Tipus de Transmissió"
 
 msgid ""
 "Define which transport mode shall be used.\n"
