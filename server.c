@@ -123,10 +123,7 @@ cSatipServer::cSatipServer(const char *addressP, const int portP, const char *mo
         quirkM |= eSatipQuirkSessionId;
      // These devices contain support for RTP over TCP:
      if (strstr(*descriptionM, "minisatip") ||          // minisatip server
-         strstr(*descriptionM, "DVBViewer") ||          // DVBViewer Media Server
-         strstr(*descriptionM, "GSSBOX") ||             // Grundig Sat Systems GSS.box DSI 400
-         strstr(*descriptionM, "DIGIBIT") ||            // Telestar Digibit R1
-         strstr(*descriptionM, "Triax SatIP Converter") // Triax TSS 400
+         strstr(*descriptionM, "DVBViewer")             // DVBViewer Media Server
         )
         quirkM |= eSatipQuirkRtpOverTcp;
      // These devices contain a play (add/delpids) parameter bug:
