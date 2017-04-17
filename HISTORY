@@ -174,3 +174,7 @@ VDR Plugin 'satip' Revision History
 - Added multicast and RTP-over-TCP support.
 - Added support for activating/deactivating server on-the-fly.
 - Extended command-line parameters for setting server quirks.
+
+2017-xx-xx: Version 2.3.1
+
+- Updated for vdr-2.3.4 (Thanks to Klaus Schmidinger).

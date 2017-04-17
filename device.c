@@ -17,8 +17,9 @@ static cSatipDevice * SatipDevicesS[SATIP_MAX_DEVICES] = { NULL };
 
 cSatipDevice::cSatipDevice(unsigned int indexP)
 : deviceIndexM(indexP),
-  isPacketDeliveredM(false),
+  bytesDeliveredM(0),
   isOpenDvrM(false),
+  checkTsBufferM(false),
   deviceNameM(*cString::sprintf("%s %d", *DeviceType(), deviceIndexM)),
   channelM(),
   createdM(0),
@@ -395,7 +396,7 @@ void cSatipDevice::CloseFilter(int handleP)
 bool cSatipDevice::OpenDvr(void)
 {
   debug9("%s [device %u]", __PRETTY_FUNCTION__, deviceIndexM);
-  isPacketDeliveredM = false;
+  bytesDeliveredM = 0;
   tsBufferM->Clear();
   if (pTunerM)
      pTunerM->Open();
@@ -481,13 +482,17 @@ bool cSatipDevice::IsIdle(void)
   return !Receiving();
 }
 
-uchar *cSatipDevice::GetData(int *availableP)
+uchar *cSatipDevice::GetData(int *availableP, bool checkTsBuffer)
 {
   debug16("%s [device %u]", __PRETTY_FUNCTION__, deviceIndexM);
   if (isOpenDvrM && tsBufferM) {
      int count = 0;
-     if (isPacketDeliveredM)
-        SkipData(TS_SIZE);
+     if (bytesDeliveredM) {
+        tsBufferM->Del(bytesDeliveredM);
+        bytesDeliveredM = 0;
+        }
+     if (checkTsBuffer && tsBufferM->Available() < TS_SIZE)
+        return NULL;
      uchar *p = tsBufferM->Get(count);
      if (p && count >= TS_SIZE) {
         if (*p != TS_SYNC_BYTE) {
@@ -501,7 +506,7 @@ uchar *cSatipDevice::GetData(int *availableP)
            info("Skipped %d bytes to sync on TS packet", count);
            return NULL;
            }
-        isPacketDeliveredM = true;
+        bytesDeliveredM = TS_SIZE;
         if (availableP)
            *availableP = count;
         // Update pid statistics
@@ -515,8 +520,7 @@ uchar *cSatipDevice::GetData(int *availableP)
 void cSatipDevice::SkipData(int countP)
 {
   debug16("%s [device %u]", __PRETTY_FUNCTION__, deviceIndexM);
-  tsBufferM->Del(countP);
-  isPacketDeliveredM = false;
+  bytesDeliveredM = countP;
   // Update buffer statistics
   AddBufferStatistic(countP, tsBufferM->Available());
 }
@@ -530,11 +534,12 @@ bool cSatipDevice::GetTSPacket(uchar *&dataP)
      if (cCamSlot *cs = CamSlot()) {
         if (cs->WantsTsData()) {
            int available;
-           dataP = GetData(&available);
-           if (dataP) {
-              dataP = cs->Decrypt(dataP, available);
-              SkipData(available);
-              }
+           dataP = GetData(&available, checkTsBufferM);
+           if (!dataP)
+              available = 0;
+           dataP = cs->Decrypt(dataP, available);
+           SkipData(available);
+           checkTsBufferM = dataP != NULL;
            return true;
            }
         }

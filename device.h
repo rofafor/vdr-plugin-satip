@@ -31,8 +31,9 @@ private:
     eReadyTimeoutMs = 2000 // in milliseconds
   };
   unsigned int deviceIndexM;
-  bool isPacketDeliveredM;
+  int bytesDeliveredM;
   bool isOpenDvrM;
+  bool checkTsBufferM;
   cString deviceNameM;
   cChannel channelM;
   cRingBufferLinear *tsBufferM;
@@ -82,7 +83,7 @@ protected:
 
   // for recording
 private:
-  uchar *GetData(int *availableP = NULL);
+  uchar *GetData(int *availableP = NULL, bool checkTsBuffer = false);
   void SkipData(int countP);
 
 protected:

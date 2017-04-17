@@ -19,15 +19,15 @@
 #warning "CURL version >= 7.36.0 is recommended"
 #endif
 
-#if defined(APIVERSNUM) && APIVERSNUM < 20301
-#error "VDR-2.3.1 API version or greater is required!"
+#if defined(APIVERSNUM) && APIVERSNUM < 20304
+#error "VDR-2.3.4 API version or greater is required!"
 #endif
 
 #ifndef GITVERSION
 #define GITVERSION ""
 #endif
 
-       const char VERSION[]     = "2.3.0" GITVERSION;
+       const char VERSION[]     = "2.3.1" GITVERSION;
 static const char DESCRIPTION[] = trNOOP("SAT>IP Devices");
 
 class cPluginSatip : public cPlugin {
