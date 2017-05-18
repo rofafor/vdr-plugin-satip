@@ -145,10 +145,10 @@ cSatipServer::cSatipServer(const char *addressP, const int portP, const char *mo
         )
         quirkM |= eSatipQuirkCiTnr;
      // These devices don't support auto-detection of pilot tones
-     if (strstr(*descriptionM, "GSSBOX") ||             // Grundig Sat Systems GSS.box DSI 400
-         strstr(*descriptionM, "DIGIBIT") ||            // Telestar Digibit R1
-         strstr(*descriptionM, "Triax SatIP Converter") // Triax TSS 400
-                                                        // Kathrein ExIP 414/E
+     if (strstr(*descriptionM, "GSSBOX") ||                 // Grundig Sat Systems GSS.box DSI 400
+         strstr(*descriptionM, "DIGIBIT") ||                // Telestar Digibit R1
+         strstr(*descriptionM, "Triax SatIP Converter") ||  // Triax TSS 400        
+         strstr(*descriptionM, "KATHREIN SatIP Server")     // Kathrein ExIP 414/E
         )
         quirkM |= eSatipQuirkForcePilot;
      }
