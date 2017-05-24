@@ -212,6 +212,21 @@ bool cSatipDevice::AvoidRecording(void) const
   return SatipConfig.IsOperatingModeLow();
 }
 
+bool cSatipDevice::SignalStats(int &Valid, double *Strength, double *Cnr, double *BerPre, double *BerPost, double *Per, int *Status) const
+{
+  debug16("%s [device %u]", __PRETTY_FUNCTION__, deviceIndexM);
+  Valid = DTV_STAT_VALID_NONE;
+  if (Strength && pTunerM) {
+     *Strength =  pTunerM->SignalStrengthDBm();
+     Valid |= DTV_STAT_VALID_STRENGTH;
+     }
+  if (Status) {
+     *Status = HasLock() ? (DTV_STAT_HAS_SIGNAL | DTV_STAT_HAS_CARRIER | DTV_STAT_HAS_VITERBI | DTV_STAT_HAS_SYNC | DTV_STAT_HAS_LOCK) : DTV_STAT_HAS_NONE;
+     Valid |= DTV_STAT_VALID_STATUS;
+     }
+  return Valid != DTV_STAT_VALID_NONE;
+}
+
 int cSatipDevice::SignalStrength(void) const
 {
   debug16("%s [device %u]", __PRETTY_FUNCTION__, deviceIndexM);

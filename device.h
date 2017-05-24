@@ -64,6 +64,7 @@ public:
   virtual cString DeviceType(void) const;
   virtual cString DeviceName(void) const;
   virtual bool AvoidRecording(void) const;
+  virtual bool SignalStats(int &Valid, double *Strength = NULL, double *Cnr = NULL, double *BerPre = NULL, double *BerPost = NULL, double *Per = NULL, int *Status = NULL) const;
   virtual int SignalStrength(void) const;
   virtual int SignalQuality(void) const;
 
@@ -99,7 +100,7 @@ public:
 
   // for transponder lock
 public:
-  virtual bool HasLock(int timeoutMsP) const;
+  virtual bool HasLock(int timeoutMsP = 0) const;
 
   // for common interface
 public:

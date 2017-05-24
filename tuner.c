@@ -40,6 +40,7 @@ cSatipTuner::cSatipTuner(cSatipDeviceIf &deviceP, unsigned int packetLenP)
   externalStateM(),
   timeoutM(eMinKeepAliveIntervalMs),
   hasLockM(false),
+  signalStrengthDBmM(0.0),
   signalStrengthM(-1),
   signalQualityM(-1),
   frontendIdM(-1),
@@ -134,6 +135,7 @@ void cSatipTuner::Action(void)
                   // Quirk for devices without valid reception data
                   if (currentServerM.IsQuirk(cSatipServer::eSatipQuirkForceLock)) {
                      hasLockM = true;
+                     signalStrengthDBmM = eDefaultSignalStrengthDBm;
                      signalStrengthM = eDefaultSignalStrength;
                      signalQualityM = eDefaultSignalQuality;
                      }
@@ -261,6 +263,7 @@ bool cSatipTuner::Disconnect(void)
 
   // Reset signal parameters
   hasLockM = false;
+  signalStrengthDBmM = 0.0;
   signalStrengthM = -1;
   signalQualityM = -1;
   frontendIdM = -1;
@@ -330,8 +333,9 @@ void cSatipTuner::ProcessApplicationData(u_char *bufferP, int lengthP)
         // No signal corresponds to 0
         c = strstr(c, ",");
         value = min(atoi(++c), 255);
+        signalStrengthDBmM = (value >= 0) ? 40.0 * (value - 32) / 192.0 - 65.0 : 0.0;
         // Scale value to 0-100
-        signalStrengthM = (value >= 0) ? (value * 100 / 255) : -1;
+        signalStrengthM = (value >= 0) ? value * 100 / 255 : -1;
 
         // lock:
         // lock Set to one of the following values:
@@ -665,6 +669,12 @@ int cSatipTuner::SignalStrength(void)
 {
   debug16("%s [device %d]", __PRETTY_FUNCTION__, deviceIdM);
   return signalStrengthM;
+}
+
+double cSatipTuner::SignalStrengthDBm(void)
+{
+  debug16("%s [device %d]", __PRETTY_FUNCTION__, deviceIdM);
+  return signalStrengthDBmM;
 }
 
 int cSatipTuner::SignalQuality(void)

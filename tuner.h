@@ -77,16 +77,17 @@ class cSatipTuner : public cThread, public cSatipTunerStatistics, public cSatipT
 {
 private:
   enum {
-    eDummyPid               = 100,
-    eDefaultSignalStrength  = 15,
-    eDefaultSignalQuality   = 224,
-    eSleepTimeoutMs         = 250,   // in milliseconds
-    eStatusUpdateTimeoutMs  = 1000,  // in milliseconds
-    ePidUpdateIntervalMs    = 250,   // in milliseconds
-    eConnectTimeoutMs       = 5000,  // in milliseconds
-    eIdleCheckTimeoutMs     = 15000, // in milliseconds
-    eTuningTimeoutMs        = 20000, // in milliseconds
-    eMinKeepAliveIntervalMs = 30000  // in milliseconds
+    eDummyPid                 = 100,
+    eDefaultSignalStrengthDBm = -25,
+    eDefaultSignalStrength    = 224,
+    eDefaultSignalQuality     = 15,
+    eSleepTimeoutMs           = 250,   // in milliseconds
+    eStatusUpdateTimeoutMs    = 1000,  // in milliseconds
+    ePidUpdateIntervalMs      = 250,   // in milliseconds
+    eConnectTimeoutMs         = 5000,  // in milliseconds
+    eIdleCheckTimeoutMs       = 15000, // in milliseconds
+    eTuningTimeoutMs          = 20000, // in milliseconds
+    eMinKeepAliveIntervalMs   = 30000  // in milliseconds
   };
   enum eTunerState { tsIdle, tsRelease, tsSet, tsTuned, tsLocked };
   enum eStateMode { smInternal, smExternal };
@@ -114,6 +115,7 @@ private:
   cVector<eTunerState> externalStateM;
   int timeoutM;
   bool hasLockM;
+  double signalStrengthDBmM;
   int signalStrengthM;
   int signalQualityM;
   int frontendIdM;
@@ -148,6 +150,7 @@ public:
   bool Close(void);
   int FrontendId(void);
   int SignalStrength(void);
+  double SignalStrengthDBm(void);
   int SignalQuality(void);
   bool HasLock(void);
   cString GetSignalStatus(void);

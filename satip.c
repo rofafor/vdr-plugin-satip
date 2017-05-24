@@ -19,8 +19,8 @@
 #warning "CURL version >= 7.36.0 is recommended"
 #endif
 
-#if defined(APIVERSNUM) && APIVERSNUM < 20304
-#error "VDR-2.3.4 API version or greater is required!"
+#if defined(APIVERSNUM) && APIVERSNUM < 20305
+#error "VDR-2.3.5 API version or greater is required!"
 #endif
 
 #ifndef GITVERSION
