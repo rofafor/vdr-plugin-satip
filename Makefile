@@ -88,7 +88,8 @@ all: $(SOFILE) i18n
 ### Implicit rules:
 
 %.o: %.c
-	$(CXX) $(CXXFLAGS) -c $(DEFINES) $(INCLUDES) -o $@ $<
+	@echo CC $@
+	@$(CXX) $(CXXFLAGS) -c $(DEFINES) $(INCLUDES) -o $@ $<
 
 ### Dependencies:
 
@@ -108,17 +109,21 @@ I18Nmsgs  = $(addprefix $(DESTDIR)$(LOCDIR)/, $(addsuffix /LC_MESSAGES/vdr-$(PLU
 I18Npot   = $(PODIR)/$(PLUGIN).pot
 
 %.mo: %.po
-	msgfmt -c -o $@ $<
+	@echo MO $@
+	@msgfmt -c -o $@ $<
 
 $(I18Npot): $(wildcard *.c)
-	xgettext -C -cTRANSLATORS --no-wrap --no-location -k -ktr -ktrNOOP --package-name=vdr-$(PLUGIN) --package-version=$(VERSION) --msgid-bugs-address='<see README>' -o $@ `ls $^`
+	@echo GT $@
+	@xgettext -C -cTRANSLATORS --no-wrap --no-location -k -ktr -ktrNOOP --package-name=vdr-$(PLUGIN) --package-version=$(VERSION) --msgid-bugs-address='<see README>' -o $@ `ls $^`
 
 %.po: $(I18Npot)
-	msgmerge -U --no-wrap --no-location --backup=none -q -N $@ $<
+	@echo PO $@
+	@msgmerge -U --no-wrap --no-location --backup=none -q -N $@ $<
 	@touch $@
 
 $(I18Nmsgs): $(DESTDIR)$(LOCDIR)/%/LC_MESSAGES/vdr-$(PLUGIN).mo: $(PODIR)/%.mo
-	install -D -m644 $< $@
+	@echo IN $@
+	@install -D -m644 $< $@
 
 .PHONY: i18n
 i18n: $(I18Nmo) $(I18Npot)
@@ -128,11 +133,13 @@ install-i18n: $(I18Nmsgs)
 ### Targets:
 
 $(SOFILE): $(OBJS)
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -shared $(OBJS) $(LIBS) -o $@
+	@echo LD $@
+	@$(CXX) $(CXXFLAGS) $(LDFLAGS) -shared $(OBJS) $(LIBS) -o $@
 	@$(STRIP) $@
 
 install-lib: $(SOFILE)
-	install -D $^ $(DESTDIR)$(LIBDIR)/$^.$(APIVERSION)
+	@echo IN $(DESTDIR)$(LIBDIR)/$^.$(APIVERSION)
+	@install -D $^ $(DESTDIR)$(LIBDIR)/$^.$(APIVERSION)
 
 install-conf:
 	@mkdir -p $(DESTDIR)$(CFGDIR)/plugins/$(PLUGIN)
