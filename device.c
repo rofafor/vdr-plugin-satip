@@ -545,10 +545,19 @@ bool cSatipDevice::GetTSPacket(uchar *&dataP)
               dataP = cs->Decrypt(dataP, available);
               SkipData(available);
               }
-           return true;
+           //return true;
            }
         }
-     dataP = GetData();
+     else
+        dataP = GetData();
+
+     if (dataP && (dataP[4] == 0x00) && (dataP[5] == 0x02) && ((dataP[6] & 0xfc) == 0xb0)) {
+        int pidA = ((dataP[1] & 0x1f) << 8) | dataP[2];
+	int pidB = GetPmtPid();
+        debug12("%s PID %d/%d 0x%02x%02x%02x%02x%02x%02x%02x", __PRETTY_FUNCTION__,
+			pidA, pidB, dataP[0], dataP[1], dataP[2], dataP[3], dataP[4], dataP[5], dataP[6]);
+     }
+
      return true;
      }
   dataP = NULL;

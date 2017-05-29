@@ -479,7 +479,7 @@ bool cSatipTuner::UpdatePids(bool forceP)
      cString uri = cString::sprintf("%sstream=%d", *GetBaseUrl(*streamAddrM, streamPortM), streamIdM);
      bool useci = (SatipConfig.GetCIExtension() && currentServerM.HasCI());
      bool usedummy = currentServerM.IsQuirk(cSatipServer::eSatipQuirkPlayPids);
-     if (forceP || usedummy) {
+     if (forceP || usedummy || true) { //temporary fix for OctopusNet addpid bug
         if (pidsM.Size())
            uri = cString::sprintf("%s?pids=%s", *uri, *pidsM.ListPids());
         if (usedummy && (pidsM.Size() == 1) && (pidsM[0] < 0x20))
