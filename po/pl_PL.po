@@ -5,10 +5,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: vdr-satip 2.3.0\n"
+"Project-Id-Version: vdr-satip 2.3.1\n"
 "Report-Msgid-Bugs-To: <see README>\n"
-"POT-Creation-Date: 2017-04-17 22:02+0300\n"
-"PO-Revision-Date: 2017-02-28 14:22+0100\n"
+"POT-Creation-Date: 2017-06-24 06:24+0300\n"
+"PO-Revision-Date: 2017-06-24 06:24+0300\n"
 "Last-Translator: Tomasz Maciej Nowak <tomek_n@o2.pl>\n"
 "Language-Team: Polish <vdr@linuxtv.org>\n"
 "Language: pl_PL\n"
