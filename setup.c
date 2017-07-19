@@ -105,7 +105,7 @@ cSatipServerInfo::cSatipServerInfo(cSatipServer *serverP)
 : cOsdMenu(tr("SAT>IP Server"), 20),
   serverM(serverP),
   activeM(serverP && serverP->IsActive()),
-  addressM(serverP ? serverP->Address() : "---"),
+  addressM(serverP ? (isempty(serverP->SrcAddress()) ? serverP->Address() : *cString::sprintf("%s@%s", serverP->SrcAddress(), serverP->Address())) : "---"),
   modelM(serverP ? serverP->Model() : "---"),
   descriptionM(serverP ? serverP->Description() : "---"),
   ciExtensionM(serverP && serverP->HasCI() ? trVDR("yes") : trVDR("no")),
@@ -167,7 +167,7 @@ cSatipServerItem::cSatipServerItem(cSatipServer *serverP)
 {
   SetSelectable(true);
   // Must begin with a '#' character!
-  SetText(*cString::sprintf("%s %s (%s)\t%s", serverM->IsActive() ? "+" : "-", serverM->Address(), serverM->Model(), serverM->Description()));
+  SetText(*cString::sprintf("%s %s (%s)\t%s", serverM->IsActive() ? "+" : "-", isempty(serverM->SrcAddress()) ? serverM->Address() : *cString::sprintf("%s@%s", serverM->SrcAddress(), serverM->Address()), serverM->Model(), serverM->Description()));
 }
 
 void cSatipServerItem::SetMenuItem(cSkinDisplayMenu *displayMenuP, int indexP, bool currentP, bool selectableP)

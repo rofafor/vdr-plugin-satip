@@ -57,6 +57,7 @@ private:
   enum {
     eSatipMaxSourceFilters = 16
   };
+  cString srcAddressM;
   cString addressM;
   cString modelM;
   cString filtersM;
@@ -84,7 +85,7 @@ public:
     eSatipQuirkForcePilot = 0x40,
     eSatipQuirkMask       = 0xFF
   };
-  cSatipServer(const char *addressP, const int portP, const char *modelP, const char *filtersP, const char *descriptionP, const int quirkP);
+  cSatipServer(const char *srcAddressP, const char *addressP, const int portP, const char *modelP, const char *filtersP, const char *descriptionP, const int quirkP);
   virtual ~cSatipServer();
   virtual int Compare(const cListObject &listObjectP) const;
   bool Assign(int deviceIdP, int sourceP, int systemP, int transponderP);
@@ -98,6 +99,7 @@ public:
   int GetModulesDVBC(void);
   int GetModulesDVBC2(void);
   void Activate(bool onOffP)    { activeM = onOffP; }
+  const char *SrcAddress(void)  { return *srcAddressM; }
   const char *Address(void)     { return *addressM; }
   const char *Model(void)       { return *modelM; }
   const char *Filters(void)     { return *filtersM; }
@@ -128,6 +130,7 @@ public:
   bool HasCI(cSatipServer *serverP);
   void Cleanup(uint64_t intervalMsP = 0);
   cString GetAddress(cSatipServer *serverP);
+  cString GetSrcAddress(cSatipServer *serverP);
   cString GetString(cSatipServer *serverP);
   int GetPort(cSatipServer *serverP);
   cString List(void);

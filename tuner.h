@@ -69,6 +69,7 @@ public:
   void Set(cSatipServer *serverP, const int transponderP) { serverM = serverP; transponderM = transponderP; }
   void Reset(void) { serverM = NULL; transponderM = 0; }
   cString GetAddress(void) { return serverM ? cSatipDiscover::GetInstance()->GetServerAddress(serverM) : ""; }
+  cString GetSrcAddress(void) { return serverM ? cSatipDiscover::GetInstance()->GetSourceAddress(serverM) : ""; }
   int GetPort(void) { return serverM ? cSatipDiscover::GetInstance()->GetServerPort(serverM) : SATIP_DEFAULT_RTSP_PORT; }
   cString GetInfo(void) { return cString::sprintf("server=%s deviceid=%d transponder=%d", serverM ? "assigned" : "null", deviceIdM, transponderM); }
 };

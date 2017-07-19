@@ -23,17 +23,19 @@ class cSatipDiscoverServer : public cListObject {
 private:
   int ipPortM;
   int quirkM;
+  cString srcAddressM;
   cString ipAddressM;
   cString descriptionM;
   cString modelM;
   cString filtersM;
 public:
-  cSatipDiscoverServer(const char *ipAddressP, const int ipPortP, const char *modelP, const char *filtersP, const char *descriptionP, const int quirkP)
+  cSatipDiscoverServer(const char *srcAddressP, const char *ipAddressP, const int ipPortP, const char *modelP, const char *filtersP, const char *descriptionP, const int quirkP)
   {
-    ipAddressM = ipAddressP; ipPortM = ipPortP; modelM = modelP; filtersM = filtersP; descriptionM = descriptionP; quirkM = quirkP;
+     srcAddressM = srcAddressP; ipAddressM = ipAddressP; ipPortM = ipPortP; modelM = modelP; filtersM = filtersP; descriptionM = descriptionP; quirkM = quirkP;
   }
   int IpPort(void)              { return ipPortM; }
   int Quirk(void)               { return quirkM; }
+  const char *SrcAddress(void)  { return *srcAddressM; }
   const char *IpAddress(void)   { return *ipAddressM; }
   const char *Model(void)       { return *modelM; }
   const char *Filters(void)     { return *filtersM; }
@@ -69,7 +71,7 @@ private:
   void Deactivate(void);
   int ParseRtspPort(void);
   void ParseDeviceInfo(const char *addrP, const int portP);
-  void AddServer(const char *addrP, const int portP, const char *modelP, const char *filtersP, const char *descP, const int quirkP);
+  void AddServer(const char *srcAddrP, const char *addrP, const int portP, const char *modelP, const char *filtersP, const char *descP, const int quirkP);
   void Fetch(const char *urlP);
   // constructor
   cSatipDiscover();
@@ -98,6 +100,7 @@ public:
   bool IsServerQuirk(cSatipServer *serverP, int quirkP);
   bool HasServerCI(cSatipServer *serverP);
   cString GetServerAddress(cSatipServer *serverP);
+  cString GetSourceAddress(cSatipServer *serverP);
   int GetServerPort(cSatipServer *serverP);
   cString GetServerList(void);
   int NumProvidedSystems(void);

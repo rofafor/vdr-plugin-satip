@@ -52,7 +52,7 @@ separated list of "<ipaddress>|<model>|<description>" entries. The model
 consists of a DVB system (DVBS2,DVBT2,DVBT,DVBC) and number of available
 frontends separated by a hyphen:
 
-vdr -P 'satip -s <ipaddress>[:<port>]|<model>[:<filter>]|<description>[:<quirk>];...'
+vdr -P 'satip -s [<srcaddress>@]<ipaddress>[:<port>]|<model>[:<filter>]|<description>[:<quirk>];...'
 vdr -P 'satip -s 192.168.0.1|DVBS2-2,DVBT2-2|OctopusNet'
 vdr -P 'satip -s 192.168.0.1|DVBS2-4|OctopusNet;192.168.0.2|DVBT2-4|minisatip:0x18'
 vdr -P 'satip -s 192.168.0.1:554|DVBS2-2:S19.2E|OctopusNet;192.168.0.2:8554|DVBS2-4:S19.2E,S1W|minisatip'
