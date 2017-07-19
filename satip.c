@@ -232,7 +232,7 @@ void cPluginSatip::ParseServer(const char *paramP)
   while (r) {
         r = skipspace(r);
         debug3("%s server[%d]=%s", __PRETTY_FUNCTION__, n, r);
-        cString serverAddr, serverModel, serverFilters, serverDescription;
+        cString sourceAddr, serverAddr, serverModel, serverFilters, serverDescription;
         int serverQuirk = cSatipServer::eSatipQuirkNone;
         int serverPort = SATIP_DEFAULT_RTSP_PORT;
         int n2 = 0;
@@ -243,8 +243,14 @@ void cPluginSatip::ParseServer(const char *paramP)
               switch (n2++) {
                      case 0:
                           {
+                          char *r3 = strchr(r2, '@');
+                          if (r3) {
+                             *r3 = 0;
+                             sourceAddr = r2;
+                             r2 = r3 + 1;
+                             }
                           serverAddr = r2;
-                          char *r3 = strchr(r2, ':');
+                          r3 = strchr(r2, ':');
                           if (r3) {
                              serverPort = strtol(r3 + 1, NULL, 0);
                              serverAddr = serverAddr.Truncate(r3 - r2);
@@ -277,10 +283,10 @@ void cPluginSatip::ParseServer(const char *paramP)
               r2 = strtok_r(NULL, "|", &s2);
               }
         if (*serverAddr && *serverModel && *serverDescription) {
-           debug1("%s ipaddr=%s port=%d model=%s (%s) desc=%s (%d)", __PRETTY_FUNCTION__, *serverAddr, serverPort, *serverModel, *serverFilters, *serverDescription, serverQuirk);
+           debug1("%s srcaddr=%s ipaddr=%s port=%d model=%s (%s) desc=%s (%d)", __PRETTY_FUNCTION__, *sourceAddr, *serverAddr, serverPort, *serverModel, *serverFilters, *serverDescription, serverQuirk);
            if (!serversM)
               serversM = new cSatipDiscoverServers();
-           serversM->Add(new cSatipDiscoverServer(*serverAddr, serverPort, *serverModel, *serverFilters, *serverDescription, serverQuirk));
+           serversM->Add(new cSatipDiscoverServer(*sourceAddr, *serverAddr, serverPort, *serverModel, *serverFilters, *serverDescription, serverQuirk));
            }
         ++n;
         r = strtok_r(NULL, ";", &s);

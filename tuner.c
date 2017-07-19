@@ -222,7 +222,7 @@ bool cSatipTuner::Connect(void)
            return true;
            }
         }
-     else if (rtspM.Options(*connectionUri)) {
+     else if (rtspM.SetInterface(nextServerM.IsValid() ? *nextServerM.GetSrcAddress() : NULL) && rtspM.Options(*connectionUri)) {
         cString uri = cString::sprintf("%s?%s", *connectionUri, *streamParamM);
         bool useTcp = SatipConfig.IsTransportModeRtpOverTcp() && nextServerM.IsValid() && nextServerM.IsQuirk(cSatipServer::eSatipQuirkRtpOverTcp);
         // Flush any old content

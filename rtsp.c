@@ -193,6 +193,22 @@ void cSatipRtsp::Reset(void)
   Create();
 }
 
+bool cSatipRtsp::SetInterface(const char *bindAddrP)
+{
+  debug1("%s (%s) [device %d]", __PRETTY_FUNCTION__, bindAddrP, tunerM.GetId());
+  bool result = true;
+  CURLcode res = CURLE_OK;
+
+  if (handleM && !isempty(bindAddrP)) {
+     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_INTERFACE, *cString::sprintf("host!%s", bindAddrP));
+     }
+  else {
+     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_INTERFACE, NULL);
+     }
+
+  return result;
+}
+
 bool cSatipRtsp::Options(const char *uriP)
 {
   debug1("%s (%s) [device %d]", __PRETTY_FUNCTION__, uriP, tunerM.GetId());
