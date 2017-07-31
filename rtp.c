@@ -45,7 +45,7 @@ void cSatipRtp::Close(void)
 
   sequenceNumberM = -1;
   if (packetErrorsM) {
-     info("Detected %d RTP packet errors [device %d]", packetErrorsM, tunerM.GetId());
+     info("Detected %d RTP packet error%s [device %d]", packetErrorsM, packetErrorsM == 1 ? "": "s", tunerM.GetId());
      packetErrorsM = 0;
      lastErrorReportM = time(NULL);
      }
@@ -80,7 +80,7 @@ int cSatipRtp::GetHeaderLength(unsigned char *bufferP, unsigned int lengthP)
         else if ((sequenceNumberM >= 0) && (((sequenceNumberM + 1) % 0xFFFF) != seq)) {
            packetErrorsM++;
            if (time(NULL) - lastErrorReportM > eReportIntervalS) {
-              info("Detected %d RTP packet errors [device %d]", packetErrorsM, tunerM.GetId());
+              info("Detected %d RTP packet error%s [device %d]", packetErrorsM, packetErrorsM == 1 ? "": "s", tunerM.GetId());
               packetErrorsM = 0;
               lastErrorReportM = time(NULL);
               }
