@@ -31,7 +31,7 @@ try:
 except:
     pass
 sock.settimeout(1)
-sock.bind(("192.168.0.6", SSDP_PORT))
+sock.bind(("0.0.0.0", SSDP_PORT))
 sock.sendto(ssdpRequest, (SSDP_ADDR, SSDP_PORT))
 try:
     while 1:
