@@ -5,6 +5,7 @@
  *
  */
 
+#include <ctype.h>
 #include <getopt.h>
 #include <vdr/plugin.h>
 #include "common.h"
