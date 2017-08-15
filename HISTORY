@@ -156,3 +156,12 @@ VDR Plugin 'satip' Revision History
 - Added multicast and RTP-over-TCP support.
 - Added support for activating/deactivating server on-the-fly.
 - Extended command-line parameters for setting server quirks.
+
+2017-08-15: Version 2.2.5
+
+- Added Polish translation (Thanks to Tomasz Nowak).
+- Updated Catalan and Spanish translations (Thanks to Gabriel Bonich).
+- Added support for KATHREIN SatIP Server (Thanks to kavanu).
+- Added support for FRITZ!Box 6490 Cable (Thanks to 9000h).
+- Updated FRITZ!WLAN Repeater DVB-C detection for the latest firmware (Thanks to 9000h).
+- Added GCC7 compatibility (Thanks to Sascha Kuehndel).
