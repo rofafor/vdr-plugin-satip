@@ -8,6 +8,7 @@
 #ifndef __SATIP_SECTIONFILTER_H
 #define __SATIP_SECTIONFILTER_H
 
+#include <sys/poll.h>
 #include <vdr/device.h>
 
 #include "common.h"
@@ -55,9 +56,10 @@ public:
   cSatipSectionFilter(int deviceIndexP, uint16_t pidP, uint8_t tidP, uint8_t maskP);
   virtual ~cSatipSectionFilter();
   void Process(const uint8_t* dataP);
-  bool Send(void);
+  void Send(void);
   int GetFd(void) { return socketM[0]; }
   uint16_t GetPid(void) const { return pidM; }
+  int Available(void) const;
 };
 
 class cSatipSectionFilterHandler : public cThread {
@@ -69,9 +71,11 @@ private:
   cMutex mutexM;
   int deviceIndexM;
   cSatipSectionFilter *filtersM[eMaxSecFilterCount];
+  struct pollfd pollFdsM[eMaxSecFilterCount];
 
   bool Delete(unsigned int indexP);
   bool IsBlackListed(u_short pidP, u_char tidP, u_char maskP) const;
+  bool Send(void);
 
 protected:
   virtual void Action(void);
