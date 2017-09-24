@@ -102,8 +102,11 @@ int cSatipSectionFilter::Filter(void)
      if (doneqM && !neq)
         return 0;
 
-     if (ringBufferM && (secLenM > 0))
-        ringBufferM->Put(new cFrame(secBufM, secLenM));
+     if (ringBufferM && (secLenM > 0)) {
+        cFrame* section = new cFrame(secBufM, secLenM);
+        if (!ringBufferM->Put(section))
+           DELETE_POINTER(section);
+        }
      }
   return 0;
 }
