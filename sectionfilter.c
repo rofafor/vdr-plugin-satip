@@ -290,7 +290,7 @@ bool cSatipSectionFilterHandler::Send(void)
 
   // send data
   for (unsigned int i = 0; i < eMaxSecFilterCount; ++i) {
-      if(pollFdsM[i].revents & POLLOUT)
+      if (pollFdsM[i].revents & POLLOUT)
         filtersM[i]->Send();
       }
   return true;
