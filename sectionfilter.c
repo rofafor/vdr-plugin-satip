@@ -223,8 +223,8 @@ void cSatipSectionFilter::Send(void)
            // Update statistics
            AddSectionStatistic(count, 1);
            }
-        else
-          esyslog("failed to send section data (%i bytes) to fd: %i (errno: %i)", count, socketM[1], errno);
+        else if (errno != EAGAIN)
+          error("failed to send section data (%i bytes) [device=%d]", count, deviceIndexM);
         }
      ringBufferM->Drop(section);
      }
