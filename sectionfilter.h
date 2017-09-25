@@ -65,7 +65,8 @@ public:
 class cSatipSectionFilterHandler : public cThread {
 private:
   enum {
-    eMaxSecFilterCount = 32
+    eMaxSecFilterCount = 32,
+    eSecFilterSendTimeoutMs = 10
   };
   cRingBufferLinear *ringBufferM;
   cMutex mutexM;
