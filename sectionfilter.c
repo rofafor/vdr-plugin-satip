@@ -285,7 +285,7 @@ bool cSatipSectionFilterHandler::Send(void)
       }
 
   // anyone ready for writing
-  if (poll(pollFdsM, eMaxSecFilterCount, 10) <= 0)
+  if (poll(pollFdsM, eMaxSecFilterCount, eSecFilterSendTimeoutMs) <= 0)
      return false;
 
   // send data
