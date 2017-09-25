@@ -332,7 +332,6 @@ void cSatipSectionFilterHandler::Action(void)
         mutexM.Lock();
         while (Send()) ;
         mutexM.Unlock();
-        //cCondWait::SleepMs(10); // to avoid busy loop and reduce cpu load
         }
   debug1("%s Exiting [device %d]", __PRETTY_FUNCTION__, deviceIndexM);
 }
