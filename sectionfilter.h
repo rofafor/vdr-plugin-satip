@@ -8,7 +8,7 @@
 #ifndef __SATIP_SECTIONFILTER_H
 #define __SATIP_SECTIONFILTER_H
 
-#include <sys/poll.h>
+#include <poll.h>
 #include <vdr/device.h>
 
 #include "common.h"
