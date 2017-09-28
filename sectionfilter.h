@@ -76,7 +76,7 @@ private:
 
   bool Delete(unsigned int indexP);
   bool IsBlackListed(u_short pidP, u_char tidP, u_char maskP) const;
-  bool Send(void);
+  void SendAll(void);
 
 protected:
   virtual void Action(void);
