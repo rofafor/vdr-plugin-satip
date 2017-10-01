@@ -129,7 +129,7 @@ int cSatipSectionFilter::CopyDump(const uint8_t *bufP, uint8_t lenP)
   if (tsFeedpM + lenP > eDmxMaxSectionFeedSize)
      lenP = (uint8_t)(eDmxMaxSectionFeedSize - tsFeedpM);
 
-  if (lenP <= 0)
+  if (lenP == 0)
      return 0;
 
   memcpy(secBufBaseM + tsFeedpM, bufP, lenP);
@@ -144,7 +144,7 @@ int cSatipSectionFilter::CopyDump(const uint8_t *bufP, uint8_t lenP)
 
   for (n = 0; secBufpM + 2 < limit; ++n) {
       uint16_t seclen = GetLength(secBufM);
-      if ((seclen <= 0) || (seclen > eDmxMaxSectionSize) || ((seclen + secBufpM) > limit))
+      if ((seclen > eDmxMaxSectionSize) || ((seclen + secBufpM) > limit))
          return 0;
       secLenM = seclen;
       if (pusiSeenM)
@@ -273,36 +273,43 @@ cSatipSectionFilterHandler::~cSatipSectionFilterHandler()
 
 void cSatipSectionFilterHandler::SendAll(void)
 {
-  while (true) {
-        // zero polling structures
-        memset(pollFdsM, 0, sizeof(pollFdsM));
+  cMutexLock MutexLock(&mutexM);
+  bool retry;
+  do {
+     retry = false;
 
-        // assemble all handlers to poll
-        for (unsigned int i = 0; i < eMaxSecFilterCount; ++i) {
-            if (filtersM[i] && filtersM[i]->Available() != 0) {
-               pollFdsM[i].fd = filtersM[i]->GetFd();
-               pollFdsM[i].events = POLLOUT;
-               }
+     // zero polling structures
+     memset(pollFdsM, 0, sizeof(pollFdsM));
+
+     // assemble all handlers to poll
+     for (unsigned int i = 0; i < eMaxSecFilterCount; ++i) {
+         if (filtersM[i] && filtersM[i]->Available() != 0) {
+            pollFdsM[i].fd = filtersM[i]->GetFd();
+            pollFdsM[i].events = POLLOUT;
             }
+         }
 
-        // anyone ready for writing
-        if (poll(pollFdsM, eMaxSecFilterCount, eSecFilterSendTimeoutMs) <= 0)
-           return;
+     // anyone ready for writing
+     if (poll(pollFdsM, eMaxSecFilterCount, eSecFilterSendTimeoutMs) <= 0)
+        return;
 
-        // send data
-        for (unsigned int i = 0; i < eMaxSecFilterCount; ++i) {
-            if (pollFdsM[i].revents & POLLOUT)
-               filtersM[i]->Send();
-            }
-        }
+     // send data
+     for (unsigned int i = 0; i < eMaxSecFilterCount; ++i) {
+         if (pollFdsM[i].revents & POLLOUT)
+            filtersM[i]->Send();
+
+         if (!retry && filtersM[i] && filtersM[i]->Available() != 0)
+             retry = true;
+         }
+  } while (retry);
 }
 
 void cSatipSectionFilterHandler::Action(void)
 {
   debug1("%s Entering [device %d]", __PRETTY_FUNCTION__, deviceIndexM);
   // Do the thread loop
-  uchar *p = NULL;
   while (Running()) {
+        uchar *p = NULL;
         int len = 0;
         // Process all pending TS packets
         while ((p  = ringBufferM->Get(len)) != NULL) {
@@ -330,9 +337,7 @@ void cSatipSectionFilterHandler::Action(void)
                 }
 
         // Send demuxed section packets through all filters
-        mutexM.Lock();
         SendAll();
-        mutexM.Unlock();
         }
   debug1("%s Exiting [device %d]", __PRETTY_FUNCTION__, deviceIndexM);
 }
