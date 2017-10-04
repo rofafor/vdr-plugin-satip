@@ -274,34 +274,34 @@ cSatipSectionFilterHandler::~cSatipSectionFilterHandler()
 void cSatipSectionFilterHandler::SendAll(void)
 {
   cMutexLock MutexLock(&mutexM);
-  bool retry;
+  bool pendingData;
   do {
-     retry = false;
+     pendingData = false;
 
      // zero polling structures
      memset(pollFdsM, 0, sizeof(pollFdsM));
 
-     // assemble all handlers to poll
+     // assemble all handlers to poll (use -1 to ignore handlers)
      for (unsigned int i = 0; i < eMaxSecFilterCount; ++i) {
          if (filtersM[i] && filtersM[i]->Available() != 0) {
             pollFdsM[i].fd = filtersM[i]->GetFd();
             pollFdsM[i].events = POLLOUT;
+            pendingData = true;
             }
+         else
+            pollFdsM[i].fd = -1;
          }
 
-     // anyone ready for writing
-     if (poll(pollFdsM, eMaxSecFilterCount, eSecFilterSendTimeoutMs) <= 0)
+     // exit if there isn't any pending data or we time out
+     if (!pendingData || poll(pollFdsM, eMaxSecFilterCount, eSecFilterSendTimeoutMs) <= 0)
         return;
 
-     // send data
-     for (unsigned int i = 0; i < eMaxSecFilterCount; ++i) {
+     // send data (if available)
+     for (unsigned int i = 0; i < eMaxSecFilterCount && pendingData; ++i) {
          if (pollFdsM[i].revents & POLLOUT)
             filtersM[i]->Send();
-
-         if (!retry && filtersM[i] && filtersM[i]->Available() != 0)
-             retry = true;
          }
-  } while (retry);
+  } while (pendingData);
 }
 
 void cSatipSectionFilterHandler::Action(void)
