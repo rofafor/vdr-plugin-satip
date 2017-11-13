@@ -15,6 +15,8 @@
 
 static cSatipDevice * SatipDevicesS[SATIP_MAX_DEVICES] = { NULL };
 
+cMutex cSatipDevice::mutexS = cMutex();
+
 cSatipDevice::cSatipDevice(unsigned int indexP)
 : deviceIndexM(indexP),
   isPacketDeliveredM(false),
@@ -22,7 +24,7 @@ cSatipDevice::cSatipDevice(unsigned int indexP)
   deviceNameM(*cString::sprintf("%s %d", *DeviceType(), deviceIndexM)),
   channelM(),
   createdM(0),
-  mutexM()
+  tunedM()
 {
   unsigned int bufsize = (unsigned int)SATIP_BUFFER_SIZE;
   bufsize -= (bufsize % TS_SIZE);
@@ -42,6 +44,8 @@ cSatipDevice::cSatipDevice(unsigned int indexP)
 cSatipDevice::~cSatipDevice()
 {
   debug1("%s [device %u]", __PRETTY_FUNCTION__, deviceIndexM);
+  // Release immediately any pending conditional wait
+  tunedM.Broadcast();
   // Stop section handler
   StopSectionHandler();
   DELETE_POINTER(pSectionFilterHandlerM);
@@ -339,6 +343,7 @@ bool cSatipDevice::MaySwitchTransponder(const cChannel *channelP) const
 
 bool cSatipDevice::SetChannelDevice(const cChannel *channelP, bool liveViewP)
 {
+  cMutexLock MutexLock(&mutexS);  // Global lock to prevent any simultaneous zapping
   debug9("%s (%d, %d) [device %u]", __PRETTY_FUNCTION__, channelP ? channelP->Number() : -1, liveViewP, deviceIndexM);
   if (channelP) {
      cDvbTransponderParameters dtp(channelP->Parameters());
@@ -356,6 +361,8 @@ bool cSatipDevice::SetChannelDevice(const cChannel *channelP, bool liveViewP)
      if (pTunerM && pTunerM->SetSource(server, channelP->Transponder(), *params, deviceIndexM)) {
         channelM = *channelP;
         deviceNameM = cString::sprintf("%s %d %s", *DeviceType(), deviceIndexM, *cSatipDiscover::GetInstance()->GetServerString(server));
+        // Wait for actual channel tuning to prevent simultaneous frontend allocation failures
+        tunedM.TimedWait(mutexS, eTuningTimeoutMs);
         return true;
         }
      }
@@ -365,6 +372,13 @@ bool cSatipDevice::SetChannelDevice(const cChannel *channelP, bool liveViewP)
      return true;
      }
   return false;
+}
+
+void cSatipDevice::SetChannelTuned(void)
+{
+  debug9("%s () [device %u]", __PRETTY_FUNCTION__, deviceIndexM);
+  // Release immediately any pending conditional wait
+  tunedM.Broadcast();
 }
 
 bool cSatipDevice::SetPid(cPidHandle *handleP, int typeP, bool onP)

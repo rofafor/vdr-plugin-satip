@@ -126,6 +126,7 @@ void cSatipTuner::Action(void)
                break;
           case tsTuned:
                debug4("%s: tsTuned [device %d]", __PRETTY_FUNCTION__, deviceIdM);
+               deviceM->SetChannelTuned();
                reConnectM.Set(eConnectTimeoutMs);
                idleCheck.Set(eIdleCheckTimeoutMs);
                lastIdleStatus = false;
