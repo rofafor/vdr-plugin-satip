@@ -18,7 +18,7 @@
 class cSatipDevice : public cDevice, public cSatipPidStatistics, public cSatipBufferStatistics, public cSatipDeviceIf {
   // static ones
 public:
-  static unsigned int deviceCount;
+  static cMutex mutexS;
   static bool Initialize(unsigned int DeviceCount);
   static void Shutdown(void);
   static unsigned int Count(void);
@@ -28,7 +28,8 @@ public:
   // private parts
 private:
   enum {
-    eReadyTimeoutMs = 2000 // in milliseconds
+    eReadyTimeoutMs  = 2000, // in milliseconds
+    eTuningTimeoutMs = 1000  // in milliseconds
   };
   unsigned int deviceIndexM;
   int bytesDeliveredM;
@@ -40,7 +41,7 @@ private:
   cSatipTuner *pTunerM;
   cSatipSectionFilterHandler *pSectionFilterHandlerM;
   cTimeMs createdM;
-  cMutex mutexM;
+  cCondVar tunedM;
 
   // constructor & destructor
 public:
@@ -109,6 +110,7 @@ public:
   // for internal device interface
 public:
   virtual void WriteData(u_char *bufferP, int lengthP);
+  virtual void SetChannelTuned(void);
   virtual int GetId(void);
   virtual int GetPmtPid(void);
   virtual int GetCISlot(void);
