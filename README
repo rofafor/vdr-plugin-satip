@@ -159,6 +159,19 @@ Notes:
   from their webpage: http://www.inverto.tv/support/
   An update to a newer firmware should be offered afterwards.
 
+- If you are experiencing glitches in the video stream, one possible
+  reason can be buffer overflows in RTP receive sockets. You can verify
+  this by checking "receive buffer errors" counter by running "netstat -s"
+  command. If the counter increases every time a video glitch happens,
+  you should try to tweak the RTP receive buffer size with the "--rcvbuf"
+  (-r) plugin parameter.
+  A good starting point for the buffer size is to double the operating
+  system default value until errors disappear or the maximum value is
+  reached. You can check these values in Linux by checking the kernel
+  parameters:
+  $ cat /proc/sys/net/core/rmem_default
+  $ cat /proc/sys/net/core/rmem_max
+ 
 Acknowledgements:
 
 - Big thanks to Digital Devices GmbH for providing the Octopus Net

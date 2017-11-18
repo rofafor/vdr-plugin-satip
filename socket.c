@@ -28,12 +28,18 @@
 #endif
 
 cSatipSocket::cSatipSocket()
+: cSatipSocket(0)
+{
+}
+
+cSatipSocket::cSatipSocket(size_t rcvBufSizeP)
 : socketPortM(0),
   socketDescM(-1),
   isMulticastM(false),
   useSsmM(false),
   streamAddrM(htonl(INADDR_ANY)),
-  sourceAddrM(htonl(INADDR_ANY))
+  sourceAddrM(htonl(INADDR_ANY)),
+  rcvBufSizeM(rcvBufSizeP)
 {
   debug1("%s", __PRETTY_FUNCTION__);
   memset(&sockAddrM, 0, sizeof(sockAddrM));
@@ -78,6 +84,11 @@ bool cSatipSocket::Open(const int portP, const bool reuseP)
      ERROR_IF_FUNC(setsockopt(socketDescM, SOL_IP, IP_PKTINFO, &yes, sizeof(yes)) < 0,
                    "setsockopt(IP_PKTINFO)", Close(), return false);
 #endif // __FreeBSD__
+     // Tweak receive buffer size if requested
+     if (rcvBufSizeM > 0) {
+        ERROR_IF_FUNC(setsockopt(socketDescM, SOL_SOCKET, SO_RCVBUF, &rcvBufSizeM, sizeof(rcvBufSizeM)) < 0,
+                      "setsockopt(SO_RCVBUF)", Close(), return false);
+     }
      // Bind socket
      memset(&sockAddrM, 0, sizeof(sockAddrM));
      sockAddrM.sin_family = AF_INET;

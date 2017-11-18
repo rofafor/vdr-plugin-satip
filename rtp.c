@@ -14,7 +14,8 @@
 #include "rtp.h"
 
 cSatipRtp::cSatipRtp(cSatipTunerIf &tunerP)
-: tunerM(tunerP),
+: cSatipSocket(SatipConfig.GetRtpRcvBufSize()),
+  tunerM(tunerP),
   bufferLenM(eRtpPacketReadCount * eMaxUdpPacketSizeB),
   bufferM(MALLOC(unsigned char, bufferLenM)),
   lastErrorReportM(0),
