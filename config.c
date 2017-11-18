@@ -22,7 +22,8 @@ cSatipConfig::cSatipConfig(void)
   transportModeM(eTransportModeUnicast),
   detachedModeM(false),
   disableServerQuirksM(false),
-  useSingleModelServersM(false)
+  useSingleModelServersM(false),
+  rtpRcvBufSizeM(0)
 {
   for (unsigned int i = 0; i < ELEMENTS(cicamsM); ++i)
       cicamsM[i] = 0;

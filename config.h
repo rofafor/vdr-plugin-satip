@@ -28,6 +28,7 @@ private:
   int cicamsM[MAX_CICAM_COUNT];
   int disabledSourcesM[MAX_DISABLED_SOURCES_COUNT];
   int disabledFiltersM[SECTION_FILTER_TABLE_SIZE];
+  size_t rtpRcvBufSizeM;
 
 public:
   enum eOperatingMode {
@@ -89,6 +90,7 @@ public:
   int GetDisabledFilters(unsigned int indexP) const;
   unsigned int GetPortRangeStart(void) const { return portRangeStartM; }
   unsigned int GetPortRangeStop(void) const { return portRangeStopM; }
+  size_t GetRtpRcvBufSize(void) const { return rtpRcvBufSizeM; }
 
   void SetOperatingMode(unsigned int operatingModeP) { operatingModeM = operatingModeP; }
   void SetTraceMode(unsigned int modeP) { traceModeM = (modeP & eTraceModeMask); }
@@ -104,6 +106,7 @@ public:
   void SetDisabledFilters(unsigned int indexP, int numberP);
   void SetPortRangeStart(unsigned int rangeStartP) { portRangeStartM = rangeStartP; }
   void SetPortRangeStop(unsigned int rangeStopP) { portRangeStopM = rangeStopP; }
+  void SetRtpRcvBufSize(size_t sizeP) { rtpRcvBufSizeM = sizeP; }
 };
 
 extern cSatipConfig SatipConfig;
