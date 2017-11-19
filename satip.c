@@ -91,7 +91,8 @@ const char *cPluginSatip::CommandLineHelp(void)
          "  -S, --single                  set the single model server mode on\n"
          "  -n, --noquirks                disable autodetection of the server quirks\n"
          "  -p, --portrange=<start>-<end> set a range of ports used for the RT[C]P server\n"
-         "                                a minimum of 2 ports per device is required.\n";
+         "                                a minimum of 2 ports per device is required.\n"
+         "  -r, --rcvbuf                  override the size of the RTP receive buffer in bytes\n";
 }
 
 bool cPluginSatip::ProcessArgs(int argc, char *argv[])
@@ -103,6 +104,7 @@ bool cPluginSatip::ProcessArgs(int argc, char *argv[])
     { "trace",    required_argument, NULL, 't' },
     { "server",   required_argument, NULL, 's' },
     { "portrange",required_argument, NULL, 'p' },
+    { "rcvbuf",   required_argument, NULL, 'r' },
     { "detach",   no_argument,       NULL, 'D' },
     { "single",   no_argument,       NULL, 'S' },
     { "noquirks", no_argument,       NULL, 'n' },
@@ -112,7 +114,7 @@ bool cPluginSatip::ProcessArgs(int argc, char *argv[])
   cString server;
   cString portrange;
   int c;
-  while ((c = getopt_long(argc, argv, "d:t:s:p:DSn", long_options, NULL)) != -1) {
+  while ((c = getopt_long(argc, argv, "d:t:s:p:r:DSn", long_options, NULL)) != -1) {
     switch (c) {
       case 'd':
            deviceCountM = strtol(optarg, NULL, 0);
@@ -134,6 +136,9 @@ bool cPluginSatip::ProcessArgs(int argc, char *argv[])
            break;
       case 'p':
            portrange = optarg;
+           break;
+      case 'r':
+           SatipConfig.SetRtpRcvBufSize(strtol(optarg, NULL, 0));
            break;
       default:
            return false;

@@ -19,12 +19,14 @@ private:
   bool useSsmM;
   in_addr_t streamAddrM;
   in_addr_t sourceAddrM;
+  size_t rcvBufSizeM;
   bool CheckAddress(const char *addrP, in_addr_t *inAddrP);
   bool Join(void);
   bool Leave(void);
 
 public:
   cSatipSocket();
+  cSatipSocket(size_t rcvBufSizeP);
   virtual ~cSatipSocket();
   bool Open(const int portP = 0, const bool reuseP = false);
   bool OpenMulticast(const int portP, const char *streamAddrP, const char *sourceAddrP);
