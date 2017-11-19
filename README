@@ -171,7 +171,7 @@ Notes:
   parameters:
   $ cat /proc/sys/net/core/rmem_default
   $ cat /proc/sys/net/core/rmem_max
- 
+
 Acknowledgements:
 
 - Big thanks to Digital Devices GmbH for providing the Octopus Net

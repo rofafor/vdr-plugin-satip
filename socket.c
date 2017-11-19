@@ -28,8 +28,16 @@
 #endif
 
 cSatipSocket::cSatipSocket()
-: cSatipSocket(0)
+: socketPortM(0),
+  socketDescM(-1),
+  isMulticastM(false),
+  useSsmM(false),
+  streamAddrM(htonl(INADDR_ANY)),
+  sourceAddrM(htonl(INADDR_ANY)),
+  rcvBufSizeM(0)
 {
+  debug1("%s", __PRETTY_FUNCTION__);
+  memset(&sockAddrM, 0, sizeof(sockAddrM));
 }
 
 cSatipSocket::cSatipSocket(size_t rcvBufSizeP)
