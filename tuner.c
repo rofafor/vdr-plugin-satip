@@ -388,8 +388,8 @@ void cSatipTuner::SetupTransport(int rtpPortP, int rtcpPortP, const char *stream
   // Adapt RTP to any transport media change
   if (multicast != rtpM.IsMulticast() || rtpPortP != rtpM.Port()) {
      cSatipPoller::GetInstance()->Unregister(rtpM);
-     rtpM.Close();
      if (rtpPortP >= 0) {
+        rtpM.Close();
         if (multicast)
            rtpM.OpenMulticast(rtpPortP, streamAddrP, sourceAddrP);
         else
@@ -400,8 +400,8 @@ void cSatipTuner::SetupTransport(int rtpPortP, int rtcpPortP, const char *stream
   // Adapt RTCP to any transport media change
   if (multicast != rtcpM.IsMulticast() || rtcpPortP != rtcpM.Port()) {
      cSatipPoller::GetInstance()->Unregister(rtcpM);
-     rtcpM.Close();
      if (rtcpPortP >= 0) {
+        rtcpM.Close();
         if (multicast)
            rtcpM.OpenMulticast(rtcpPortP, streamAddrP, sourceAddrP);
         else
