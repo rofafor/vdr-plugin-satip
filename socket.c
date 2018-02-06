@@ -128,7 +128,7 @@ bool cSatipSocket::OpenMulticast(const int portP, const char *streamAddrP, const
 
 void cSatipSocket::Close(void)
 {
-  debug1("%s sockerPort=%d", __PRETTY_FUNCTION__, socketPortM);
+  debug1("%s socketPort=%d", __PRETTY_FUNCTION__, socketPortM);
   // Check if socket exists
   if (socketDescM >= 0) {
      Leave();

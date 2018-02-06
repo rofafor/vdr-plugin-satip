@@ -229,6 +229,8 @@ bool cSatipTuner::Connect(void)
         // Flush any old content
         //rtpM.Flush();
         //rtcpM.Flush();
+        if (useTcp)
+           debug1("%s Requesting TCP [device %d]", __PRETTY_FUNCTION__, deviceIdM);
         if (rtspM.Setup(*uri, rtpM.Port(), rtcpM.Port(), useTcp)) {
            keepAliveM.Set(timeoutM);
            if (nextServerM.IsValid()) {
@@ -401,9 +403,9 @@ void cSatipTuner::SetupTransport(int rtpPortP, int rtcpPortP, const char *stream
      rtcpM.Close();
      if (rtcpPortP >= 0) {
         if (multicast)
-           rtcpM.OpenMulticast(rtpPortP, streamAddrP, sourceAddrP);
+           rtcpM.OpenMulticast(rtcpPortP, streamAddrP, sourceAddrP);
         else
-           rtcpM.Open(rtpPortP);
+           rtcpM.Open(rtcpPortP);
         cSatipPoller::GetInstance()->Register(rtcpM);
         }
      }
