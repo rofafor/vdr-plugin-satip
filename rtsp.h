@@ -27,7 +27,6 @@ private:
 
   enum {
     eConnectTimeoutMs      = 1500,  // in milliseconds
-    eMaxDownloadSpeedMBits = 20,    // in megabits per second
   };
 
   cSatipTunerIf &tunerM;
