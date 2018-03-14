@@ -166,6 +166,7 @@ cString GetTransponderUrlParameters(const cChannel *channelP)
      if ((channelP->Rid() % 100) > 0)
                 q += snprintf(q,       STBUFLEFT, "&fe=%d",           channelP->Rid() % 100);
      ST(" S *") q += snprintf(q,       STBUFLEFT, "src=%d&",          ((src > 0) && (src <= 255)) ? src : 1);
+     if (freq >= 0L)
                 q += snprintf(q,       STBUFLEFT, "freq=%s",          *dtoa(freq, "%lg"));
      ST(" S *") q += snprintf(q,       STBUFLEFT, "&pol=%c",          tolower(dtp.Polarization()));
      ST(" S *") q += PrintUrlString(q, STBUFLEFT, dtp.RollOff(),      SatipRollOffValues);
