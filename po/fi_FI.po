@@ -1,14 +1,14 @@
 # VDR plugin language source file.
-# Copyright (C) 2007-2017 Rolf Ahrenberg
+# Copyright (C) 2007-2018 Rolf Ahrenberg
 # This file is distributed under the same license as the satip package.
 # Rolf Ahrenberg, 2015-2017
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: vdr-satip 2.3.1\n"
+"Project-Id-Version: vdr-satip 2.4.0\n"
 "Report-Msgid-Bugs-To: <see README>\n"
-"POT-Creation-Date: 2017-08-15 08:15+0300\n"
-"PO-Revision-Date: 2017-08-15 08:15+0300\n"
+"POT-Creation-Date: 2018-04-15 04:15+0300+0300\n"
+"PO-Revision-Date: 2018-04-15 04:15+0300+0300\n"
 "Last-Translator: Rolf Ahrenberg\n"
 "Language-Team: Finnish <vdr@linuxtv.org>\n"
 "Language: fi\n"

@@ -193,3 +193,17 @@ VDR Plugin 'satip' Revision History
 - Added support for FRITZ!Box 6490 Cable (Thanks to 9000h).
 - Updated FRITZ!WLAN Repeater DVB-C detection for the latest firmware (Thanks to 9000h).
 - Added GCC7 compatibility (Thanks to Sascha Kuehndel).
+
+
+===================================
+VDR Plugin 'satip' Revision History
+===================================
+
+2018-04-15: Version 2.4.0
+
+- Updated for vdr-2.4.0.
+- Removed speed limit.
+- Fixed transport media changes.
+- Fixed memory leak in cSatipSectionFilter (Thanks to Alexander Pipelka).
+- Added more robust section filter handling (Thanks to Alexander Pipelka).
+- Added a command line parameter for the RTP receive buffer size (Thanks to Stefan Rehm).
