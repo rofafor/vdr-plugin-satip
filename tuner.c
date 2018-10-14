@@ -486,17 +486,24 @@ bool cSatipTuner::UpdatePids(bool forceP)
      cString uri = cString::sprintf("%sstream=%d", *GetBaseUrl(*streamAddrM, streamPortM), streamIdM);
      bool useci = (SatipConfig.GetCIExtension() && currentServerM.HasCI());
      bool usedummy = currentServerM.IsQuirk(cSatipServer::eSatipQuirkPlayPids);
+     bool paramadded = false;
      if (forceP || usedummy) {
-        if (pidsM.Size())
-           uri = cString::sprintf("%s?pids=%s", *uri, *pidsM.ListPids());
-        if (usedummy && (pidsM.Size() == 1) && (pidsM[0] < 0x20))
-           uri = cString::sprintf("%s,%d", *uri, eDummyPid);
+        if (pidsM.Size()) {
+           uri = cString::sprintf("%s%spids=%s", *uri, paramadded ? "&" : "?", *pidsM.ListPids());
+           if (usedummy && (pidsM.Size() == 1) && (pidsM[0] < 0x20))
+              uri = cString::sprintf("%s,%d", *uri, eDummyPid);
+           paramadded = true;
+           }
         }
      else {
-        if (addPidsM.Size())
-           uri = cString::sprintf("%s?addpids=%s", *uri, *addPidsM.ListPids());
-        if (delPidsM.Size())
-           uri = cString::sprintf("%s%sdelpids=%s", *uri, addPidsM.Size() ? "&" : "?", *delPidsM.ListPids());
+        if (addPidsM.Size()) {
+           uri = cString::sprintf("%s%saddpids=%s", *uri, paramadded ? "&" : "?", *addPidsM.ListPids());
+           paramadded = true;
+           }
+        if (delPidsM.Size()) {
+           uri = cString::sprintf("%s%sdelpids=%s", *uri, paramadded ? "&" : "?", *delPidsM.ListPids());
+           paramadded = true;
+           }
         }
      if (useci) {
         if (currentServerM.IsQuirk(cSatipServer::eSatipQuirkCiXpmt)) {
@@ -509,9 +516,10 @@ bool cSatipTuner::UpdatePids(bool forceP)
            int pid = deviceM->GetPmtPid();
            if ((pid > 0) && (pid != pmtPidM)) {
               int slot = deviceM->GetCISlot();
-              uri = cString::sprintf("%s&x_pmt=%d", *uri, pid);
+              uri = cString::sprintf("%s%sx_pmt=%d", *uri, paramadded ? "&" : "?", pid);
               if (slot > 0)
                  uri = cString::sprintf("%s&x_ci=%d", *uri, slot);
+              paramadded = true;
               }
            pmtPidM = pid;
            }
@@ -519,8 +527,10 @@ bool cSatipTuner::UpdatePids(bool forceP)
            // CI extension parameters:
            // - tnr : specifies a channel config entry
            cString param = deviceM->GetTnrParameterString();
-           if (!isempty(*param) && strcmp(*tnrParamM, *param) != 0)
-              uri = cString::sprintf("%s&tnr=%s", *uri, *param);
+           if (!isempty(*param) && strcmp(*tnrParamM, *param) != 0) {
+              uri = cString::sprintf("%s%stnr=%s", *uri, paramadded ? "&" : "?", *param);
+              paramadded = true;
+              }
            tnrParamM = param;
            }
         }
