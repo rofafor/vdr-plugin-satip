@@ -206,6 +206,28 @@ bool cSatipRtsp::SetInterface(const char *bindAddrP)
   return result;
 }
 
+bool cSatipRtsp::Receive(const char *uriP)
+{
+  debug1("%s (%s) [device %d]", __PRETTY_FUNCTION__, uriP, tunerM.GetId());
+  bool result = false;
+
+  if (handleM && !isempty(uriP) && modeM == cSatipConfig::eTransportModeRtpOverTcp) {
+     long rc = 0;
+     cTimeMs processing(0);
+     CURLcode res = CURLE_OK;
+
+     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_URL, uriP);
+     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_STREAM_URI, uriP);
+     SATIP_CURL_EASY_SETOPT(handleM, CURLOPT_RTSP_REQUEST, (long)CURL_RTSPREQ_OPTIONS); // FIXME: this really should be CURL_RTSPREQ_RECEIVE, but getting timeout errors
+     SATIP_CURL_EASY_PERFORM(handleM);
+
+     result = ValidateLatestResponse(&rc);
+     debug5("%s (%s) Response %ld in %" PRIu64 " ms [device %d]", __PRETTY_FUNCTION__, uriP, rc, processing.Elapsed(), tunerM.GetId());
+     }
+
+  return result;
+}
+
 bool cSatipRtsp::Options(const char *uriP)
 {
   debug1("%s (%s) [device %d]", __PRETTY_FUNCTION__, uriP, tunerM.GetId());

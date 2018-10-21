@@ -128,6 +128,7 @@ private:
 
   bool Connect(void);
   bool Disconnect(void);
+  bool Receive(void);
   bool KeepAlive(bool forceP = false);
   bool ReadReceptionStatus(bool forceP = false);
   bool UpdatePids(bool forceP = false);

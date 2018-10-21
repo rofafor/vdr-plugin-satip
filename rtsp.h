@@ -59,6 +59,7 @@ public:
   cString RtspUnescapeString(const char *strP);
   void Reset(void);
   bool SetInterface(const char *bindAddrP);
+  bool Receive(const char *uriP);
   bool Options(const char *uriP);
   bool Setup(const char *uriP, int rtpPortP, int rtcpPortP, bool useTcpP);
   bool SetSession(const char *sessionP);

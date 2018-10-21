@@ -175,6 +175,7 @@ void cSatipTuner::Action(void)
                   idleCheck.Set(eIdleCheckTimeoutMs);
                   break;
                   }
+               Receive();
                break;
           default:
                error("Unknown tuner status %d [device %d]", currentStateM, deviceIdM);
@@ -539,6 +540,19 @@ bool cSatipTuner::UpdatePids(bool forceP)
         return false;
      addPidsM.Clear();
      delPidsM.Clear();
+     }
+
+  return true;
+}
+
+bool cSatipTuner::Receive(void)
+{
+  debug16("%s tunerState=%s [device %d]", __PRETTY_FUNCTION__, TunerStateString(currentStateM), deviceIdM);
+  cMutexLock MutexLock(&mutexM);
+  if (!isempty(*streamAddrM)) {
+     cString uri = GetBaseUrl(*streamAddrM, streamPortM);
+     if (!rtspM.Receive(*uri))
+        return false;
      }
 
   return true;
