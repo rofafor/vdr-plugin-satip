@@ -390,7 +390,7 @@ void cSatipDevice::SetChannelTuned(void)
 bool cSatipDevice::SetPid(cPidHandle *handleP, int typeP, bool onP)
 {
   debug12("%s (%d, %d, %d) [device %u]", __PRETTY_FUNCTION__, handleP ? handleP->pid : -1, typeP, onP, deviceIndexM);
-  if (pTunerM && handleP && handleP->pid >= 0) {
+  if (pTunerM && handleP && handleP->pid >= 0 && handleP->pid <= 8191) {
      if (onP)
         return pTunerM->SetPid(handleP->pid, typeP, true);
      else if (!handleP->used && pSectionFilterHandlerM && !pSectionFilterHandlerM->Exists(handleP->pid))
