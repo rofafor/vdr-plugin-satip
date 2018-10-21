@@ -128,14 +128,12 @@ cSatipServer::cSatipServer(const char *srcAddressP, const char *addressP, const 
         )
         quirkM |= eSatipQuirkRtpOverTcp;
      // These devices contain a play (add/delpids) parameter bug:
-     if (strstr(*descriptionM, "FRITZ!Box 6490 Cable") ||      // FRITZ!Box 6490 Cable
-         strstr(*descriptionM, "FRITZ!WLAN Repeater DVB-C") || // FRITZ!WLAN Repeater DVB-C
+     if (strstr(*descriptionM, "FRITZ!WLAN Repeater DVB-C") || // FRITZ!WLAN Repeater DVB-C
          strstr(*descriptionM, "fritzdvbc")                    // FRITZ!WLAN Repeater DVB-C (old firmware)
         )
         quirkM |= eSatipQuirkPlayPids;
      // These devices contain a frontend locking bug:
-     if (strstr(*descriptionM, "FRITZ!Box 6490 Cable") ||      // FRITZ!Box 6490 Cable
-         strstr(*descriptionM, "FRITZ!WLAN Repeater DVB-C") || // FRITZ!WLAN Repeater DVB-C
+     if (strstr(*descriptionM, "FRITZ!WLAN Repeater DVB-C") || // FRITZ!WLAN Repeater DVB-C
          strstr(*descriptionM, "fritzdvbc") ||                 // FRITZ!WLAN Repeater DVB-C (old firmware)
          strstr(*descriptionM, "Schwaiger Sat>IP Server")      // Schwaiger MS41IP
         )

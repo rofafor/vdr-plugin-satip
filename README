@@ -159,6 +159,9 @@ Notes:
   from their webpage: http://www.inverto.tv/support/
   An update to a newer firmware should be offered afterwards.
 
+- FRITZ!OS 7.00 or greater recommended for FRITZ!Box Cable devices.
+  Older firmware versions require both PlayPids and ForceLock quirks.
+
 - If you are experiencing glitches in the video stream, one possible
   reason can be buffer overflows in RTP receive sockets. You can verify
   this by checking "receive buffer errors" counter by running "netstat -s"
