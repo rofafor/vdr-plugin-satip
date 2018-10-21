@@ -20,7 +20,7 @@ private:
   cSatipTunerIf &tunerM;
   unsigned int bufferLenM;
   unsigned char *bufferM;
-  int GetApplicationOffset(int *lengthP);
+  int GetApplicationOffset(unsigned char *bufferP, int *lengthP);
 
 public:
   explicit cSatipRtcp(cSatipTunerIf &tunerP);
