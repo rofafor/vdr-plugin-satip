@@ -36,6 +36,9 @@ def parse_satip_xml(data):
         name = root.find('.//*/{urn:schemas-upnp-org:device-1-0}friendlyName')
         result['name'] = name.text
         satipcap = root.find('.//*/{urn:ses-com:satip}X_SATIPCAP')
+        if satipcap is None:
+            # fallback for non-standard Panasonic
+            satipcap = root.find('.//*/{urn-ses-com:satip}X_SATIPCAP')
         caps = {}
         for system in satipcap.text.split(","):
             cap = system.split("-")
