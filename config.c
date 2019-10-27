@@ -15,6 +15,7 @@ cSatipConfig::cSatipConfig(void)
 : operatingModeM(eOperatingModeLow),
   traceModeM(eTraceModeNormal),
   ciExtensionM(0),
+  frontendReuseM(1),
   eitScanM(1),
   useBytesM(1),
   portRangeStartM(0),

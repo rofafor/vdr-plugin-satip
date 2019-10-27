@@ -207,3 +207,7 @@ VDR Plugin 'satip' Revision History
 - Fixed memory leak in cSatipSectionFilter (Thanks to Alexander Pipelka).
 - Added more robust section filter handling (Thanks to Alexander Pipelka).
 - Added a command line parameter for the RTP receive buffer size (Thanks to Stefan Rehm).
+
+2019-XX-XX: Version 2.4.1
+
+- Added an option to enable/disable frontend reuse.

@@ -28,7 +28,7 @@
 #define GITVERSION ""
 #endif
 
-       const char VERSION[]     = "2.4.0" GITVERSION;
+       const char VERSION[]     = "2.4.1" GITVERSION;
 static const char DESCRIPTION[] = trNOOP("SAT>IP Devices");
 
 class cPluginSatip : public cPlugin {
@@ -392,6 +392,8 @@ bool cPluginSatip::SetupParse(const char *nameP, const char *valueP)
      SatipConfig.SetOperatingMode(atoi(valueP));
   else if (!strcasecmp(nameP, "EnableCIExtension"))
      SatipConfig.SetCIExtension(atoi(valueP));
+  else if (!strcasecmp(nameP, "EnableFrontendReuse"))
+     SatipConfig.SetFrontendReuse(atoi(valueP));
   else if (!strcasecmp(nameP, "CICAM")) {
      int Cicams[MAX_CICAM_COUNT];
      for (unsigned int i = 0; i < ELEMENTS(Cicams); ++i)

@@ -1,5 +1,5 @@
 # VDR plugin language source file.
-# Copyright (C) 2007-2018 Rolf Ahrenberg
+# Copyright (C) 2007-2019 Rolf Ahrenberg
 # This file is distributed under the same license as the vdr-satip package.
 # Tomasz Maciej Nowak, 2017
 #
@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: vdr-satip 2.4.0\n"
 "Report-Msgid-Bugs-To: <see README>\n"
-"POT-Creation-Date: 2018-04-15 04:15+0300+0300\n"
-"PO-Revision-Date: 2018-04-15 04:15+0300+0300\n"
+"POT-Creation-Date: 2019-10-27 19:12+0200\n"
+"PO-Revision-Date:  2019-10-27 10:27+0200\n"
 "Last-Translator: Tomasz Maciej Nowak <tomek_n@o2.pl>\n"
 "Language-Team: Polish <vdr@linuxtv.org>\n"
 "Language: pl_PL\n"
@@ -198,6 +198,12 @@ msgid ""
 msgstr ""
 "Określa tryb transmisji.\n"
 "Unicast, Multicast, RTP-over-TCP."
+
+msgid "Enable frontend reuse"
+msgstr ""
+
+msgid "Define whether reusing a frontend for multiple channels in a transponder should be enabled."
+msgstr ""
 
 msgid "Active SAT>IP servers:"
 msgstr "Aktywne serwery SAT>IP:"

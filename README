@@ -86,46 +86,50 @@ Valid range: 1 ... 99
 
 Setup menu:
 
-- Operating mode = off       If you want exclude all SAT>IP devices
-                   low       from VDR's device handling, set this
-                   normal    option to "off". Otherwise, if you want
-                   high      to keep SAT>IP at a low priority when
-                             selecting available devices, set this
-                             option to "low". Similarly, the "high"
-                             value prefers the SAT>IP over the local
-                             DVB cards when selecting available devices.
-- Use CI extension = no      If you want to use the CI extension found
-                             in some SAT>IP hardware (e.g. Digital
-                             Devices OctopusNet), set this option to
-                             "yes".
-- CICAM #<slot> = <system>   If you want to assign a CA system into
-                             a specific CI slot, set this option to
-                             a named one. Use "---" for autoselection.
-- Enable EPG scanning = yes  If you want exclude all SAT>IP devices
-                             from VDR's EIT background scanning, set
-                             this option to "no".
-- Disabled sources = none    If your SAT>IP servers don't have certain
-                             satellite positions available you can
-                             disable them via this option.
-- Disabled filters = none    Certain section filters might cause some
-                             unwanted behaviour to VDR such as time
-                             being falsely synchronized etc. This option
-                             allows creation of blacklists of ill-behaving
-                             filters. If this option is set to a non-zero
-                             value, the menu page will contain that many
-                             "Disable filter" options which allow you
-                             to disable the individual section filters.
-                             Valid range: "none" = 0 ... 7
-- Transport mode = unicast   If you want to use the non-standard
-                   multicast RTP-over-TCP transport mode, set this option
-                   rtp-o-tcp accordingly. Otherwise, the transport
-                             mode will be RTP-over-UDP via unicast or
-                             multicast.
-- [Red:Scan]                 Forces network scanning of SAT>IP hardware.
-- [Yellow:Devices]           Opens SAT>IP device status menu.
-- [Blue:Info]                Opens SAT>IP information/statistics menu.
-- [Ok]                       Opens information menu of selected SAT>IP
-                             device.
+- Operating mode = off        If you want exclude all SAT>IP devices
+                   low        from VDR's device handling, set this
+                   normal     option to "off". Otherwise, if you want
+                   high       to keep SAT>IP at a low priority when
+                              selecting available devices, set this
+                              option to "low". Similarly, the "high"
+                              value prefers the SAT>IP over the local
+                              DVB cards when selecting available devices.
+- Use CI extension = no       If you want to use the CI extension found
+                              in some SAT>IP hardware (e.g. Digital
+                              Devices OctopusNet), set this option to
+                              "yes".
+- CICAM #<slot> = <system>    If you want to assign a CA system into
+                              a specific CI slot, set this option to
+                              a named one. Use "---" for autoselection.
+- Enable EPG scanning = yes   If you want exclude all SAT>IP devices
+                              from VDR's EIT background scanning, set
+                              this option to "no".
+- Disabled sources = none     If your SAT>IP servers don't have certain
+                              satellite positions available you can
+                              disable them via this option.
+- Disabled filters = none     Certain section filters might cause some
+                              unwanted behaviour to VDR such as time
+                              being falsely synchronized etc. This option
+                              allows creation of blacklists of ill-behaving
+                              filters. If this option is set to a non-zero
+                              value, the menu page will contain that many
+                              "Disable filter" options which allow you
+                              to disable the individual section filters.
+                              Valid range: "none" = 0 ... 7
+- Transport mode = unicast    If you want to use the non-standard
+                   multicast  RTP-over-TCP transport mode, set this option
+                   rtp-o-tcp  accordingly. Otherwise, the transport
+                              mode will be RTP-over-UDP via unicast or
+                              multicast.
+- Enable frontend reuse = yes Certain devices might have artifacts if
+                              multiple channels are assigned to the same
+                              frontend. If you want to avoid such a
+                              frontend assignment, set this option to "no". 
+- [Red:Scan]                  Forces network scanning of SAT>IP hardware.
+- [Yellow:Devices]            Opens SAT>IP device status menu.
+- [Blue:Info]                 Opens SAT>IP information/statistics menu.
+- [Ok]                        Opens information menu of selected SAT>IP
+                              device.
 
 Information menu:
 

@@ -295,10 +295,10 @@ bool cSatipDevice::ProvidesChannel(const cChannel *channelP, int priorityP, bool
                     result = true;
                  }
               else
-                 result = true;
+                 result = !!SatipConfig.GetFrontendReuse();
               }
            else
-              needsDetachReceivers = Receiving();
+              needsDetachReceivers = true;
            }
         }
      }

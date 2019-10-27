@@ -347,6 +347,7 @@ cSatipPluginSetup::cSatipPluginSetup()
   operatingModeM(SatipConfig.GetOperatingMode()),
   transportModeM(SatipConfig.GetTransportMode()),
   ciExtensionM(SatipConfig.GetCIExtension()),
+  frontendReuseM(SatipConfig.GetFrontendReuse()),
   eitScanM(SatipConfig.GetEITScan()),
   numDisabledSourcesM(SatipConfig.GetDisabledSourcesCount()),
   numDisabledFiltersM(SatipConfig.GetDisabledFiltersCount())
@@ -418,6 +419,10 @@ void cSatipPluginSetup::Setup(void)
      }
   Add(new cMenuEditStraItem(tr("Transport mode"), &transportModeM, ELEMENTS(transportModeTextsM), transportModeTextsM));
   helpM.Append(tr("Define which transport mode shall be used.\n\nUnicast, Multicast, RTP-over-TCP"));
+
+  Add(new cMenuEditBoolItem(tr("Enable frontend reuse"), &frontendReuseM));
+  helpM.Append(tr("Define whether reusing a frontend for multiple channels in a transponder should be enabled."));
+
   Add(new cOsdItem(tr("Active SAT>IP servers:"), osUnknown, false));
   helpM.Append("");
 
@@ -479,6 +484,7 @@ eOSState cSatipPluginSetup::ProcessKey(eKeys keyP)
   bool hadSubMenu = HasSubMenu();
   int oldOperatingMode = operatingModeM;
   int oldCiExtension = ciExtensionM;
+  int oldFrontendReuse = frontendReuseM;
   int oldNumDisabledSources = numDisabledSourcesM;
   int oldNumDisabledFilters = numDisabledFiltersM;
   eOSState state = cMenuSetupPage::ProcessKey(keyP);
@@ -504,7 +510,7 @@ eOSState cSatipPluginSetup::ProcessKey(eKeys keyP)
   if ((keyP == kNone) && (cSatipDiscover::GetInstance()->GetServers()->Count() != deviceCountM))
      Setup();
 
-  if ((keyP != kNone) && ((numDisabledSourcesM != oldNumDisabledSources) || (numDisabledFiltersM != oldNumDisabledFilters) || (operatingModeM != oldOperatingMode) || (ciExtensionM != oldCiExtension) || (detachedModeM != SatipConfig.GetDetachedMode()))) {
+  if ((keyP != kNone) && ((numDisabledSourcesM != oldNumDisabledSources) || (numDisabledFiltersM != oldNumDisabledFilters) || (operatingModeM != oldOperatingMode) || (ciExtensionM != oldCiExtension) || ( oldFrontendReuse != frontendReuseM) || (detachedModeM != SatipConfig.GetDetachedMode()))) {
      while ((numDisabledSourcesM < oldNumDisabledSources) && (oldNumDisabledSources > 0))
            disabledSourcesM[--oldNumDisabledSources] = cSource::stNone;
      while ((numDisabledFiltersM < oldNumDisabledFilters) && (oldNumDisabledFilters > 0))
@@ -569,6 +575,7 @@ void cSatipPluginSetup::Store(void)
   SetupStore("OperatingMode", operatingModeM);
   SetupStore("TransportMode", transportModeM);
   SetupStore("EnableCIExtension", ciExtensionM);
+  SetupStore("EnableFrontendReuse", frontendReuseM);
   SetupStore("EnableEITScan", eitScanM);
   StoreCicams("CICAM", cicamsM);
   StoreSources("DisabledSources", disabledSourcesM);
