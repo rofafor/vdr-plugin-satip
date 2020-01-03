@@ -52,6 +52,7 @@ private:
     eSatipFrontendDVBT2,
     eSatipFrontendDVBC,
     eSatipFrontendDVBC2,
+    eSatipFrontendATSC,
     eSatipFrontendCount
   };
   enum {
@@ -98,6 +99,7 @@ public:
   int GetModulesDVBT2(void);
   int GetModulesDVBC(void);
   int GetModulesDVBC2(void);
+  int GetModulesATSC(void);
   void Activate(bool onOffP)    { activeM = onOffP; }
   const char *SrcAddress(void)  { return *srcAddressM; }
   const char *Address(void)     { return *addressM; }

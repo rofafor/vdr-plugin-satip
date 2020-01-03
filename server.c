@@ -206,6 +206,11 @@ cSatipServer::cSatipServer(const char *srcAddressP, const char *addressP, const 
            for (int i = 1; i <= count; ++i)
                frontendsM[eSatipFrontendDVBC2].Add(new cSatipFrontend(i, "DVB-C2"));
            }
+        else if (c = strstr(r, "ATSC-")) {
+           int count = atoi(c + 5);
+           for (int i = 1; i <= count; ++i)
+               frontendsM[eSatipFrontendATSC].Add(new cSatipFrontend(i, "ATSC"));
+           }
         r = strtok_r(NULL, ",", &s);
         }
   FREE_POINTER(p);
@@ -258,6 +263,8 @@ bool cSatipServer::Assign(int deviceIdP, int sourceP, int systemP, int transpond
         else
            result = frontendsM[eSatipFrontendDVBC].Assign(deviceIdP, transponderP) || frontendsM[eSatipFrontendDVBC2].Assign(deviceIdP, transponderP);
         }
+     else if (cSource::IsType(sourceP, 'A'))
+        result = frontendsM[eSatipFrontendATSC].Assign(deviceIdP, transponderP);
      }
   return result;
 }
@@ -271,6 +278,8 @@ bool cSatipServer::Matches(int sourceP)
         return GetModulesDVBT() || GetModulesDVBT2();
      else if (cSource::IsType(sourceP, 'C'))
         return GetModulesDVBC() || GetModulesDVBC2();
+     else if (cSource::IsType(sourceP, 'A'))
+        return GetModulesATSC();
      }
   return false;
 }
@@ -293,6 +302,8 @@ bool cSatipServer::Matches(int deviceIdP, int sourceP, int systemP, int transpon
         else
            result = frontendsM[eSatipFrontendDVBC].Matches(deviceIdP, transponderP) || frontendsM[eSatipFrontendDVBC2].Matches(deviceIdP, transponderP);
         }
+     else if (cSource::IsType(sourceP, 'A'))
+        result = frontendsM[eSatipFrontendATSC].Matches(deviceIdP, transponderP);
      }
   return result;
 }
@@ -336,6 +347,11 @@ int cSatipServer::GetModulesDVBC(void)
 int cSatipServer::GetModulesDVBC2(void)
 {
   return frontendsM[eSatipFrontendDVBC2].Count();
+}
+
+int cSatipServer::GetModulesATSC(void)
+{
+  return frontendsM[eSatipFrontendATSC].Count();
 }
 
 // --- cSatipServers ----------------------------------------------------------
@@ -519,6 +535,8 @@ int cSatipServers::NumProvidedSystems(void)
       count += s->GetModulesDVBC() * 3;
       // DVB-C2: qam16, qam32, qam64, qam128, qam256
       count += s->GetModulesDVBC2() * 5;
+      // ATSC: 8vbs, 16vbs, qam256
+      count += s->GetModulesATSC() * 3;
       }
   return count;
 }

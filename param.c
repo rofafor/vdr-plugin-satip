@@ -59,6 +59,10 @@ static const tSatipParameterMap SatipCodeRateValues[] = {
 static const tSatipParameterMap SatipModulationValues[] = {
   {     QPSK, "&mtype=qpsk"   },
   {    PSK_8, "&mtype=8psk"   },
+  {  APSK_16, "&mtype=16apsk"  },
+  {  APSK_32, "&mtype=32apsk"  },
+  {    VSB_8, "&mtype=8vsb"   },
+  {   VSB_16, "&mtype=16vsb"  },
   {   QAM_16, "&mtype=16qam"  },
   {   QAM_64, "&mtype=64qam"  },
   {  QAM_128, "&mtype=128qam" },
@@ -83,6 +87,11 @@ static const tSatipParameterMap SatipSystemValuesCable[] = {
   {   0, "&msys=dvbc"  },
   {   1, "&msys=dvbc2" },
   {  -1, NULL          }
+};
+
+static const tSatipParameterMap SatipSystemValuesAtsc[] = {
+  {   0, "&msys=atsc" },
+  {  -1, NULL         }
 };
 
 static const tSatipParameterMap SatipTransmissionValues[] = {
@@ -165,31 +174,34 @@ cString GetTransponderUrlParameters(const cChannel *channelP)
        }
      if ((channelP->Rid() % 100) > 0)
                 q += snprintf(q,       STBUFLEFT, "&fe=%d",           channelP->Rid() % 100);
-     ST(" S *") q += snprintf(q,       STBUFLEFT, "&src=%d",          ((src > 0) && (src <= 255)) ? src : 1);
+     ST("  S *") q += snprintf(q,       STBUFLEFT, "&src=%d",          ((src > 0) && (src <= 255)) ? src : 1);
      if (freq >= 0L)
                 q += snprintf(q,       STBUFLEFT, "&freq=%s",         *dtoa(freq, "%lg"));
-     ST(" S *") q += snprintf(q,       STBUFLEFT, "&pol=%c",          tolower(dtp.Polarization()));
-     ST(" S *") q += PrintUrlString(q, STBUFLEFT, dtp.RollOff(),      SatipRollOffValues);
-     ST("C  2") q += snprintf(q,       STBUFLEFT, "&c2tft=%d",        C2TuningFrequencyType);
-     ST("  T*") q += PrintUrlString(q, STBUFLEFT, dtp.Bandwidth(),    SatipBandwidthValues);
-     ST("C  2") q += PrintUrlString(q, STBUFLEFT, dtp.Bandwidth(),    SatipBandwidthValues);
-     ST(" S *") q += PrintUrlString(q, STBUFLEFT, dtp.System(),       SatipSystemValuesSat);
-     ST("C  *") q += PrintUrlString(q, STBUFLEFT, dtp.System(),       SatipSystemValuesCable);
-     ST("  T*") q += PrintUrlString(q, STBUFLEFT, dtp.System(),       SatipSystemValuesTerrestrial);
-     ST("  T*") q += PrintUrlString(q, STBUFLEFT, dtp.Transmission(), SatipTransmissionValues);
-     ST(" S *") q += PrintUrlString(q, STBUFLEFT, dtp.Modulation(),   SatipModulationValues);
-     ST("  T*") q += PrintUrlString(q, STBUFLEFT, dtp.Modulation(),   SatipModulationValues);
-     ST("C  1") q += PrintUrlString(q, STBUFLEFT, dtp.Modulation(),   SatipModulationValues);
-     ST(" S *") q += PrintUrlString(q, STBUFLEFT, dtp.Pilot(),        SatipPilotValues);
-     ST(" S *") q += snprintf(q,       STBUFLEFT, "&sr=%d",           channelP->Srate());
-     ST("C  1") q += snprintf(q,       STBUFLEFT, "&sr=%d",           channelP->Srate());
-     ST("  T*") q += PrintUrlString(q, STBUFLEFT, dtp.Guard(),        SatipGuardValues);
-     ST("CST*") q += PrintUrlString(q, STBUFLEFT, dtp.CoderateH(),    SatipCodeRateValues);
-     ST("C  2") q += snprintf(q,       STBUFLEFT, "&ds=%d",           DataSlice);
-     ST("C T2") q += snprintf(q,       STBUFLEFT, "&plp=%d",          dtp.StreamId());
-     ST("  T2") q += snprintf(q,       STBUFLEFT, "&t2id=%d",         dtp.T2SystemId());
-     ST("  T2") q += PrintUrlString(q, STBUFLEFT, dtp.SisoMiso(),     SatipSisoMisoValues);
-     ST("C  1") q += PrintUrlString(q, STBUFLEFT, dtp.Inversion(),    SatipInversionValues);
+     ST("  S *") q += snprintf(q,       STBUFLEFT, "&pol=%c",          tolower(dtp.Polarization()));
+     ST("  S *") q += PrintUrlString(q, STBUFLEFT, dtp.RollOff(),      SatipRollOffValues);
+     ST(" C  2") q += snprintf(q,       STBUFLEFT, "&c2tft=%d",        C2TuningFrequencyType);
+     ST("   T*") q += PrintUrlString(q, STBUFLEFT, dtp.Bandwidth(),    SatipBandwidthValues);
+     ST(" C  2") q += PrintUrlString(q, STBUFLEFT, dtp.Bandwidth(),    SatipBandwidthValues);
+     ST("  S *") q += PrintUrlString(q, STBUFLEFT, dtp.System(),       SatipSystemValuesSat);
+     ST(" C  *") q += PrintUrlString(q, STBUFLEFT, dtp.System(),       SatipSystemValuesCable);
+     ST("   T*") q += PrintUrlString(q, STBUFLEFT, dtp.System(),       SatipSystemValuesTerrestrial);
+     ST("A   *") q += PrintUrlString(q, STBUFLEFT, dtp.System(),       SatipSystemValuesAtsc);
+     ST("   T*") q += PrintUrlString(q, STBUFLEFT, dtp.Transmission(), SatipTransmissionValues);
+     ST("  S *") q += PrintUrlString(q, STBUFLEFT, dtp.Modulation(),   SatipModulationValues);
+     ST("   T*") q += PrintUrlString(q, STBUFLEFT, dtp.Modulation(),   SatipModulationValues);
+     ST(" C  1") q += PrintUrlString(q, STBUFLEFT, dtp.Modulation(),   SatipModulationValues);
+     ST("A   *") q += PrintUrlString(q, STBUFLEFT, dtp.Modulation(),   SatipModulationValues);
+     ST("  S *") q += PrintUrlString(q, STBUFLEFT, dtp.Pilot(),        SatipPilotValues);
+     ST("  S *") q += snprintf(q,       STBUFLEFT, "&sr=%d",           channelP->Srate());
+     ST(" C  1") q += snprintf(q,       STBUFLEFT, "&sr=%d",           channelP->Srate());
+     ST("   T*") q += PrintUrlString(q, STBUFLEFT, dtp.Guard(),        SatipGuardValues);
+     ST(" CST*") q += PrintUrlString(q, STBUFLEFT, dtp.CoderateH(),    SatipCodeRateValues);
+     ST(" C  2") q += snprintf(q,       STBUFLEFT, "&ds=%d",           DataSlice);
+     ST(" C T2") q += snprintf(q,       STBUFLEFT, "&plp=%d",          dtp.StreamId());
+     ST("   T2") q += snprintf(q,       STBUFLEFT, "&t2id=%d",         dtp.T2SystemId());
+     ST("   T2") q += PrintUrlString(q, STBUFLEFT, dtp.SisoMiso(),     SatipSisoMisoValues);
+     ST(" C  1") q += PrintUrlString(q, STBUFLEFT, dtp.Inversion(),    SatipInversionValues);
+     ST("A   *") q += PrintUrlString(q, STBUFLEFT, dtp.Inversion(),    SatipInversionValues);
 #undef ST
      return &buffer[1];
      }
