@@ -119,6 +119,7 @@ cSatipServer::cSatipServer(const char *srcAddressP, const char *addressP, const 
      // Elgato EyeTV Netstream 4Sat ?
      if (strstr(*descriptionM, "GSSBOX") ||                    // Grundig Sat Systems GSS.box DSI 400
          strstr(*descriptionM, "DIGIBIT") ||                   // Telestar Digibit R1
+         strstr(*descriptionM, "Multibox-030227:SAT>IP") ||    // Inverto IDL-400s
          strstr(*descriptionM, "Triax SatIP Converter")        // Triax TSS 400
         )
         quirkM |= eSatipQuirkSessionId;
@@ -150,6 +151,7 @@ cSatipServer::cSatipServer(const char *srcAddressP, const char *addressP, const 
      // These devices don't support auto-detection of pilot tones
      if (strstr(*descriptionM, "GSSBOX") ||                    // Grundig Sat Systems GSS.box DSI 400
          strstr(*descriptionM, "DIGIBIT") ||                   // Telestar Digibit R1
+         strstr(*descriptionM, "Multibox-030227:SAT>IP") ||    // Inverto IDL-400s
          strstr(*descriptionM, "Triax SatIP Converter") ||     // Triax TSS 400
          strstr(*descriptionM, "KATHREIN SatIP Server")        // Kathrein ExIP 414/E
         )
