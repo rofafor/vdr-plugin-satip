@@ -120,13 +120,12 @@ void cSatipTuner::Action(void)
                break;
           case tsSet:
                debug4("%s: tsSet [device %d]", __PRETTY_FUNCTION__, deviceIdM);
+               Disconnect();
                if (Connect()) {
                   tuning.Set(eTuningTimeoutMs);
                   RequestState(tsTuned, smInternal);
                   UpdatePids(true);
                   }
-               else
-                  Disconnect();
                break;
           case tsTuned:
                debug4("%s: tsTuned [device %d]", __PRETTY_FUNCTION__, deviceIdM);
