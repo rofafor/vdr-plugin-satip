@@ -309,7 +309,7 @@ bool cSatipDevice::ProvidesChannel(const cChannel *channelP, int priorityP, bool
 
 bool cSatipDevice::ProvidesEIT(void) const
 {
-#if VDRVERSNUM < 20404
+#if defined(APIVERSNUM) && APIVERSNUM < 20404
   return (SatipConfig.GetEITScan());
 #else
   return (SatipConfig.GetEITScan()) && DeviceHooksProvidesEIT();
