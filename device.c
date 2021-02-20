@@ -450,16 +450,15 @@ bool cSatipDevice::HasLock(int timeoutMsP) const
   debug16("%s (%d) [device %d]", __PRETTY_FUNCTION__, timeoutMsP, deviceIndexM);
   if (timeoutMsP <= 0)
      return (pTunerM && pTunerM->HasLock());
-  else {
-     const int intervalMs = 100;
 
-     for (int t = 0; t < timeoutMsP; t += intervalMs) {
-         if (HasLock(0))
-            return true;
-         cCondWait::SleepMs(intervalMs);
-         }
-     return HasLock(0);
-     }
+  cTimeMs timer(timeoutMsP);
+
+  while (!timer.TimedOut()) {
+        if (HasLock(0))
+           return true;
+        cCondWait::SleepMs(100);
+        }
+  return HasLock(0);
 }
 
 bool cSatipDevice::HasInternalCam(void)
