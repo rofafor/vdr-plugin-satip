@@ -139,16 +139,16 @@ cSatipServer::cSatipServer(const char *srcAddressP, const char *addressP, const 
          strstr(*descriptionM, "Schwaiger Sat>IP Server")      // Schwaiger MS41IP
         )
         quirkM |= eSatipQuirkForceLock;
-     // These devices support the X_PMT protocol extension
+     // These devices support the X_PMT protocol extension:
      if (strstr(*descriptionM, "OctopusNet") ||                // Digital Devices OctopusNet
          strstr(*descriptionM, "minisatip")                    // minisatip server
         )
         quirkM |= eSatipQuirkCiXpmt;
-     // These devices support the TNR protocol extension
+     // These devices support the TNR protocol extension:
      if (strstr(*descriptionM, "DVBViewer")                    // DVBViewer Media Server
         )
         quirkM |= eSatipQuirkCiTnr;
-     // These devices don't support auto-detection of pilot tones
+     // These devices don't support auto-detection of pilot tones:
      if (strstr(*descriptionM, "GSSBOX") ||                    // Grundig Sat Systems GSS.box DSI 400
          strstr(*descriptionM, "DIGIBIT") ||                   // Telestar Digibit R1
          strstr(*descriptionM, "Multibox-") ||                 // Inverto IDL-400s: Multibox-<MMAACC>:SAT>IP
@@ -156,6 +156,11 @@ cSatipServer::cSatipServer(const char *srcAddressP, const char *addressP, const 
          strstr(*descriptionM, "KATHREIN SatIP Server")        // Kathrein ExIP 414/E
         )
         quirkM |= eSatipQuirkForcePilot;
+     // These devices require TEARDOWN before new PLAY command:
+     if (strstr(*descriptionM, "FRITZ!WLAN Repeater DVB-C") || // FRITZ!WLAN Repeater DVB-C
+         strstr(*descriptionM, "fritzdvbc")                    // FRITZ!WLAN Repeater DVB-C (old firmware)
+        )
+        quirkM |= eSatipQuirkTearAndPlay;
      }
   if ((quirkM & eSatipQuirkMask) & eSatipQuirkSessionId)
      quirksM = cString::sprintf("%s%sSessionId", *quirksM, isempty(*quirksM) ? "" : ",");

@@ -76,15 +76,16 @@ private:
 
 public:
   enum eSatipQuirk {
-    eSatipQuirkNone       = 0x00,
-    eSatipQuirkSessionId  = 0x01,
-    eSatipQuirkPlayPids   = 0x02,
-    eSatipQuirkForceLock  = 0x04,
-    eSatipQuirkRtpOverTcp = 0x08,
-    eSatipQuirkCiXpmt     = 0x10,
-    eSatipQuirkCiTnr      = 0x20,
-    eSatipQuirkForcePilot = 0x40,
-    eSatipQuirkMask       = 0xFF
+    eSatipQuirkNone        = 0x00,
+    eSatipQuirkSessionId   = 0x01,
+    eSatipQuirkPlayPids    = 0x02,
+    eSatipQuirkForceLock   = 0x04,
+    eSatipQuirkRtpOverTcp  = 0x08,
+    eSatipQuirkCiXpmt      = 0x10,
+    eSatipQuirkCiTnr       = 0x20,
+    eSatipQuirkForcePilot  = 0x40,
+    eSatipQuirkTearAndPlay = 0x80,
+    eSatipQuirkMask        = 0xFF
   };
   cSatipServer(const char *srcAddressP, const char *addressP, const int portP, const char *modelP, const char *filtersP, const char *descriptionP, const int quirkP);
   virtual ~cSatipServer();
