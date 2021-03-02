@@ -448,6 +448,14 @@ void cSatipDevice::CloseDvr(void)
 bool cSatipDevice::HasLock(int timeoutMsP) const
 {
   debug16("%s (%d) [device %d]", __PRETTY_FUNCTION__, timeoutMsP, deviceIndexM);
+  if (timeoutMsP > 0) {
+     cTimeMs timer(timeoutMsP);
+     while (!timer.TimedOut()) {
+           if (pTunerM && pTunerM->HasLock())
+              return true;
+           cCondWait::SleepMs(100);
+           }
+     }
   return (pTunerM && pTunerM->HasLock());
 }
 
