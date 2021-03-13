@@ -1,5 +1,4 @@
-#!/usr/bin/env python2
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 """ Simple tool to detect SAT>IP devices as JSON.
 """
 import json
@@ -8,21 +7,26 @@ import sys
 import xml.etree.ElementTree as ET
 import requests
 
-SSDP_BIND = '0.0.0.0'
-SSDP_ADDR = '239.255.255.250'
+SSDP_BIND = "0.0.0.0"
+SSDP_ADDR = "239.255.255.250"
 SSDP_PORT = 1900
 SSDP_MX = 1
-SSDP_ST = 'urn:ses-com:device:SatIPServer:1'
-SSDP_REQUEST = 'M-SEARCH * HTTP/1.1\r\n' + \
-               'HOST: %s:%d\r\n' % (SSDP_ADDR, SSDP_PORT) + \
-               'MAN: "ssdp:discover"\r\n' + \
-               'MX: %d\r\n' % (SSDP_MX, ) + \
-               'ST: %s\r\n' % (SSDP_ST, ) + \
-               '\r\n'
+SSDP_ST = "urn:ses-com:device:SatIPServer:1"
+SSDP_REQUEST = "\r\n".join(
+    [
+        "M-SEARCH * HTTP/1.1",
+        f"HOST: {SSDP_ADDR}:{SSDP_PORT}",
+        'MAN: "ssdp:discover"',
+        f"MX: {SSDP_MX}",
+        f"ST: {SSDP_ST}",
+        "USER-AGENT: vdr-detectsatip",
+        "\r\n",
+    ]
+)
 
 
 def parse_satip_xml(data):
-    """ Parse SAT>IP XML data.
+    """Parse SAT>IP XML data.
 
     Args:
         data (str): XML input data..
@@ -30,15 +34,15 @@ def parse_satip_xml(data):
     Returns:
         dict: Parsed SAT>IP device name and frontend information.
     """
-    result = {'name': '', 'frontends': {}}
+    result = {"name": "", "frontends": {}}
     if data:
         root = ET.fromstring(data)
-        name = root.find('.//*/{urn:schemas-upnp-org:device-1-0}friendlyName')
-        result['name'] = name.text
-        satipcap = root.find('.//*/{urn:ses-com:satip}X_SATIPCAP')
+        name = root.find(".//*/{urn:schemas-upnp-org:device-1-0}friendlyName")
+        result["name"] = name.text
+        satipcap = root.find(".//*/{urn:ses-com:satip}X_SATIPCAP")
         if satipcap is None:
             # fallback for non-standard Panasonic
-            satipcap = root.find('.//*/{urn-ses-com:satip}X_SATIPCAP')
+            satipcap = root.find(".//*/{urn-ses-com:satip}X_SATIPCAP")
         caps = {}
         for system in satipcap.text.split(","):
             cap = system.split("-")
@@ -47,12 +51,12 @@ def parse_satip_xml(data):
                 if cap[0] in caps:
                     count = count + caps[cap[0]]
                 caps[cap[0]] = count
-        result['frontends'] = caps
+        result["frontends"] = caps
     return result
 
 
 def detect_satip_devices():
-    """ Detect available SAT>IP devices by sending a broadcast message.
+    """Detect available SAT>IP devices by sending a broadcast message.
 
     Returns:
         list: Found SAT>IP devices.
@@ -69,14 +73,14 @@ def detect_satip_devices():
         pass
     sock.settimeout(1)
     sock.bind((SSDP_BIND, SSDP_PORT))
-    sock.sendto(SSDP_REQUEST, (SSDP_ADDR, SSDP_PORT))
+    sock.sendto(SSDP_REQUEST.encode("utf-8"), (SSDP_ADDR, SSDP_PORT))
     try:
         while 1:
-            data = sock.recv(1024)
+            data = sock.recv(1024).decode("utf-8")
             if data:
-                for row in data.split('\r\n'):
-                    if 'LOCATION:' in row:
-                        url = row.replace('LOCATION:', '').strip()
+                for row in data.split("\r\n"):
+                    if "LOCATION:" in row:
+                        url = row.replace("LOCATION:", "").strip()
                         if url in urls:
                             continue
                         urls.append(url)
@@ -90,5 +94,5 @@ def detect_satip_devices():
     return devices
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     json.dump(detect_satip_devices(), fp=sys.stdout, sort_keys=True, indent=2)
