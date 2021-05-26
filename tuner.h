@@ -89,6 +89,7 @@ private:
     eIdleCheckTimeoutMs       = 15000, // in milliseconds
     eTuningTimeoutMs          = 20000, // in milliseconds
     eMinKeepAliveIntervalMs   = 30000, // in milliseconds
+    eKeepAlivePreBufferMs     = 2000,  // in milliseconds
     eSetupTimeoutMs           = 2000   // in milliseconds
   };
   enum eTunerState { tsIdle, tsRelease, tsSet, tsTuned, tsLocked };

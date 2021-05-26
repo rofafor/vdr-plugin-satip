@@ -41,7 +41,7 @@ cSatipTuner::cSatipTuner(cSatipDeviceIf &deviceP, unsigned int packetLenP)
   currentStateM(tsIdle),
   internalStateM(),
   externalStateM(),
-  timeoutM(eMinKeepAliveIntervalMs),
+  timeoutM(eMinKeepAliveIntervalMs - eKeepAlivePreBufferMs),
   hasLockM(false),
   signalStrengthDBmM(0.0),
   signalStrengthM(-1),
@@ -284,7 +284,7 @@ bool cSatipTuner::Disconnect(void)
 
   currentServerM.Detach();
   statusUpdateM.Set(0);
-  timeoutM = eMinKeepAliveIntervalMs;
+  timeoutM = eMinKeepAliveIntervalMs - eKeepAlivePreBufferMs;
   pmtPidM = -1;
   addPidsM.Clear();
   delPidsM.Clear();
@@ -393,6 +393,7 @@ void cSatipTuner::SetSessionTimeout(const char *sessionP, int timeoutP)
   if (nextServerM.IsQuirk(cSatipServer::eSatipQuirkSessionId) && !isempty(*sessionM) && startswith(*sessionM, "0"))
      rtspM.SetSession(SkipZeroes(*sessionM));
   timeoutM = (timeoutP > eMinKeepAliveIntervalMs) ? timeoutP : eMinKeepAliveIntervalMs;
+  timeoutM -= eKeepAlivePreBufferMs;
 }
 
 void cSatipTuner::SetupTransport(int rtpPortP, int rtcpPortP, const char *streamAddrP, const char *sourceAddrP)
