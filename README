@@ -47,12 +47,38 @@ be received, if there are available SAT>IP tuners.
 
 The plugin accepts also a "--server" (-s) command-line parameter, that
 can be used to manually configure static SAT>IP servers if autodetection
-via UPnP somehow can't be used. The parameter string is a semicolon
-separated list of "<ipaddress>|<model>|<description>" entries. The model
-consists of a DVB system (DVBS2,DVBT2,DVBT,DVBC) and number of available
-frontends separated by a hyphen:
+via UPnP somehow can't be used. Multiple service entries can be given
+separated by a semicolon:
 
-vdr -P 'satip -s [<srcaddress>@]<ipaddress>[:<port>]|<model>[:<filter>]|<description>[:<quirk>];...'
+[<srcaddress>@]<ipaddress>[:<port>]|<model>[:<filter>]|<description>[:<quirk>];...
+
+- srcaddress (Optional)  Source address can be used to define used
+                         networking interface on a host, e.g. 127.0.0.1.
+- ipaddress              IP address of SAT>IP server, e.g. 127.0.0.1.
+- port (Optional)        IP port number of SAT>IP server, e.g 443.
+- model                  Model defines DVB modulation system (DVBS2,
+                         DVBT2, DVBT, DVBC) and number of available
+                         frontends separated by a hyphen, e.g. DVBT2-4.
+- filter (Optional)      Filter can be used to limit satellite frontends
+                         to certain satellite position, e.g. S19.2E.
+- description            Friendly name of SAT>IP server. This is used
+                         for autodetection of quirks.
+- quirk (Optional)       Quirks are non-standard compliant features and
+                         bug fixes of SAT>IP server  defined by a
+                         hexadecimal number. Multiple quirks can be
+                         defined by combining values by addition:
+
+                           0x01: Fix session id bug
+                           0x02: Fix play parameter (addpids/delpids) bug
+                           0x04: Fix frontend locking bug
+                           0x08: Support for RTP over TCP
+                           0x10: Support the X_PMT protocol extension
+                           0x20: Support the CI TNR protocol extension
+                           0x40: Fix auto-detection of pilot tones bug
+                           0x80: Fix re-tuning bug by teardowning a session
+
+Examples:
+
 vdr -P 'satip -s 192.168.0.1|DVBS2-2,DVBT2-2|OctopusNet'
 vdr -P 'satip -s 192.168.0.1|DVBS2-4|OctopusNet;192.168.0.2|DVBT2-4|minisatip:0x18'
 vdr -P 'satip -s 192.168.0.1:554|DVBS2-2:S19.2E|OctopusNet;192.168.0.2:8554|DVBS2-4:S19.2E,S1W|minisatip'
