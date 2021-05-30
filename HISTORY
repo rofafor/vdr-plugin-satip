@@ -208,8 +208,22 @@ VDR Plugin 'satip' Revision History
 - Added more robust section filter handling (Thanks to Alexander Pipelka).
 - Added a command line parameter for the RTP receive buffer size (Thanks to Stefan Rehm).
 
-2019-XX-XX: Version 2.4.1
+2021-06-01: Version 2.4.1
 
 - Added an option to enable/disable frontend reuse.
 - Added a preliminary ATSC support.
 - Fixed a channel switching logic bug (Thanks to REELcoder).
+- Added a workaround for detecting Panasonic devices.
+- Removed quirks from FRITZ!Box 6490 Cable due to new firmware.
+- Fixed RTP over TCP.
+- Fixed URL parameter creation (Thanks to Martin Janser).
+- Added an option to enable/disable frontend reuse.
+- Added a preliminary ATSC support.
+- Fixed a channel switching logic bug (Thanks to REELcoder).
+- Added quirks for Inverto IDL-400s.
+- Updated German translation (Thanks to Martin Dummer).
+- Added a quirk for always teardown before play (Thanks to maazl).
+- Updated for vdr-2.4.3 (Thanks to <Winfried Koehler).
+- Added timeout for HasLock (Thanks to Winfried Koehler).
+- Updated detectsatip script for Python 3.
+- Fixed keepalive interval.
