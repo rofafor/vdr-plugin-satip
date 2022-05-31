@@ -40,29 +40,43 @@ bool cSatipFrontends::Matches(int deviceIdP, int transponderP)
 bool cSatipFrontends::Assign(int deviceIdP, int transponderP)
 {
   cSatipFrontend *tmp = NULL;
-  // Prefer any unused one
+  // Prefer any used one
   for (cSatipFrontend *f = First(); f; f = Next(f)) {
-      if (!f->Attached() || (f->DeviceId() == deviceIdP)) {
+      if (f->DeviceId() == deviceIdP) {  // give deviceID priority, but take detached frontend if deviceID ist not yet attached
          tmp = f;
          break;
+         }
+      if (!f->Attached()) {
+         tmp = f;
          }
       }
   if (tmp) {
      tmp->SetTransponder(transponderP);
+     debug9("%s assigned TP %d to %s/#%d", __PRETTY_FUNCTION__, transponderP, *tmp->Description(), tmp->Index());
      return true;
      }
+  error("no assignable frontend found [device %u]", deviceIdP);
   return false;
 }
 
 bool cSatipFrontends::Attach(int deviceIdP, int transponderP)
 {
+  cSatipFrontend *tmp = NULL;
   for (cSatipFrontend *f = First(); f; f = Next(f)) {
       if (f->Transponder() == transponderP) {
-         f->Attach(deviceIdP);
-         debug9("%s (%d, %d) %s/#%d", __PRETTY_FUNCTION__, deviceIdP, transponderP, *f->Description(), f->Index());
-         return true;
+         tmp = f;
+         if (f->DeviceId() == deviceIdP) {
+            break;
+            }
          }
       }
+      
+  if (tmp) {
+     tmp->Attach(deviceIdP);
+     debug9("%s attached deviceId %d (TP %d) to %s/#%d", __PRETTY_FUNCTION__, deviceIdP, transponderP, *tmp->Description(), tmp->Index());
+     return true;
+     }
+  error("%s no Frontend found for attaching deviceID %d (TP %d)", __PRETTY_FUNCTION__, deviceIdP, transponderP);
   return false;
 }
 
@@ -71,7 +85,7 @@ bool cSatipFrontends::Detach(int deviceIdP, int transponderP)
   for (cSatipFrontend *f = First(); f; f = Next(f)) {
       if (f->Transponder() == transponderP) {
          f->Detach(deviceIdP);
-         debug9("%s (%d, %d) %s/#%d", __PRETTY_FUNCTION__, deviceIdP, transponderP, *f->Description(), f->Index());
+         debug9("%s detached deviceID %d (TP %d) from %s/#%d", __PRETTY_FUNCTION__, deviceIdP, transponderP, *f->Description(), f->Index());
          return true;
          }
       }
