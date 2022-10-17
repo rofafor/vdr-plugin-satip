@@ -244,6 +244,7 @@ bool cSatipTuner::Connect(void)
         if (useTcp)
            debug1("%s Requesting TCP [device %d]", __PRETTY_FUNCTION__, deviceIdM);
         if (rtspM.Setup(*uri, rtpM.Port(), rtcpM.Port(), useTcp)) {
+           lastParamM = streamParamM;
            keepAliveM.Set(timeoutM);
            if (nextServerM.IsValid()) {
               currentServerM = nextServerM;
