@@ -553,9 +553,11 @@ bool cSatipTuner::UpdatePids(bool forceP)
            tnrParamM = param;
            }
         }
-     pidUpdateCacheM.Set(ePidUpdateIntervalMs);
-     if (!rtspM.Play(*uri))
-        return false;
+     if (paramadded) {
+        pidUpdateCacheM.Set(ePidUpdateIntervalMs);
+        if (!rtspM.Play(*uri))
+           return false;
+        }
      addPidsM.Clear();
      delPidsM.Clear();
      }
