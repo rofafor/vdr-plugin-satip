@@ -18,35 +18,14 @@ cSatipSectionFilter::cSatipSectionFilter(int deviceIndexP, uint16_t pidP, uint8_
   secLenM(0),
   tsFeedpM(0),
   pidM(pidP),
+  tidM(tidP),
+  maskM(maskP),
   ringBufferM(new cRingBufferFrame(eDmxMaxSectionCount * eDmxMaxSectionSize)),
   deviceIndexM(deviceIndexP)
 {
   debug16("%s (%d, %d, %d, %d) [device %d]", __PRETTY_FUNCTION__, deviceIndexM, pidM, tidP, maskP, deviceIndexM);
-  int i;
 
   memset(secBufBaseM,     0, sizeof(secBufBaseM));
-  memset(filterValueM,    0, sizeof(filterValueM));
-  memset(filterMaskM,     0, sizeof(filterMaskM));
-  memset(filterModeM,     0, sizeof(filterModeM));
-  memset(maskAndModeM,    0, sizeof(maskAndModeM));
-  memset(maskAndNotModeM, 0, sizeof(maskAndNotModeM));
-
-  filterValueM[0] = tidP;
-  filterMaskM[0] = maskP;
-
-  // Invert the filter
-  for (i = 0; i < eDmxMaxFilterSize; ++i)
-      filterValueM[i] ^= 0xFF;
-
-  uint8_t doneq = 0;
-  for (i = 0; i < eDmxMaxFilterSize; ++i) {
-      uint8_t mode = filterModeM[i];
-      uint8_t mask = filterMaskM[i];
-      maskAndModeM[i] = (uint8_t)(mask & mode);
-      maskAndNotModeM[i] = (uint8_t)(mask & ~mode);
-      doneq |= maskAndNotModeM[i];
-      }
-  doneqM = doneq ? 1 : 0;
 
   // Create sockets
   socketM[0] = socketM[1] = -1;
@@ -89,23 +68,12 @@ void cSatipSectionFilter::New(void)
 int cSatipSectionFilter::Filter(void)
 {
   if (secBufM) {
-     int i;
-     uint8_t neq = 0;
-
-     for (i = 0; i < eDmxMaxFilterSize; ++i) {
-         uint8_t calcxor = (uint8_t)(filterValueM[i] ^ secBufM[i]);
-         if (maskAndModeM[i] & calcxor)
-            return 0;
-         neq |= (maskAndNotModeM[i] & calcxor);
-         }
-
-     if (doneqM && !neq)
-        return 0;
-
-     if (ringBufferM && (secLenM > 0)) {
-        cFrame* section = new cFrame(secBufM, secLenM);
-        if (!ringBufferM->Put(section))
-           DELETE_POINTER(section);
+     if ((tidM & maskM) == (secBufM[0] & maskM)) {
+        if (ringBufferM && (secLenM > 0)) {
+           cFrame* section = new cFrame(secBufM, secLenM);
+           if (!ringBufferM->Put(section))
+              DELETE_POINTER(section);
+           }
         }
      }
   return 0;

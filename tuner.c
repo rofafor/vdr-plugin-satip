@@ -225,7 +225,7 @@ bool cSatipTuner::Connect(void)
      if (streamIdM >= 0) {
         if (!strcmp(*streamParamM, *lastParamM) && hasLockM) {
            debug1("%s Identical parameters [device %d]", __PRETTY_FUNCTION__, deviceIdM);
-           return true;
+           //return true; // fall through because detection does not work reliably
            }
         cString uri = cString::sprintf("%sstream=%d?%s", *connectionUri, streamIdM, *streamParamM);
         debug1("%s Retuning [device %d]", __PRETTY_FUNCTION__, deviceIdM);

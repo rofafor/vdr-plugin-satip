@@ -33,17 +33,12 @@ private:
   uint16_t secLenM;
   uint16_t tsFeedpM;
   uint16_t pidM;
+  uint8_t tidM;
+  uint8_t maskM;
 
   cRingBufferFrame *ringBufferM;
   int deviceIndexM;
   int socketM[2];
-
-  uint8_t filterValueM[eDmxMaxFilterSize];
-  uint8_t filterMaskM[eDmxMaxFilterSize];
-  uint8_t filterModeM[eDmxMaxFilterSize];
-
-  uint8_t maskAndModeM[eDmxMaxFilterSize];
-  uint8_t maskAndNotModeM[eDmxMaxFilterSize];
 
   inline uint16_t GetLength(const uint8_t *dataP);
   void New(void);
