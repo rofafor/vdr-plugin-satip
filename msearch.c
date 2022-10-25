@@ -76,13 +76,13 @@ void cSatipMsearch::Process(void)
                  if (status) {
                     // Check the location data
                     // LOCATION: http://192.168.0.115:8888/octonet.xml
-                    if (startswith(r, "LOCATION:")) {
+                    if (strcasestr(r, "LOCATION:") == r) {
                        location = compactspace(r + 9);
                        debug1("%s location='%s'", __PRETTY_FUNCTION__, location);
                        }
                     // Check the source type
                     // ST: urn:ses-com:device:SatIPServer:1
-                    else if (startswith(r, "ST:")) {
+                    else if (strcasestr(r, "ST:") == r) {
                        char *st = compactspace(r + 3);
                        if (strstr(st, "urn:ses-com:device:SatIPServer:1"))
                           valid = true;
