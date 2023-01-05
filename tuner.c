@@ -244,6 +244,7 @@ bool cSatipTuner::Connect(void)
         if (useTcp)
            debug1("%s Requesting TCP [device %d]", __PRETTY_FUNCTION__, deviceIdM);
         if (rtspM.Setup(*uri, rtpM.Port(), rtcpM.Port(), useTcp)) {
+           lastParamM = streamParamM;
            keepAliveM.Set(timeoutM);
            if (nextServerM.IsValid()) {
               currentServerM = nextServerM;
@@ -552,9 +553,11 @@ bool cSatipTuner::UpdatePids(bool forceP)
            tnrParamM = param;
            }
         }
-     pidUpdateCacheM.Set(ePidUpdateIntervalMs);
-     if (!rtspM.Play(*uri))
-        return false;
+     if (paramadded) {
+        pidUpdateCacheM.Set(ePidUpdateIntervalMs);
+        if (!rtspM.Play(*uri))
+           return false;
+        }
      addPidsM.Clear();
      delPidsM.Clear();
      }
